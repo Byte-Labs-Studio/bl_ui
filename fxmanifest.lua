@@ -4,8 +4,8 @@ game "gta5"
 
 author "Byte Labs"
 version '1.0.0'
-description 'Byte Labs Svelte / CFX Lua template.'
-repository 'https://github.com/Byte-Labs-Project/bl_svelte_template'
+description 'Byte Labs UI'
+repository 'https://github.com/Byte-Labs-Project/bl_ui'
 
 lua54 'yes'
 
@@ -14,10 +14,6 @@ ui_page 'build/index.html'
 
 shared_script {
     'shared/enums.lua'
-}
-
-server_script {
-    -- 'server/server.lua',
 }
 
 client_script {

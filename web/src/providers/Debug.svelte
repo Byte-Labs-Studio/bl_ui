@@ -2,6 +2,7 @@
     import { InitialiseDebugSenders } from '@utils/debug/init';
     import { InitialiseDebugReceivers } from '@utils/debug/receivers';
     import SendDebuggers from '@utils/debug/senders';
+    import { DebugEventSend } from '@utils/eventsHandlers';
     import { onMount } from 'svelte';
 
     onMount(() => {
@@ -9,8 +10,15 @@
         InitialiseDebugReceivers();
     });
 
+    function onKeyDown(e: KeyboardEvent) {
+        DebugEventSend('ui:keydown', e);
+    }
+
     let menuOpen: boolean = false;
 </script>
+
+
+<svelte:window on:keydown={onKeyDown} />
 
 <div class="w-fit h-fit flex flex-col z-[9999999]">
     <button
@@ -28,7 +36,7 @@
                 <li
                     class="flex flex-col gap-1 border-l-[2px] border-[color:var(--accent)] px-[0.25vw]"
                 >
-                    <span class="w-full">{label}</span>
+                    <span class="w-full text-black">{label}</span>
 
                     {#each actions as action}
                         <div class="flex flex-row flex-wrap gap-[0.5vw]">
@@ -82,11 +90,17 @@
                                         max={action.max || 100}
                                         step={action.step || 1}
                                         bind:value={action.value}
-                                        on:input={() => {
+
+                                    />
+                                    <button
+                                        class="px-[0.5vw] py-[0.25vw] w-[5vw] bg-accent border-primary border-2"
+                                        on:click={() => {
                                             // @ts-ignore
                                             action.action(action.value);
                                         }}
-                                    />
+                                    >
+                                        Action
+                                    </button>
                                 </span>
                             {:else}
                                 <button

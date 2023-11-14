@@ -14,22 +14,6 @@ const ReceiveDebuggers: DebugEventCallback[] = [
             console.log('closed')
         },
     },
-    {
-        action: 'debug',
-        handler: (data: string) => {
-            const init = 'Emulates an NUICallback times. Process the data here.'
-
-            if (typeof data !== 'string') {
-                return `${init} \n The data is not a string.`
-            }
-
-            const reverse = data.split('').reverse().join('')
-
-            const message = `${init} \n The reverse of %c${data} %cis %c${reverse}`
-
-            return message
-        },
-    },
 ]
 
 export default ReceiveDebuggers

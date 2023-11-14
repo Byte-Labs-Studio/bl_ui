@@ -1,15 +1,11 @@
 export enum Receive {
-    visible = 'resource:visible',
-    imageResize = 'resource:imageSize',
-    imageInvert = 'resource:imageInvert',
-    changeText = 'resource:changeText',
-    resetText = 'resource:resetText',
+    visible = 'ui:visible',
+
+    start = 'ui:start',
 }
 
 export enum Send {
-    close = 'resource:close',
-    imageResize = 'resource:imageSize',
-    imageInvert = 'resource:imageInvert',
-    changeText = 'resource:changeText',
-    resetText = 'resource:resetText',
+    close = 'ui:close',
+
+    finish = `%s:finish`,
 }
