@@ -19,6 +19,7 @@
 
     let KeyListener: ReturnType<typeof TempReceiveEvent>;
 
+    //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
@@ -34,6 +35,13 @@
         }
     });
     
+
+    
+    /** This code is responsible for playing the iteration of the minigame.
+    * This code should be called when the user presses the spacebar.
+    * The code will return a promise that resolves to true if the user has
+    * correctly input the key, and false otherwise.
+    */ 
     async function playIteration() {
         const duration = ProgressState.duration;
         UserProgress.set(100, {
@@ -74,6 +82,11 @@
         });
     }
 
+
+    /** This code is responsible for starting the game.
+     * @param iterations The number of iterations to play.
+     * @param difficulty The difficulty of the game.
+     */
     async function startGame(iterations, difficulty) {
         if (!$GAME_STATE.active) return;
 
@@ -114,7 +127,8 @@
         }, 500);
     }
 
-    
+    /** This code is responsible for generating a duration for a progress bar based on the difficulty.
+     */
     function initialise() {
         if (!$GAME_STATE.active || ProgressState) return;
 
@@ -122,11 +136,36 @@
         startGame(iterations, difficulty);
     }
 
+    /**
+     * Generate a duration for a progress bar based on the difficulty
+     * @param difficulty The difficulty should be between 0 and 100.
+     */ 
+     function generateDuration(difficulty) {
+        /** Set the minimum and maximum duration for a progress bar */ 
+        const {MIN, MAX} = PROGRESS_DURATION
+
+        /** Calculate the duration based on the difficulty */ 
+        let duration =
+        MIN + (MAX - MIN) * ((100 - difficulty) / 100);
+
+        /** Make the duration vary by 20% */ 
+        const variation = duration * 0.2;
+        const randomVariation = Math.random() * variation;
+        duration += randomVariation;
+
+        return duration;
+    }
+
+    /** Generate a target segment for the given difficulty.
+    * The higher the difficulty, the harder the target will be to hit.
+    * @param difficulty The difficulty should be between 0 and 100.
+    */
     function generateTarget(difficulty) {
+        // Make sure the difficulty is between 0 and 100.
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
+                // Calculate the target size based on the difficulty.
         const { MAX } = PROGRESS_SIZE
-
         const size = MAX - (difficulty / 100) * MAX;
 
         /**
@@ -146,20 +185,6 @@
             size,
             progress,
         };
-    }
-
-    function generateDuration(difficulty) {
-        const {MIN, MAX} = PROGRESS_DURATION
-
-        let duration =
-        MIN + (MAX - MIN) * ((100 - difficulty) / 100);
-
-        // make it vary by 20%
-        const variation = duration * 0.2;
-        const randomVariation = Math.random() * variation;
-        duration += randomVariation;
-
-        return duration;
     }
 </script>
 

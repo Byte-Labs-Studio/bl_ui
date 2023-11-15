@@ -4,10 +4,9 @@
     import { GameType } from '@typings/gameState';
     import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { delay } from '@utils/misc';
-    import { onDestroy } from 'svelte';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandonNumberKey, NUMBER_KEYS, PROGRESS_DURATION, PROGRESS_SIZE } from './config/gameConfig';
+    import { GetRandonNumberKey, PROGRESS_DURATION, PROGRESS_SIZE } from './config/gameConfig';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
@@ -26,6 +25,7 @@
         height: ${DIAMETER / 2}vw;
     `;
 
+    
     let Visible: boolean = false;
 
     let CircleState: ICircleProgressGameState = null;
@@ -34,6 +34,7 @@
 
     let KeyListener: ReturnType<typeof TempReceiveEvent>;
 
+    //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
@@ -51,13 +52,20 @@
         }
     });
 
+
+
+    /** This code is responsible for playing the iteration of the minigame.
+    * This code should be called when the user presses the spacebar.
+    * The code will return a promise that resolves to true if the user has
+    * correctly input the key, and false otherwise.
+    */ 
     async function playIteration() {
         const duration = CircleState.duration;
         UserRotation.set(100, {
             duration,
         });
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _) => {
             let timeout = setTimeout(() => {
                 resolve(false);
             }, duration);
@@ -91,6 +99,10 @@
         });
     }
 
+    /** This code is responsible for starting the game.
+     * @param iterations The number of iterations to play.
+     * @param difficulty The difficulty of the game.
+     */
     async function startGame(iterations, difficulty) {
         if (!$GAME_STATE.active) return;
 
@@ -131,6 +143,8 @@
         }, 500);
     }
 
+    /** This code is responsible for generating a duration for a progress bar based on the difficulty.
+     */
     function initialise() {
         if (!$GAME_STATE.active || CircleState) return;
 
@@ -138,37 +152,59 @@
         startGame(iterations, difficulty);
     }
 
-    function generateDuration(difficulty) {
-        const {MIN, MAX} = PROGRESS_DURATION
+    /**
+     * Generate a duration for a progress bar based on the difficulty
+     * @param difficulty The difficulty should be between 0 and 100.
+     */ 
+    function generateDuration(difficulty: number): number {
+        /** Set the minimum and maximum duration for a progress bar */ 
+        const {MIN, MAX} = PROGRESS_DURATION;
 
-        let duration =
-        MIN + (MAX - MIN) * ((100 - difficulty) / 100);
+        /** Calculate the duration based on the difficulty */ 
+        let duration: number =
+            MIN + (MAX - MIN) * ((100 - difficulty) / 100);
 
-        // make it vary by 20%
-        const variation = duration * 0.2;
-        const randomVariation = Math.random() * variation;
+        /** Make the duration vary by 20% */ 
+        const variation: number = duration * 0.2;
+        const randomVariation: number = Math.random() * variation;
         duration += randomVariation;
 
+        // Return the duration
         return duration;
     }
 
-    function generateTargetSegment(difficulty: number) {
+    /** Generate a target segment for the given difficulty.
+    * The higher the difficulty, the harder the target will be to hit.
+    * @param difficulty The difficulty should be between 0 and 100.
+    */
+    function generateTargetSegment(difficulty: number): { size: number; rotation: number } {
+        /** Make sure the difficulty is between 0 and 100. */
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
+        /** Calculate the target size based on the difficulty. */ 
         const { MAX } = PROGRESS_SIZE 
-
         const size = MAX - (difficulty / 100) * MAX;
+
+        /**
+         * Calculate the target rotation.
+         * This is a number between 90 and 270.
+         * */ 
         let rotation = 90 + Math.random() * 180;
 
+        /**
+         * Make sure the target size plus the target rotation is less than 360.
+         * If it's not, subtract the difference from the target rotation.
+         **/
         if (((size * 3.6) + rotation) > 360) {
             rotation -= ((size * 3.6) + rotation) - 360
         }
 
         return {
-            size,
-            rotation,
+            size: size,
+            rotation: rotation,
         };
     }
+
 </script>
 
 {#if Visible}
