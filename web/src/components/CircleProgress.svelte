@@ -7,7 +7,7 @@
     import { onDestroy } from 'svelte';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandonNumberKey, NUMBER_KEYS, PROGRESS_DURATION } from './config/gameConfig';
+    import { GetRandonNumberKey, NUMBER_KEYS, PROGRESS_DURATION, PROGRESS_SIZE } from './config/gameConfig';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
@@ -155,8 +155,9 @@
     function generateTargetSegment(difficulty: number) {
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
-        const maxSize = 40;
-        const size = maxSize - (difficulty / 100) * maxSize;
+        const { MAX } = PROGRESS_SIZE 
+
+        const size = MAX - (difficulty / 100) * MAX;
         let rotation = 90 + Math.random() * 180;
 
         if (((size * 3.6) + rotation) > 360) {

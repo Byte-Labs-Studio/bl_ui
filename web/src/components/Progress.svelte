@@ -6,7 +6,7 @@
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandonNumberKey, PROGRESS_DURATION } from './config/gameConfig';
+    import { GetRandonNumberKey, PROGRESS_DURATION, PROGRESS_SIZE } from './config/gameConfig';
 
     const UserSegmentSize: number = 0.5;
     const UserProgress: Tweened<number> = tweened(0);
@@ -125,13 +125,23 @@
     function generateTarget(difficulty) {
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
-        const maxSize = 50;
-        const size = maxSize - (difficulty / 100) * maxSize;
+        const { MAX } = PROGRESS_SIZE
 
-        const minProgress = 40;
-        const maxProgress = Math.min(maxSize - size, 100 - size); // Calculate the maximum allowed progress
-        const progress = Math.max(minProgress, Math.floor(Math.random() * (maxProgress - minProgress + 1) + minProgress));
-        console.log(progress, size, progress + size)
+        const size = MAX - (difficulty / 100) * MAX;
+
+        /**
+         * The target should start atleastr 40% into the progress bar so the user has a chance to know.
+         */
+        const minProgress = 30;
+
+        /**
+         * The target should end before 100% - size so the whole target is visible.
+         */
+        const maxProgress = 100 - size;
+
+
+        const progress = Math.random() * (maxProgress - minProgress) + minProgress;
+
         return {
             size,
             progress,
@@ -178,8 +188,17 @@
         {@const { size, progress } = ProgressState.target}
         <div
             style="left: {progress}%; width: {size}%"
-            class="h-[1vw] center-y absolute origin-center bg-primary z-0"
+            class="h-[1vw] center-y absolute origin-center bg-primary z-0 target-segment"
         />
     {/if}
 </div>
 {/if}
+
+
+
+<style>
+        .target-segment {
+        filter: drop-shadow(0 0 0.1vw black);
+        transition: all 0.1s ease-in-out;
+    }
+</style>
