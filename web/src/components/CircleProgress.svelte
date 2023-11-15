@@ -2,52 +2,53 @@
     import GAME_STATE from '@stores/GAME_STATE';
     import { type ICircleProgressGameState } from '@typings/circleProgress';
     import { GameType } from '@typings/gameState';
-    import { ReceiveEvent, TempReceiveEvent } from '@utils/eventsHandlers';
+    import { TempReceiveEvent } from '@utils/eventsHandlers';
+    import { delay } from '@utils/misc';
     import { onDestroy } from 'svelte';
-    import { tweened } from 'svelte/motion';
+    import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
+    import { GetRandonNumberKey, NUMBER_KEYS, PROGRESS_DURATION } from './config/gameConfig';
 
-    const UserSegmentSize = 2;
-    const UserRotation = tweened(0);
+    const UserSegmentSize: number = 2;
+    const UserRotation: Tweened<number> = tweened(0);
 
-    const KEYS = ['1', '2', '3', '4'];
+    const RADIUS: number= 4;
+    const DIAMETER: number = RADIUS * 2;
+    const CIRCUMFERENCE: number = 2 * Math.PI * RADIUS;
 
-    const RADIUS = 4;
-    const DIAMETER = RADIUS * 2;
-    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-    const SIZE_STYLES = `
+    const SIZE_STYLES: string = `
         width: ${DIAMETER}vw;
         height: ${DIAMETER}vw;
     `;
 
-    const SIZE_STYLES_HALF = `
+    const SIZE_STYLES_HALF: string = `
         width: ${DIAMETER / 2}vw;
         height: ${DIAMETER / 2}vw;
     `;
 
-    let visible: boolean = false;
+    let Visible: boolean = false;
 
-    let CircleState: ICircleProgressGameState | null = null;
+    let CircleState: ICircleProgressGameState = null;
 
-    let iterationState: 'success' | 'fail' | null = null;
+    let IterationState: 'success' | 'fail' | null = null;
 
-    let KeyListener: any;
+    let KeyListener: ReturnType<typeof TempReceiveEvent>;
 
     GAME_STATE.subscribe(state => {
-        visible =
+        let shouldShow =
             state.active &&
             state.type === GameType.CircleProgress &&
             !CircleState;
-        if (visible) {
+        if (shouldShow) {
+            Visible = true;
             initialise();
-        } else {
+        } else if (Visible && !shouldShow) {
+            Visible = false;
             CircleState = null;
+            IterationState = null;
+            KeyListener?.removeListener();
+            KeyListener = null;
         }
-    });
-
-    onDestroy(() => {
-        KeyListener?.removeListener();
     });
 
     async function playIteration() {
@@ -58,11 +59,12 @@
 
         return new Promise((resolve, reject) => {
             let timeout = setTimeout(() => {
-                KeyListener.removeListener();
                 resolve(false);
             }, duration);
 
             KeyListener = TempReceiveEvent('ui:keydown', (e: KeyboardEvent) => {
+                clearTimeout(timeout);
+
                 UserRotation.set($UserRotation, {
                     duration: 0,
                 });
@@ -72,8 +74,9 @@
                     const targetRotDeg = CircleState.target.rotation;
                     const targetSize = CircleState.target.size * 3.6;
 
+                    const userSize = UserSegmentSize * 3.6;
                     if (
-                        userRotDeg > targetRotDeg &&
+                        userRotDeg > targetRotDeg - userSize &&
                         userRotDeg < targetSize + targetRotDeg
                     ) {
                         resolve(true);
@@ -84,15 +87,15 @@
                 } else {
                     resolve(false);
                 }
-
-                clearTimeout(timeout);
-                KeyListener.removeListener();
             });
         });
     }
 
     async function startGame(iterations, difficulty) {
         if (!$GAME_STATE.active) return;
+
+        KeyListener?.removeListener();
+        KeyListener = null;
 
         UserRotation.set(0, {
             duration: 0,
@@ -101,15 +104,16 @@
         CircleState = {
             target: generateTargetSegment(difficulty),
             duration: generateDuration(difficulty),
-            key: generateKey(),
+            key: GetRandonNumberKey(),
         };
+        IterationState = null;
+
+        await delay(500)
 
         const success = await playIteration();
-
-        iterationState = success ? 'success' : 'fail';
+        IterationState = success ? 'success' : 'fail';
 
         setTimeout(() => {
-            iterationState = null
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
@@ -135,11 +139,10 @@
     }
 
     function generateDuration(difficulty) {
-        const minDuration = 2000;
-        const maxDuration = 5000;
+        const {MIN, MAX} = PROGRESS_DURATION
 
         let duration =
-            minDuration + (maxDuration - minDuration) * ((100 - difficulty) / 100);
+        MIN + (MAX - MIN) * ((100 - difficulty) / 100);
 
         // make it vary by 20%
         const variation = duration * 0.2;
@@ -154,31 +157,30 @@
 
         const maxSize = 40;
         const size = maxSize - (difficulty / 100) * maxSize;
-        const rotation = 90 + Math.random() * 180;
+        let rotation = 90 + Math.random() * 180;
+
+        if (((size * 3.6) + rotation) > 360) {
+            rotation -= ((size * 3.6) + rotation) - 360
+        }
 
         return {
             size,
             rotation,
         };
     }
-
-    function generateKey() {
-        const index = Math.floor(Math.random() * KEYS.length);
-        return KEYS[index];
-    }
 </script>
 
-{#if visible}
+{#if Visible}
     <div
         transition:scale
         style={SIZE_STYLES}
-        class="grid place-items-center primary-shadow center rounded-full"
+        class="grid place-items-center primary-shadow  center-x bottom-[5vh] rounded-full"
     >
         <div
             style={SIZE_STYLES_HALF}
-            class="absolute font-bold secondary-shadow grid place-items-center bg-primary-50 rounded-full"
+            class="absolute secondary-shadow grid place-items-center bg-primary-50 rounded-full"
         >
-            <p class="text-shadow text-[2vw]">{CircleState.key}</p>
+            <p class="text-shadow absolute font-bold text-[2vw]">{CircleState.key}</p>
         </div>
 
         <svg
@@ -211,7 +213,7 @@
                 <circle
                     style="transform: rotate({-90 +
                         ($UserRotation / 100) * 360}deg);"
-                    class=" absolute  origin-center  transition-colors duration-100 {iterationState === 'success' ? 'glow-success stroke-success' : iterationState === 'fail' ? 'glow-fail stroke-fail' : 'stroke-accent glow-accent'}"
+                    class=" absolute  origin-center  transition-colors duration-100 {IterationState === 'success' ? 'glow-success stroke-success' : IterationState === 'fail' ? 'glow-fail stroke-fail' : 'stroke-accent glow-accent'}"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *
                         ((100 - UserSegmentSize) / 100)}vw"

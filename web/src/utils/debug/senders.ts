@@ -25,18 +25,26 @@ const SendDebuggers: DebugItem[] = [
         label: 'CircleProgress',
         actions: [
             {
-                label: '1x 50 difficulty',
-                action: () => DebugEventSend<IGameParams>(Receive.start, {
-                    type: GameType.CircleProgress,
-                    iterations: 2,
-                    difficulty: 50,
-                }),
-            },
-            {
                 label: 'Custom Difficulty',
                 action: (value: number) =>
                     DebugEventSend<IGameParams>(Receive.start, {
                         type: GameType.CircleProgress,
+                        iterations: 2,
+                        difficulty: value,
+                    }),
+                value: 50,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Progress',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) =>
+                    DebugEventSend<IGameParams>(Receive.start, {
+                        type: GameType.Progress,
                         iterations: 2,
                         difficulty: value,
                     }),

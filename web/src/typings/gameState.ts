@@ -1,7 +1,7 @@
 
 export enum GameType {
     CircleProgress = "CircleProgress",
-    Countdown = "Countdown",
+    Progress = "Progress",
 }
 
 type GameTypeKeys = keyof typeof GameType;
@@ -15,6 +15,5 @@ export interface IGameParams {
 
 export interface IGameState extends IGameParams {
     active: boolean;
-    state: 'win' | 'lose' | null;
 }
 

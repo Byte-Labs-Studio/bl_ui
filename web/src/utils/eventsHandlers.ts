@@ -67,12 +67,12 @@ export function ReceiveEvent<T = unknown>(
  * Listen for an event from the Client
  * @param action The name of the event to listen for
  * @param handler The callback to run when the event is received
- * @returns {void}
+ * @returns {function}
  **/
 export function TempReceiveEvent<T = unknown>(
     action: string,
     handler: (data: T) => void,
-) {
+): {removeListener: () => void} {
     const eventListener = (event: MessageEvent<NuiMessage<T>>) => {
         const { action: eventAction, data } = event.data;
 

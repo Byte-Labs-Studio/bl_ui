@@ -14,6 +14,8 @@
     --primary-50: theme('colors.primary-50');
 
     --accent: theme('colors.accent');
+    --fail: theme('colors.fail');
+    --success: theme('colors.success');
 }
 
 * {
@@ -81,13 +83,13 @@ body {
 }
 
 .glow-accent {
-    filter: drop-shadow(0 0 0.5vw theme('colors.accent'));
+    filter: drop-shadow(0 0 0.3vw var(--accent));
 }
 
 .glow-fail {
-    filter: drop-shadow(0 0 0.5vw theme('colors.fail'));
+    filter: drop-shadow(0 0 0.3vw var(--fail));
 }
 
 .glow-success {
-    filter: drop-shadow(0 0 0.5vw theme('colors.success'));
+    filter: drop-shadow(0 0 0.3vw var(--success));
 }

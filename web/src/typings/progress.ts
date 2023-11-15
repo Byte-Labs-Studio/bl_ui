@@ -1,13 +1,11 @@
-export interface ICircleProgressGameState {
-
+export interface IProgressGameState {
     target: {
         /** The target rotation, degrees. */
-        rotation: number;
+        progress: number;
         /** The target size, degrees. */
         size: number;
     }
 
     duration: number;
-    
     key : string;
 }
