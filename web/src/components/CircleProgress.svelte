@@ -1,17 +1,24 @@
 <script lang="ts">
     import GAME_STATE from '@stores/GAME_STATE';
     import { type ICircleProgressGameState } from '@typings/circleProgress';
-    import { GameType } from '@typings/gameState';
     import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandonNumberKey, PROGRESS_DURATION, PROGRESS_SIZE } from './config/gameConfig';
+    import {
+        GetRandomKeyFromSet,
+        PROGRESS_DURATION,
+        PROGRESS_SIZE,
+    } from './config/gameConfig';
+    import { GameType } from '@enums/gameTypes';
+    import { type LevelState } from '@typings/gameState';
+    import { Receive } from '@enums/events';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
 
-    const RADIUS: number= 4;
+    const STROKE_WIDTH: number = 1;
+    const RADIUS: number = 4;
     const DIAMETER: number = RADIUS * 2;
     const CIRCUMFERENCE: number = 2 * Math.PI * RADIUS;
 
@@ -25,12 +32,11 @@
         height: ${DIAMETER / 2}vw;
     `;
 
-    
     let Visible: boolean = false;
 
     let CircleState: ICircleProgressGameState = null;
 
-    let IterationState: 'success' | 'fail' | null = null;
+    let IterationState: LevelState = null;
 
     let KeyListener: ReturnType<typeof TempReceiveEvent>;
 
@@ -47,18 +53,22 @@
             Visible = false;
             CircleState = null;
             IterationState = null;
-            KeyListener?.removeListener();
-            KeyListener = null;
+            clearKeyListener();
         }
     });
 
-
+    /** This code is responsible for clearing the key listeners.
+     */
+    function clearKeyListener() {
+        KeyListener?.removeListener();
+        KeyListener = null;
+    }
 
     /** This code is responsible for playing the iteration of the minigame.
-    * This code should be called when the user presses the spacebar.
-    * The code will return a promise that resolves to true if the user has
-    * correctly input the key, and false otherwise.
-    */ 
+     * This code should be called when the user presses the spacebar.
+     * The code will return a promise that resolves to true if the user has
+     * correctly input the key, and false otherwise.
+     */
     async function playIteration() {
         const duration = CircleState.duration;
         UserRotation.set(100, {
@@ -70,7 +80,7 @@
                 resolve(false);
             }, duration);
 
-            KeyListener = TempReceiveEvent('ui:keydown', (e: KeyboardEvent) => {
+            KeyListener = TempReceiveEvent(Receive.keydown, (e: KeyboardEvent) => {
                 clearTimeout(timeout);
 
                 UserRotation.set($UserRotation, {
@@ -106,8 +116,7 @@
     async function startGame(iterations, difficulty) {
         if (!$GAME_STATE.active) return;
 
-        KeyListener?.removeListener();
-        KeyListener = null;
+        clearKeyListener();
 
         UserRotation.set(0, {
             duration: 0,
@@ -116,11 +125,11 @@
         CircleState = {
             target: generateTargetSegment(difficulty),
             duration: generateDuration(difficulty),
-            key: GetRandonNumberKey(),
+            key: GetRandomKeyFromSet('Numbers'),
         };
         IterationState = null;
 
-        await delay(500)
+        await delay(500);
 
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
@@ -155,16 +164,15 @@
     /**
      * Generate a duration for a progress bar based on the difficulty
      * @param difficulty The difficulty should be between 0 and 100.
-     */ 
+     */
     function generateDuration(difficulty: number): number {
-        /** Set the minimum and maximum duration for a progress bar */ 
-        const {MIN, MAX} = PROGRESS_DURATION;
+        /** Set the minimum and maximum duration for a progress bar */
+        const { MIN, MAX } = PROGRESS_DURATION;
 
-        /** Calculate the duration based on the difficulty */ 
-        let duration: number =
-            MIN + (MAX - MIN) * ((100 - difficulty) / 100);
+        /** Calculate the duration based on the difficulty */
+        let duration: number = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
 
-        /** Make the duration vary by 20% */ 
+        /** Make the duration vary by 20% */
         const variation: number = duration * 0.2;
         const randomVariation: number = Math.random() * variation;
         duration += randomVariation;
@@ -174,29 +182,32 @@
     }
 
     /** Generate a target segment for the given difficulty.
-    * The higher the difficulty, the harder the target will be to hit.
-    * @param difficulty The difficulty should be between 0 and 100.
-    */
-    function generateTargetSegment(difficulty: number): { size: number; rotation: number } {
+     * The higher the difficulty, the harder the target will be to hit.
+     * @param difficulty The difficulty should be between 0 and 100.
+     */
+    function generateTargetSegment(difficulty: number): {
+        size: number;
+        rotation: number;
+    } {
         /** Make sure the difficulty is between 0 and 100. */
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
-        /** Calculate the target size based on the difficulty. */ 
-        const { MAX } = PROGRESS_SIZE 
+        /** Calculate the target size based on the difficulty. */
+        const { MAX } = PROGRESS_SIZE;
         const size = MAX - (difficulty / 100) * MAX;
 
         /**
          * Calculate the target rotation.
-         * This is a number between 90 and 270.
-         * */ 
-        let rotation = 90 + Math.random() * 180;
+         * This is a number between 90 and 230.
+         * */
+        let rotation = 90 + Math.random() * 120;
 
         /**
          * Make sure the target size plus the target rotation is less than 360.
          * If it's not, subtract the difference from the target rotation.
          **/
-        if (((size * 3.6) + rotation) > 360) {
-            rotation -= ((size * 3.6) + rotation) - 360
+        if (size * 3.6 + rotation > 360) {
+            rotation -= size * 3.6 + rotation - 360;
         }
 
         return {
@@ -204,20 +215,23 @@
             rotation: rotation,
         };
     }
-
 </script>
 
 {#if Visible}
     <div
         transition:scale
         style={SIZE_STYLES}
-        class="grid place-items-center primary-shadow  center-x bottom-[5vh] rounded-full"
+        class="grid place-items-center primary-shadow center-x bottom-[5vh] rounded-full"
     >
         <div
             style={SIZE_STYLES_HALF}
             class="absolute secondary-shadow grid place-items-center bg-primary-50 rounded-full"
         >
-            <p class="text-shadow absolute font-bold text-[2vw]">{CircleState.key}</p>
+            {#key CircleState.target}
+                <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
+                    {CircleState.key}
+                </p>
+            {/key}
         </div>
 
         <svg
@@ -241,7 +255,7 @@
                     class=" absolute radial stroke-primary origin-center target-segment"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE * ((100 - size) / 100)}vw"
-                    stroke-width="{RADIUS * 0.25}vw"
+                    stroke-width="{STROKE_WIDTH}vw"
                     fill-opacity="0"
                     cx="50%"
                     cy="50%"
@@ -250,11 +264,16 @@
                 <circle
                     style="transform: rotate({-90 +
                         ($UserRotation / 100) * 360}deg);"
-                    class=" absolute  origin-center  transition-colors duration-100 {IterationState === 'success' ? 'glow-success stroke-success' : IterationState === 'fail' ? 'glow-fail stroke-fail' : 'stroke-accent glow-accent'}"
+                    class=" absolute origin-center transition-colors duration-100 {IterationState ===
+                    'success'
+                        ? 'glow-success stroke-success'
+                        : IterationState === 'fail'
+                        ? 'glow-fail stroke-fail'
+                        : 'stroke-accent glow-accent'}"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *
                         ((100 - UserSegmentSize) / 100)}vw"
-                    stroke-width="{RADIUS * 0.25}vw"
+                    stroke-width="{STROKE_WIDTH}vw"
                     fill-opacity="0"
                     cx="50%"
                     cy="50%"
@@ -270,5 +289,4 @@
         filter: drop-shadow(0 0 0.1vw black);
         transition: all 0.1s ease-in-out;
     }
-
 </style>

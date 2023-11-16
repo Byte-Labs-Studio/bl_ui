@@ -1,11 +1,8 @@
-
-export enum GameType {
-    CircleProgress = "CircleProgress",
-    Progress = "Progress",
-}
+import { type GameType } from "@enums/gameTypes";
 
 type GameTypeKeys = keyof typeof GameType;
 
+export type LevelState = 'success' | 'fail' | null
 
 export interface IGameParams {
     type: GameTypeKeys;

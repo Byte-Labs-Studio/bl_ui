@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Receive } from '@enums/events';
     import { InitialiseDebugSenders } from '@utils/debug/init';
     import { InitialiseDebugReceivers } from '@utils/debug/receivers';
     import SendDebuggers from '@utils/debug/senders';
@@ -11,14 +12,18 @@
     });
 
     function onKeyDown(e: KeyboardEvent) {
-        DebugEventSend('ui:keydown', e);
+        DebugEventSend(Receive.keydown, e);
+    }
+
+    function onKeyUp(e: KeyboardEvent) {
+        DebugEventSend(Receive.keyup, e);
     }
 
     let menuOpen: boolean = false;
 </script>
 
 
-<svelte:window on:keydown={onKeyDown} />
+<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <div class="w-fit h-fit flex flex-col z-[9999999]">
     <button

@@ -5,7 +5,6 @@ export interface IProgressGameState {
         /** The target size, degrees. */
         size: number;
     }
-
     duration: number;
     key : string;
 }
