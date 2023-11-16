@@ -7,8 +7,7 @@
     import { scale } from 'svelte/transition';
     import {
         GetRandomKeyFromSet,
-        PROGRESS_DURATION,
-        PROGRESS_SIZE,
+        PROGRESS
     } from './config/gameConfig';
     import { GameType } from '@enums/gameTypes';
     import { type LevelState } from '@typings/gameState';
@@ -150,7 +149,7 @@
      */
     function generateDuration(difficulty) {
         /** Set the minimum and maximum duration for a progress bar */
-        const { MIN, MAX } = PROGRESS_DURATION;
+        const { MIN, MAX } = PROGRESS.DURATION;
 
         /** Calculate the duration based on the difficulty */
         let duration = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
@@ -172,7 +171,7 @@
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
         // Calculate the target size based on the difficulty.
-        const { MAX } = PROGRESS_SIZE;
+        const { MAX } = PROGRESS.SIZE;
         const size = MAX - (difficulty / 100) * MAX;
 
         /**

@@ -7,7 +7,7 @@
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandomKeyFromSet, KEY_CIRCLE_DURATION, KEY_CIRCLE_STAGES, PROGRESS_DURATION } from './config/gameConfig';
+    import { GetRandomKeyFromSet, KEY_CIRCLE } from './config/gameConfig';
     import { Receive } from '@enums/events';
 
     const UserRotation: Tweened<number> = tweened(0);
@@ -212,7 +212,7 @@
      */
     function generateDuration(difficulty): number {
         /** Set the minimum and maximum duration for a progress bar */
-        const { MIN, MAX } = KEY_CIRCLE_DURATION;
+        const { MIN, MAX } = KEY_CIRCLE.DURATION;
 
         /** Calculate the duration based on the difficulty */
         let duration: number = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
@@ -231,7 +231,7 @@
         difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
         // Calculate the target size based on the difficulty.
-        const { MIN, MAX } = KEY_CIRCLE_STAGES;
+        const { MIN, MAX } = KEY_CIRCLE.STAGES;
         const _stages = MIN + (MAX - MIN) * (difficulty / 100);
 
         const stages = Math.floor(_stages);

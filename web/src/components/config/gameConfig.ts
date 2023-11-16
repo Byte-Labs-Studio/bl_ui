@@ -3,33 +3,40 @@ type MinMax = {
     MAX: number;
 };
 
-/**
- * The minimum and maximum duration of the game in milliseconds.
- */
-export const PROGRESS_DURATION: MinMax = {
-    MIN: 500,
-    MAX: 3000,
+export const PROGRESS = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    DURATION: {
+        MIN: 500,
+        MAX: 3000,
+    },
+
+    /**
+     * The minimum and maximum size of the circle in degrees.
+     */
+    SIZE: {
+        MIN: 2,
+        MAX: 40,
+    },
 };
 
-export const PROGRESS_SIZE: MinMax = {
-    MIN: 2,
-    MAX: 40,
-};
+export const KEY_CIRCLE = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    DURATION: {
+        MIN: 750,
+        MAX: 1500,
+    },
 
-/**
- * The minimum and maximum duration of the game in milliseconds.
- * */
-export const KEY_CIRCLE_DURATION: MinMax = {
-    MIN: 750,
-    MAX: 1500,
-};
-
-/**
- * The minimum and maximum number of stages in the game.
- * */
-export const KEY_CIRCLE_STAGES: MinMax = {
-    MIN: 2,
-    MAX: 20,
+    /**
+     * The minimum and maximum number of stages in the game.
+     */
+    STAGES: {
+        MIN: 2,
+        MAX: 20,
+    },
 };
 
 /**
