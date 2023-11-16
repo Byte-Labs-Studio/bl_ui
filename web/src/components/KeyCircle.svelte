@@ -7,7 +7,7 @@
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandomKeyFromSet } from './config/gameConfig';
+    import { GetRandomKeyFromSet, KEY_CIRCLE_DURATION, KEY_CIRCLE_STAGES, PROGRESS_DURATION } from './config/gameConfig';
     import { Receive } from '@enums/events';
 
     const UserRotation: Tweened<number> = tweened(0);
@@ -100,6 +100,8 @@
                 Receive.keydown,
                 (e: KeyboardEvent) => {
                     UserPressedKeys[e.key.toUpperCase()] = true;
+
+                    if (IterationState) return;
 
                     const pressedKeys = Object.keys(UserPressedKeys);
 
@@ -209,23 +211,34 @@
      * @param difficulty The difficulty should be between 0 and 100.
      */
     function generateDuration(difficulty): number {
-        return 3000;
+        /** Set the minimum and maximum duration for a progress bar */
+        const { MIN, MAX } = KEY_CIRCLE_DURATION;
+
+        /** Calculate the duration based on the difficulty */
+        let duration: number = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
+
+        /** Make the duration vary by 20% */
+        const variation: number = duration * 0.2;
+        const randomVariation: number = Math.random() * variation;
+        duration += randomVariation;
+
+        // Return the duration
+        return duration;
     }
 
     function generateStages(difficulty): number {
-        return 3;
+        // Make sure the difficulty is between 0 and 100.
+        difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
+
+        // Calculate the target size based on the difficulty.
+        const { MIN, MAX } = KEY_CIRCLE_STAGES;
+        const _stages = MIN + (MAX - MIN) * (difficulty / 100);
+
+        const stages = Math.floor(_stages);
+
+        return stages;
     }
 
-    // KeyCircleState = {
-    //     stages: 3,
-    //     currentStage: 0,
-    //     keys: ['A', 'W'],
-    //     duration: 1000,
-    // };
-
-    // UserRotation.set(100, {
-    //     duration: 2000,
-    // });
 </script>
 
 {#if Visible}

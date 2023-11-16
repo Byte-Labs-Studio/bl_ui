@@ -17,6 +17,22 @@ export const PROGRESS_SIZE: MinMax = {
 };
 
 /**
+ * The minimum and maximum duration of the game in milliseconds.
+ * */
+export const KEY_CIRCLE_DURATION: MinMax = {
+    MIN: 750,
+    MAX: 1500,
+};
+
+/**
+ * The minimum and maximum number of stages in the game.
+ * */
+export const KEY_CIRCLE_STAGES: MinMax = {
+    MIN: 2,
+    MAX: 20,
+};
+
+/**
  * Key Sets used for the games.
  */
 export const KEYS = {
