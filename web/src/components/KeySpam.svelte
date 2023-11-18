@@ -67,6 +67,8 @@
 
         return new Promise((resolve, _) => {
             let interval = setInterval(() => {
+                if (!Visible) return;
+                
                 KeySpamState.size -= 0.1;
                 if (KeySpamState.size <= 0) {
                     KeySpamState.size = 0;
@@ -74,6 +76,8 @@
             }, 1);
 
             let timeout = setTimeout(() => {
+                if (!Visible) return;
+
                 clearTimeout(timeout);
                 clearInterval(interval);
                 resolve(false);
