@@ -3,6 +3,9 @@ type MinMax = {
     MAX: number;
 };
 
+/**
+ * The Configuration for the Progress games.
+ */
 export const PROGRESS = {
     /**
      * The minimum and maximum duration of the game in milliseconds.
@@ -21,6 +24,11 @@ export const PROGRESS = {
     },
 };
 
+
+
+/**
+ * The Configuration for the Key Circle game.
+ */
 export const KEY_CIRCLE = {
     /**
      * The minimum and maximum duration of the game in milliseconds.
@@ -36,6 +44,16 @@ export const KEY_CIRCLE = {
     STAGES: {
         MIN: 2,
         MAX: 20,
+    },
+};
+
+export const KEY_SPAM = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    DURATION: {
+        MIN: 750,
+        MAX: 5000,
     },
 };
 

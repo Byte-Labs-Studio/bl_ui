@@ -70,6 +70,22 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
+    {
+        label: 'KeySpam',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) =>
+                    DebugEventSend<IGameParams>(Receive.start, {
+                        type: GameType.KeySpam,
+                        iterations: 1,
+                        difficulty: value,
+                    }),
+                value: 50,
+                type: 'slider',
+            },
+        ],
+    },
 ]
 
 export default SendDebuggers

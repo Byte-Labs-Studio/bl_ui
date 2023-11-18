@@ -1,4 +1,4 @@
-import { GameType, IGameParams, IGameState } from '@typings/gameState';
+import { IGameParams, IGameState } from '@typings/gameState';
 import { SendEvent } from '@utils/eventsHandlers';
 import { Writable, writable } from 'svelte/store';
 

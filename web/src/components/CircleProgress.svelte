@@ -69,6 +69,8 @@
      * correctly input the key, and false otherwise.
      */
     async function playIteration() {
+        if (!Visible) return;
+
         const duration = CircleState.duration;
         UserRotation.set(100, {
             duration,
@@ -86,7 +88,10 @@
                     duration: 0,
                 });
 
-                if (e.key === CircleState.key) {
+                
+                const key = e.key.toUpperCase();
+
+                if (key === CircleState.key) {
                     const userRotDeg = ($UserRotation / 100) * 360;
                     const targetRotDeg = CircleState.target.rotation;
                     const targetSize = CircleState.target.size * 3.6;
@@ -113,7 +118,7 @@
      * @param difficulty The difficulty of the game.
      */
     async function startGame(iterations, difficulty) {
-        if (!$GAME_STATE.active) return;
+        if (!Visible) return;
 
         clearKeyListener();
 
@@ -134,6 +139,8 @@
         IterationState = success ? 'success' : 'fail';
 
         setTimeout(() => {
+            if (!Visible) return;
+
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
@@ -220,7 +227,7 @@
     <div
         transition:scale
         style={SIZE_STYLES}
-        class="grid place-items-center primary-shadow center-x bottom-[5vh] rounded-full"
+        class="grid place-items-center primary-shadow default-game-position  rounded-full"
     >
         <div
             style={SIZE_STYLES_HALF}
@@ -263,7 +270,7 @@
                 <circle
                     style="transform: rotate({-90 +
                         ($UserRotation / 100) * 360}deg);"
-                    class=" absolute origin-center transition-colors duration-100 {IterationState ===
+                    class=" absolute origin-center default-colour-transition {IterationState ===
                     'success'
                         ? 'glow-success stroke-success'
                         : IterationState === 'fail'

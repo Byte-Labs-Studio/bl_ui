@@ -69,6 +69,13 @@ body {
     }
 }
 
+.default-game-position {
+    @apply absolute left-1/2 -translate-x-1/2 bottom-[5vh];
+}
+
+.default-colour-transition {
+    @apply transition-colors duration-100;
+}
 
 .primary-shadow {
     box-shadow: 0 0 1vw 0.1vw rgba(0, 0, 0, 0.75);

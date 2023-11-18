@@ -6,6 +6,7 @@
     import CircleProgress from '@components/CircleProgress.svelte';
     import Progress from '@components/Progress.svelte';
     import KeyCircle from '@components/KeyCircle.svelte';
+    import KeySpam from '@components/KeySpam.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -19,6 +20,7 @@
     <CircleProgress />
     <Progress />
     <KeyCircle />
+    <KeySpam />
 </Visibility>
 
 <Debug />

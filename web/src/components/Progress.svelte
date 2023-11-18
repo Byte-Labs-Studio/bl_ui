@@ -52,6 +52,8 @@
      * correctly input the key, and false otherwise.
      */
     async function playIteration() {
+        if (!Visible) return;
+
         const duration = ProgressState.duration;
         UserProgress.set(100, {
             duration,
@@ -60,7 +62,7 @@
         return new Promise((resolve, _) => {
             let timeout = setTimeout(() => {
                 resolve(false);
-            }, duration);
+            }, duration); 
 
             KeyListener = TempReceiveEvent(Receive.keydown, (e: KeyboardEvent) => {
                 clearTimeout(timeout);
@@ -69,7 +71,9 @@
                     duration: 0,
                 });
 
-                if (e.key === ProgressState.key) {
+                const key = e.key.toUpperCase();
+
+                if (key === ProgressState.key) {
                     const targetProg = ProgressState.target.progress;
                     const targetSize = ProgressState.target.size;
 
@@ -96,7 +100,7 @@
      * @param difficulty The difficulty of the game.
      */
     async function startGame(iterations, difficulty) {
-        if (!$GAME_STATE.active) return;
+        if (!Visible) return;
 
         clearKeyListener();
 
@@ -116,6 +120,8 @@
         IterationState = success ? 'success' : 'fail';
 
         setTimeout(() => {
+            if (!Visible) return;
+
             IterationState = null;
             if (success && iterations > 0) {
                 iterations--;
@@ -197,7 +203,7 @@
 {#if Visible}
     <div
         transition:scale
-        class=" primary-shadow center-x bottom-[5vh] w-[20vw] h-[0.5vw] bg-primary-50"
+        class=" primary-shadow default-game-position  w-[20vw] h-[0.5vw] bg-primary-50"
     >
         <div
             class="h-[2.5vw] aspect-square absolute grid place-items-center center-y secondary-shadow bg-primary-50 -translate-x-[130%]"
@@ -211,7 +217,7 @@
 
         <div
             style="left: {$UserProgress}%; width: {UserSegmentSize}vw"
-            class="h-[1vw] center-y z-[10] absolute origin-center transition-colors duration-100 {IterationState ===
+            class="h-[1vw] center-y z-[10] absolute origin-center default-colour-transition {IterationState ===
             'success'
                 ? 'glow-success bg-success'
                 : IterationState === 'fail'

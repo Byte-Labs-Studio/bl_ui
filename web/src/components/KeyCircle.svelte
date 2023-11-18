@@ -79,6 +79,8 @@
      * correctly input the key, and false otherwise.
      */
     async function playIteration() {
+        if (!Visible) return;
+
         const duration = KeyCircleState.duration;
 
         const { currentStage, stages, keys } = KeyCircleState;
@@ -155,7 +157,7 @@
      * @param difficulty The difficulty of the game.
      */
     async function startGame(iterations, difficulty) {
-        if (!$GAME_STATE.active) return;
+        if (!Visible) return;
 
         clearKeyListeners();
 
@@ -180,6 +182,8 @@
         IterationState = success ? 'success' : 'fail';
 
         setTimeout(() => {
+            if (!Visible) return;
+
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
@@ -245,7 +249,7 @@
     <div
         transition:scale
         style={SIZE_STYLES}
-        class="grid place-items-center primary-shadow center-x bottom-[5vh] rounded-full w-fit h-fit"
+        class="grid place-items-center primary-shadow default-game-position rounded-full w-fit h-fit"
     >
         {#if KeyCircleState}
             {#key KeyCircleState}
@@ -311,7 +315,7 @@
                     class="  origin-center absolute"
                 >
                     <div
-                        class="absolute w-[0.5vw] h-[1vw] duration-100 transition-colors -translate-y-1/4 center-x {IterationState ==
+                        class="absolute w-[0.5vw] h-[1vw] default-colour-transition -translate-y-1/4 center-x {IterationState ==
                         'fail'
                             ? 'bg-fail glow-fail'
                             : currentStage === i ||
