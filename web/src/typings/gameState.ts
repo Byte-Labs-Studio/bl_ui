@@ -4,13 +4,34 @@ type GameTypeKeys = keyof typeof GameType;
 
 export type LevelState = 'success' | 'fail' | null
 
-export interface IGameParams {
-    type: GameTypeKeys;
-    iterations: number;
+
+export type ProgressGameParams = IGameParams & {
     difficulty: number;
 }
 
-export interface IGameState extends IGameParams {
+export type KeyCircleGameParams = IGameParams & {
+    difficulty: number;
+    numberOfKeys: number;
+}
+
+export type KeySpamGameParams = IGameParams & {
+    difficulty: number;
+}
+
+export type NumberSlideGameParams = IGameParams & {
+    difficulty: number;
+    numberOfKeys: number;
+}
+
+export type IGameTypeParams = ProgressGameParams | KeyCircleGameParams | KeySpamGameParams | NumberSlideGameParams;
+
+export type IGameParams = {
+    type: GameTypeKeys;
+    iterations: number;
+    config: IGameTypeParams;
+}
+
+export type IGameState = IGameParams & {
     active: boolean;
 }
 

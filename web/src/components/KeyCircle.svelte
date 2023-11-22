@@ -1,7 +1,7 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type LevelState } from '@typings/gameState';
+    import { type KeyCircleGameParams, type LevelState } from '@typings/gameState';
     import { type IKeyCircleGameState } from '@typings/keyCircle';
     import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { delay } from '@utils/misc';
@@ -156,7 +156,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, difficulty) {
+    async function startGame(iterations, config: KeyCircleGameParams) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -165,8 +165,10 @@
             duration: 0,
         });
 
+        const { difficulty, numberOfKeys } = config;
+
         KeyCircleState = {
-            stages: generateStages(difficulty),
+            stages: numberOfKeys,
             currentStage: 1,
             duration: generateDuration(difficulty),
             keys: [
@@ -187,7 +189,7 @@
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
-                    startGame(iterations, difficulty);
+                    startGame(iterations, config);
                 } else {
                     GAME_STATE.finish(true);
                     KeyCircleState = null;
@@ -206,8 +208,8 @@
     function initialise() {
         if (!$GAME_STATE.active || KeyCircleState) return;
 
-        const { iterations, difficulty } = $GAME_STATE;
-        startGame(iterations, difficulty);
+        const { iterations, config } = $GAME_STATE
+        startGame(iterations, config as KeyCircleGameParams);
     }
 
     /**
@@ -229,20 +231,6 @@
         // Return the duration
         return duration;
     }
-
-    function generateStages(difficulty): number {
-        // Make sure the difficulty is between 0 and 100.
-        difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
-
-        // Calculate the target size based on the difficulty.
-        const { MIN, MAX } = KEY_CIRCLE.STAGES;
-        const _stages = MIN + (MAX - MIN) * (difficulty / 100);
-
-        const stages = Math.floor(_stages);
-
-        return stages;
-    }
-
 </script>
 
 {#if Visible}

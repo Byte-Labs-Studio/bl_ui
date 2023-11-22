@@ -11,14 +11,14 @@ export const store = () => {
 
     const methods = {
         start: (data: IGameParams) => {
-            const { type, iterations, difficulty } = data;
+            const { type, iterations, config } = data;
             GAME_STATE.update(_ => {
                 const active = true;
                 return {
                     active,
                     type,
                     iterations,
-                    difficulty,
+                    config
                 };
             });
 

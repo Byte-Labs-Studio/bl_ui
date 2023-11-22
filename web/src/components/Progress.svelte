@@ -10,7 +10,7 @@
         PROGRESS
     } from './config/gameConfig';
     import { GameType } from '@enums/gameTypes';
-    import { type LevelState } from '@typings/gameState';
+    import { type ProgressGameParams, type LevelState } from '@typings/gameState';
     import { Receive } from '@enums/events';
 
     const UserSegmentSize: number = 0.5;
@@ -99,7 +99,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, difficulty) {
+    async function startGame(iterations, config: ProgressGameParams) {
         if (!Visible) return;
 
         clearKeyListener();
@@ -107,6 +107,8 @@
         UserProgress.set(0, {
             duration: 0,
         });
+
+        const { difficulty } = config;
 
         ProgressState = {
             target: generateTarget(difficulty),
@@ -126,7 +128,7 @@
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
-                    startGame(iterations, difficulty);
+                    startGame(iterations, config);
                 } else {
                     GAME_STATE.finish(true);
                     ProgressState = null;
@@ -145,8 +147,8 @@
     function initialise() {
         if (!$GAME_STATE.active || ProgressState) return;
 
-        const { iterations, difficulty } = $GAME_STATE;
-        startGame(iterations, difficulty);
+        const { iterations, config } = $GAME_STATE;
+        startGame(iterations, config);
     }
 
     /**

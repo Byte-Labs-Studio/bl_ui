@@ -34,16 +34,8 @@ export const KEY_CIRCLE = {
      * The minimum and maximum duration of the game in milliseconds.
      */
     DURATION: {
-        MIN: 750,
+        MIN: 250,
         MAX: 1500,
-    },
-
-    /**
-     * The minimum and maximum number of stages in the game.
-     */
-    STAGES: {
-        MIN: 2,
-        MAX: 20,
     },
 };
 
@@ -56,6 +48,19 @@ export const KEY_SPAM = {
         MAX: 5000,
     },
 };
+
+export const NUMBER_SLIDE = {
+    DURATION: {
+        MIN: 500,
+        MAX: 7500,
+    },
+
+    /**
+     * The size of the zone in which the user must press the key
+     * Default value is 15% of the bar
+     */
+    ZONE_SIZE: 15,
+}
 
 /**
  * Key Sets used for the games.

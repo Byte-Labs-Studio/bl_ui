@@ -4,4 +4,5 @@ export enum GameType {
     Progress = "Progress",
     KeyCircle = "KeyCircle",
     KeySpam = "KeySpam",
+    NumberSlide = "NumberSlide",
 }

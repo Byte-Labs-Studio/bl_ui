@@ -2,7 +2,7 @@
     import { Receive } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type LevelState } from '@typings/gameState';
+    import { type KeySpamGameParams, type LevelState } from '@typings/gameState';
     import { type IKeySpamGameState } from '@typings/keySpam';
     import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { type Tweened, tweened } from 'svelte/motion';
@@ -115,7 +115,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, difficulty) {
+    async function startGame(iterations: number, config: KeySpamGameParams) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -123,7 +123,8 @@
         UserTimer.set(0, {
             duration: 0,
         });
-
+        
+        const { difficulty } = config;
         KeySpamState = {
             duration: generateDuration(difficulty),
             key: GetRandomKeyFromSet('PrimarySet'),
@@ -146,7 +147,7 @@
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
-                    startGame(iterations, difficulty);
+                    startGame(iterations, config);
                 } else {
                     GAME_STATE.finish(true);
                     KeySpamState = null;
@@ -165,15 +166,15 @@
     function initialise() {
         if (!$GAME_STATE.active || KeySpamState) return;
 
-        const { iterations, difficulty } = $GAME_STATE;
-        startGame(iterations, difficulty);
+        const { iterations, config } = $GAME_STATE;
+        startGame(iterations, config as KeySpamGameParams);
     }
 
     /**
      * Generate a duration for a progress bar based on the difficulty
      * @param difficulty The difficulty should be between 0 and 100.
      */
-    function generateDuration(difficulty): number {
+    function generateDuration(difficulty: number): number {
         /** Set the minimum and maximum duration for a progress bar */
         const { MIN, MAX } = KEY_SPAM.DURATION;
 
