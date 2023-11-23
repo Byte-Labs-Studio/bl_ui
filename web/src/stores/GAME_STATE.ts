@@ -1,3 +1,4 @@
+import { Send } from '@enums/events';
 import { IGameParams, IGameState } from '@typings/gameState';
 import { SendEvent } from '@utils/eventsHandlers';
 import { Writable, writable } from 'svelte/store';
@@ -11,7 +12,10 @@ export const store = () => {
 
     const methods = {
         start: (data: IGameParams) => {
-            const { type, iterations, config } = data;
+            let { type, iterations, config } = data;
+
+            iterations = iterations || 1;
+
             GAME_STATE.update(_ => {
                 const active = true;
                 return {
@@ -21,15 +25,11 @@ export const store = () => {
                     config
                 };
             });
-
-            const event: string = `${type}:start`;
-            SendEvent(event);
         },
 
         finish: (success: boolean = false) => {
             GAME_STATE.update(store => {
-                const event: string = `${store.type}:finish`;
-                SendEvent(event, success);
+                SendEvent(Send.finish, success);
                 const active = false;
                 return {
                     active,

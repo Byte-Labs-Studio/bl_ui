@@ -11,7 +11,6 @@ const ReceiveDebuggers: DebugEventCallback[] = [
     {
         action: Send.close,
         handler: () => {
-            console.log('closed')
         },
     },
 ]

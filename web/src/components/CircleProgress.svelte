@@ -1,17 +1,18 @@
 <script lang="ts">
     import GAME_STATE from '@stores/GAME_STATE';
     import { type ICircleProgressGameState } from '@typings/circleProgress';
-    import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import {
         GetRandomKeyFromSet,
+        KEYS,
         PROGRESS
     } from './config/gameConfig';
     import { GameType } from '@enums/gameTypes';
     import {type ProgressGameParams, type LevelState } from '@typings/gameState';
-    import { Receive } from '@enums/events';
+    import { Key } from '@enums/events';
+    import { TempKeyListener } from '@utils/keyhandler';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
@@ -37,7 +38,7 @@
 
     let IterationState: LevelState = null;
 
-    let KeyListener: ReturnType<typeof TempReceiveEvent>;
+    let KeyListener: ReturnType<typeof TempKeyListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -81,7 +82,14 @@
                 resolve(false);
             }, duration);
 
-            KeyListener = TempReceiveEvent(Receive.keydown, (e: KeyboardEvent) => {
+            KeyListener = TempKeyListener(Key.pressed, (e: KeyboardEvent) => {
+
+                const key = e.key.toUpperCase();
+
+                if (!KEYS.Numbers.includes(key)) {
+                    return;
+                }
+
                 clearTimeout(timeout);
 
                 UserRotation.set($UserRotation, {
@@ -89,7 +97,7 @@
                 });
 
                 
-                const key = e.key.toUpperCase();
+
 
                 if (key === CircleState.key) {
                     const userRotDeg = ($UserRotation / 100) * 360;
@@ -126,7 +134,10 @@
             duration: 0,
         });
 
-        const { difficulty } = config;
+        let { difficulty } = config;
+
+        difficulty = (difficulty || PROGRESS.FALLBACK_DIFFICULTY ) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
+
         CircleState = {
             target: generateTargetSegment(difficulty),
             duration: generateDuration(difficulty),

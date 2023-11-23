@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CONFIG } from './stores/stores';
+    import { CONFIG, IS_BROWSER } from './stores/stores';
     import { InitialiseListen } from '@utils/listeners';
     import Visibility from '@providers/Visibility.svelte';
     import Debug from '@providers/Debug.svelte';
@@ -11,7 +11,7 @@
 
     CONFIG.set({
         fallbackResourceName: 'debug',
-        allowEscapeKey: true,
+        allowEscapeKey: false,
     });
 
     InitialiseListen();
@@ -25,4 +25,6 @@
     <NumberSlide />
 </Visibility>
 
-<Debug />
+{#if $IS_BROWSER}
+    <Debug />
+{/if}

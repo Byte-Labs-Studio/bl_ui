@@ -22,6 +22,8 @@ export const PROGRESS = {
         MIN: 2,
         MAX: 40,
     },
+
+    FALLBACK_DIFFICULTY: 50,
 };
 
 
@@ -37,6 +39,9 @@ export const KEY_CIRCLE = {
         MIN: 250,
         MAX: 1500,
     },
+
+    FALLBACK_NUM_KEYS: 3,
+    FALLBACK_DIFFICULTY: 50,
 };
 
 export const KEY_SPAM = {
@@ -47,6 +52,8 @@ export const KEY_SPAM = {
         MIN: 750,
         MAX: 5000,
     },
+
+    FALLBACK_DIFFICULTY: 50,
 };
 
 export const NUMBER_SLIDE = {
@@ -60,6 +67,9 @@ export const NUMBER_SLIDE = {
      * Default value is 15% of the bar
      */
     ZONE_SIZE: 15,
+
+    FALLBACK_NUM_KEYS: 3,
+    FALLBACK_DIFFICULTY: 50,
 }
 
 /**
@@ -80,6 +90,8 @@ export const KEYS = {
      * All the number keys used for games.
      * */
     Numbers: ['1', '2', '3', '4'],
+
+    // NumbersOnShift: ['!', '@', '#', '$'],
 
     /**
      * All the keys used for games. | Named primary since it's the most convenient for the player.

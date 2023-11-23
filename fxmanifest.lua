@@ -13,11 +13,12 @@ ui_page 'build/index.html'
 -- ui_page 'http://localhost:3000/' --for dev
 
 shared_script {
-    'shared/enums.lua'
+    'shared/**/*.lua',
 }
 
 client_script {
     'client/*.lua',
+    'client/games/*.lua',
 }
 
 files {

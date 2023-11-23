@@ -119,7 +119,7 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                        numberOfKeys: 2,
+                        numberOfKeys: 10,
                     } as NumberSlideGameParams
 
                     DebugEventSend<IGameParams>(Receive.start, {

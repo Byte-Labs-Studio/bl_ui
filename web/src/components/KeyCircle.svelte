@@ -3,12 +3,12 @@
     import GAME_STATE from '@stores/GAME_STATE';
     import { type KeyCircleGameParams, type LevelState } from '@typings/gameState';
     import { type IKeyCircleGameState } from '@typings/keyCircle';
-    import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import { GetRandomKeyFromSet, KEY_CIRCLE } from './config/gameConfig';
-    import { Receive } from '@enums/events';
+    import { Key } from '@enums/events';
+    import { TempKeyListener } from '@utils/keyhandler';
 
     const UserRotation: Tweened<number> = tweened(0);
 
@@ -36,8 +36,8 @@
     let IterationState: LevelState = null;
 
     let KeyListeners: {
-        Down: ReturnType<typeof TempReceiveEvent>;
-        Up: ReturnType<typeof TempReceiveEvent>;
+        Down: ReturnType<typeof TempKeyListener>;
+        Up: ReturnType<typeof TempKeyListener>;
     } = {
         Down: null,
         Up: null,
@@ -98,9 +98,11 @@
 
             clearKeyListeners();
 
-            KeyListeners.Down = TempReceiveEvent(
-                Receive.keydown,
+            KeyListeners.Down = TempKeyListener(
+                Key.down,
                 (e: KeyboardEvent) => {
+                    if (!Visible) return;
+                    
                     UserPressedKeys[e.key.toUpperCase()] = true;
 
                     if (IterationState) return;
@@ -143,8 +145,8 @@
                 },
             );
 
-            KeyListeners.Up = TempReceiveEvent(
-                Receive.keyup,
+            KeyListeners.Up = TempKeyListener(
+                Key.up,
                 (e: KeyboardEvent) => {
                     delete UserPressedKeys[e.key.toUpperCase()];
                 },
@@ -165,7 +167,9 @@
             duration: 0,
         });
 
-        const { difficulty, numberOfKeys } = config;
+        let { difficulty, numberOfKeys } = config;
+        difficulty = (difficulty || KEY_CIRCLE.FALLBACK_DIFFICULTY ) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
+        numberOfKeys = numberOfKeys || KEY_CIRCLE.FALLBACK_NUM_KEYS;
 
         KeyCircleState = {
             stages: numberOfKeys,

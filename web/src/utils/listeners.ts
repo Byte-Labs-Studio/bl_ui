@@ -4,11 +4,12 @@ import { ReceiveEvent } from "./eventsHandlers"
 import { IGameParams } from "@typings/gameState"
 import GAME_STATE from "@stores/GAME_STATE"
 
+
+// This is a list of events that will always be listened to. Ignore the type
 const AlwaysListened: DebugEventCallback[] = [
     {
         action: Receive.visible,
         handler: (data: string) => {
-            console.log("This is always listened to because it is in the AlwaysListened array.")
         }
     },
     {

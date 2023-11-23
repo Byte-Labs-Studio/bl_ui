@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Receive } from '@enums/events';
+    import { Key as KeyEnum } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
     import {
@@ -7,13 +7,13 @@
         type LevelState,
     } from '@typings/gameState';
     import { type INumberSlideGameState } from '@typings/numberSlide';
-    import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { delay } from '@utils/misc';
-    import { GetRandomKeyFromSet, NUMBER_SLIDE } from './config/gameConfig';
-    import Key from './NumberSlide/Key.svelte';
+    import { GetRandomKeyFromSet, KEYS, NUMBER_SLIDE } from './config/gameConfig';
     import { tweened } from 'svelte/motion';
     import { get } from 'svelte/store';
     import { scale } from 'svelte/transition';
+    import { TempKeyListener } from '@utils/keyhandler';
+    import Key from './NumberSlide/Key.svelte';
 
     let CurrentKeyIndex: number = null;
 
@@ -23,7 +23,7 @@
 
     let IterationState: LevelState = null;
 
-    let KeyListener: ReturnType<typeof TempReceiveEvent>;
+    let KeyListener: ReturnType<typeof TempKeyListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -99,10 +99,15 @@
                 }));
             });
 
-            KeyListener = TempReceiveEvent(
-                Receive.keydown,
+            KeyListener = TempKeyListener(
+                KeyEnum.pressed,
                 (e: KeyboardEvent) => {
                     const key = e.key.toUpperCase();
+
+                    if (!KEYS.Numbers.includes(key)) {
+                        return;
+                    }
+
                     const targetKey = NumberSlideState.keys[CurrentKeyIndex];
 
                     if (!targetKey) {
@@ -137,7 +142,9 @@
 
         clearKeyListeners();
 
-        const { difficulty, numberOfKeys } = config;
+        let { difficulty, numberOfKeys } = config;
+        difficulty = (difficulty || NUMBER_SLIDE.FALLBACK_DIFFICULTY ) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
+        numberOfKeys = numberOfKeys || NUMBER_SLIDE.FALLBACK_NUM_KEYS;
 
         const duration = generateDuration(difficulty);
         const keys = generateKeys(numberOfKeys, duration);

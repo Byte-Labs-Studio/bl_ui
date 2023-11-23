@@ -1,14 +1,16 @@
 export enum Receive {
     visible = 'ui:visible',
-
     start = 'ui:start',
-
-    keydown = 'ui:keydown',
-    keyup = 'ui:keyup',
 }
 
 export enum Send {
     close = 'ui:close',
+    finish = `ui:finish`,
+}
 
-    finish = `%s:finish`,
+
+export enum Key {
+    down = 'keydown',
+    up = 'keyup',
+    pressed = 'keypress',
 }

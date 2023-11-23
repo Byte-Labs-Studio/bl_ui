@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { Receive } from '@enums/events';
+    import { Key, Receive } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
     import { type KeySpamGameParams, type LevelState } from '@typings/gameState';
     import { type IKeySpamGameState } from '@typings/keySpam';
-    import { TempReceiveEvent } from '@utils/eventsHandlers';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { GetRandomKeyFromSet, KEY_SPAM } from './config/gameConfig';
+    import { GetRandomKeyFromSet, KEYS, KEY_SPAM } from './config/gameConfig';
     import { delay } from '@utils/misc';
+    import { TempKeyListener } from '@utils/keyhandler';
 
     const UserTimer: Tweened<number> = tweened(0);
 
@@ -28,7 +28,7 @@
 
     let IterationState: LevelState = null;
 
-    let KeyListener: ReturnType<typeof TempReceiveEvent>;
+    let KeyListener: ReturnType<typeof TempKeyListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -83,10 +83,14 @@
                 resolve(false);
             }, duration);
 
-            KeyListener = TempReceiveEvent(
-                Receive.keydown,
+            KeyListener = TempKeyListener(
+                Key.pressed,
                 (e: KeyboardEvent) => {
                     const key = e.key.toUpperCase();
+
+                    if (!KEYS.PrimarySet.includes(key)) {
+                        return;
+                    }
 
                     if (key === KeySpamState.key) {
                         let { size } = KeySpamState;
@@ -124,7 +128,9 @@
             duration: 0,
         });
         
-        const { difficulty } = config;
+        let { difficulty } = config;
+        difficulty = (difficulty || KEY_SPAM.FALLBACK_DIFFICULTY) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
+
         KeySpamState = {
             duration: generateDuration(difficulty),
             key: GetRandomKeyFromSet('PrimarySet'),

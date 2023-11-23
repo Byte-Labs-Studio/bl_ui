@@ -6,6 +6,7 @@
     import { type INumberSlideKeyState } from '@typings/numberSlide';
     import { onMount } from 'svelte';
     import { type Tweened } from 'svelte/motion';
+    import { scale } from 'svelte/transition';
 
     export let key: string = null;
     export let state: INumberSlideKeyState = null;
@@ -39,7 +40,9 @@
 </script>
 
 {#if $left > 0 && $left < 100}
-    <div style="left: {$left}%;" class="grid place-items-center absolute">
+    <div 
+    transition:scale={{ duration: 250 }}
+    style="left: {$left}%;" class="grid place-items-center absolute">
         <p
             class=" absolute font-bold text-[2vw] text-shadow default-colour-transition
             {state === 'success'
@@ -47,7 +50,7 @@
                 : state === 'fail'
                 ? 'text-fail glow-fail'
                 : active
-                ? 'text-accent glow-accent'
+                ? 'text-accent'
                 : 'text-primary'}"
         >
             {$left < stopRandomisingZone ? fakeKey : key}
