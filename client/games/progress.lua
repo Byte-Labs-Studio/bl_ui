@@ -1,4 +1,3 @@
-
 --- Progress Game
 ---@param iterations number The amount of iterations to run
 ---@param difficulty number The difficulty of the game (1-100)
