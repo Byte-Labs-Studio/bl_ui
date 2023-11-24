@@ -7,7 +7,7 @@ function KeySpam(iterations, difficulty)
 
     ---@type DifficultyConfig
     local config = {
-        difficulty = difficulty,
+        difficulty = difficulty or 50,
     }
 
     local result = StartGame(GameTypes.KeySpam, iterations, config)

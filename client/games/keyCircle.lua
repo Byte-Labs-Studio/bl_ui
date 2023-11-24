@@ -8,8 +8,8 @@ function KeyCircle(iterations, difficulty, numberOfKeys)
 
     ---@type KeyDifficultyConfig
     local config = {
-        difficulty = difficulty,
-        numberOfKeys = numberOfKeys,
+        difficulty = difficulty or 50,
+        numberOfKeys = numberOfKeys or 3,
     }
 
     local result = StartGame(GameTypes.KeyCircle, iterations, config)

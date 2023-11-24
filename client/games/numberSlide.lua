@@ -12,8 +12,8 @@ function NumberSlide(iterations, difficulty, numberOfKeys)
 
     ---@type KeyDifficultyConfig
     local config = {
-        difficulty = difficulty,
-        numberOfKeys = numberOfKeys,
+        difficulty = difficulty or 50,
+        numberOfKeys = numberOfKeys or 5,
     }
 
     local result = StartGame(GameTypes.NumberSlide, iterations, config)

@@ -34,11 +34,9 @@ function StartGame(gameType, iterations, config)
         config = config,
     })
 
-
     local keepGameInput = Config.KeepGameInput[gameType] or false
-    print(Config.KeepGameInput[gameType], keepGameInput)
 
-    SetUIFocus(keepGameInput, false)
+    SetUIFocus(keepGameInput, true)
 
     local result = Citizen.Await(currentGamePromise)
 	return result
