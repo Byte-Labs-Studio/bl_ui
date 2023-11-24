@@ -44,6 +44,14 @@ function StartGame(gameType, iterations, config)
 	return result
 end
 
+function CancelGame()
+    if currentGamePromise then
+        currentGamePromise:resolve(false)
+        currentGamePromise = nil
+        ResetUIFocus()
+    end
+end
+exports('CancelGame', CancelGame)
 
 RegisterNUICallback(Receive.close, function(_, cb)
     SendNUIEvent(Send.visible, false)
