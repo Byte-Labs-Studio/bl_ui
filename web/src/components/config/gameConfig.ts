@@ -72,6 +72,29 @@ export const NUMBER_SLIDE = {
     FALLBACK_DIFFICULTY: 50,
 }
 
+export const MOUSE_CLICK = {
+    /**
+     * The minimum and maximum duration of the lines from one side to the other.
+     */
+    DURATION: {
+        MIN: 500,
+        MAX: 3000,
+    },
+
+    /**
+     * The minimum and maximum size of the zone in %.
+     */
+    ZONE: {
+        MIN: 5,
+        MAX: 40,
+    },
+
+    ZONE_FROM_RIGHT: 95,
+
+    FALLBACK_DIFFICULTY: 50,
+    FALLBACK_NUM_LINES: 3,
+};
+
 /**
  * Key Sets used for the games.
  */

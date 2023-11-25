@@ -2,13 +2,13 @@
     import { Key, Receive } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type KeySpamGameParams, type LevelState } from '@typings/gameState';
+    import { type DifficultyParam, type LevelState } from '@typings/gameState';
     import { type IKeySpamGameState } from '@typings/keySpam';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import { GetRandomKeyFromSet, KEYS, KEY_SPAM } from './config/gameConfig';
     import { delay } from '@utils/misc';
-    import { TempKeyListener } from '@utils/keyhandler';
+    import { TempInteractListener } from '@utils/interactHandler';
 
     const UserTimer: Tweened<number> = tweened(0);
 
@@ -28,7 +28,7 @@
 
     let IterationState: LevelState = null;
 
-    let KeyListener: ReturnType<typeof TempKeyListener>;
+    let KeyListener: ReturnType<typeof TempInteractListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -83,7 +83,7 @@
                 resolve(false);
             }, duration);
 
-            KeyListener = TempKeyListener(
+            KeyListener = TempInteractListener(
                 Key.pressed,
                 (e: KeyboardEvent) => {
                     const key = e.key.toUpperCase();
@@ -119,7 +119,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: KeySpamGameParams) {
+    async function startGame(iterations: number, config: DifficultyParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -173,7 +173,7 @@
         if (!$GAME_STATE.active || KeySpamState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeySpamGameParams);
+        startGame(iterations, config as DifficultyParam);
     }
 
     /**

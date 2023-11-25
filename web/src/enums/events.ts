@@ -14,3 +14,10 @@ export enum Key {
     up = 'keyup',
     pressed = 'keypress',
 }
+
+export enum Mouse {
+    click = 'click',
+    down = 'mousedown',
+    up = 'mouseup',
+    move = 'mousemove',
+}

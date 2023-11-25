@@ -3,7 +3,7 @@
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
     import {
-        type NumberSlideGameParams,
+        type KeyGameParam,
         type LevelState,
     } from '@typings/gameState';
     import { type INumberSlideGameState } from '@typings/numberSlide';
@@ -12,7 +12,7 @@
     import { tweened } from 'svelte/motion';
     import { get } from 'svelte/store';
     import { scale } from 'svelte/transition';
-    import { TempKeyListener } from '@utils/keyhandler';
+    import { TempInteractListener } from '@utils/interactHandler';
     import Key from './NumberSlide/Key.svelte';
 
     let CurrentKeyIndex: number = null;
@@ -23,7 +23,7 @@
 
     let IterationState: LevelState = null;
 
-    let KeyListener: ReturnType<typeof TempKeyListener>;
+    let KeyListener: ReturnType<typeof TempInteractListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -99,7 +99,7 @@
                 }));
             });
 
-            KeyListener = TempKeyListener(
+            KeyListener = TempInteractListener(
                 KeyEnum.pressed,
                 (e: KeyboardEvent) => {
                     const key = e.key.toUpperCase();
@@ -137,7 +137,7 @@
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations, config: NumberSlideGameParams) {
+    async function startGame(iterations, config: KeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -191,7 +191,7 @@
         if (!$GAME_STATE.active || NumberSlideState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as NumberSlideGameParams);
+        startGame(iterations, config as KeyGameParam);
     }
 
     /**

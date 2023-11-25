@@ -1,12 +1,9 @@
 
-type KeyListenerType = 'keydown' | 'keyup' | 'keypress';
-/**
- * Listen for an event from the Client
- * @param action The name of the event to listen for
- * @param handler The callback to run when the event is received
- * @returns {function}
- **/
-export function TempKeyListener(type: KeyListenerType, handler: (data: KeyboardEvent) => void,
+type InteractListenerType = 'keydown' | 'keyup' | 'keypress' | 'click' | 'mousedown' | 'mouseup' | 'mousemove'
+
+
+
+export function TempInteractListener(type: InteractListenerType, handler: (data: KeyboardEvent) => void,
 ): {removeListener: () => void} {
     // const eventListener = (event: MessageEvent<NuiMessage<T>>) => {
     //     const { action: eventAction, data } = event.data;

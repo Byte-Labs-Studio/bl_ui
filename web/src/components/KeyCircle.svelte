@@ -1,14 +1,14 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type KeyCircleGameParams, type LevelState } from '@typings/gameState';
+    import { type KeyGameParam, type LevelState } from '@typings/gameState';
     import { type IKeyCircleGameState } from '@typings/keyCircle';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import { GetRandomKeyFromSet, KEY_CIRCLE } from './config/gameConfig';
     import { Key } from '@enums/events';
-    import { TempKeyListener } from '@utils/keyhandler';
+    import { TempInteractListener } from '@utils/interactHandler';
 
     const UserRotation: Tweened<number> = tweened(0);
 
@@ -36,8 +36,8 @@
     let IterationState: LevelState = null;
 
     let KeyListeners: {
-        Down: ReturnType<typeof TempKeyListener>;
-        Up: ReturnType<typeof TempKeyListener>;
+        Down: ReturnType<typeof TempInteractListener>;
+        Up: ReturnType<typeof TempInteractListener>;
     } = {
         Down: null,
         Up: null,
@@ -98,7 +98,7 @@
 
             clearKeyListeners();
 
-            KeyListeners.Down = TempKeyListener(
+            KeyListeners.Down = TempInteractListener(
                 Key.down,
                 (e: KeyboardEvent) => {
                     if (!Visible) return;
@@ -145,7 +145,7 @@
                 },
             );
 
-            KeyListeners.Up = TempKeyListener(
+            KeyListeners.Up = TempInteractListener(
                 Key.up,
                 (e: KeyboardEvent) => {
                     delete UserPressedKeys[e.key.toUpperCase()];
@@ -158,7 +158,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: KeyCircleGameParams) {
+    async function startGame(iterations, config: KeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -213,7 +213,7 @@
         if (!$GAME_STATE.active || KeyCircleState) return;
 
         const { iterations, config } = $GAME_STATE
-        startGame(iterations, config as KeyCircleGameParams);
+        startGame(iterations, config as KeyGameParam);
     }
 
     /**
@@ -244,7 +244,7 @@
         class="grid place-items-center primary-shadow default-game-position rounded-full w-fit h-fit"
     >
         {#if KeyCircleState}
-            {#key KeyCircleState}
+            {#key KeyCircleState.keys}
                 <div
                     transition:scale
                     class="flex flex-row items-center justify-center absolute"

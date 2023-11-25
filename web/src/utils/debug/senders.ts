@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive, Send } from '@enums/events'
 import { DebugEventSend, SendEvent } from '@utils/eventsHandlers'
-import { IGameParams, IGameState, KeyCircleGameParams, KeySpamGameParams, NumberSlideGameParams, ProgressGameParams } from '@typings/gameState'
+import { IGameParams, IGameState, KeyGameParam, DifficultyParam, KeyGameParam, DifficultyParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -30,7 +30,7 @@ const SendDebuggers: DebugItem[] = [
                 action: (value: number) => {
                     const config = {
                         difficulty: value,
-                    } as ProgressGameParams
+                    } as DifficultyParam
 
                     DebugEventSend<IGameParams>(Receive.start, {
                         type: GameType.CircleProgress,
@@ -52,7 +52,7 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                    } as ProgressGameParams
+                    } as DifficultyParam
 
                     DebugEventSend<IGameParams>(Receive.start, {
                         type: GameType.Progress,
@@ -75,7 +75,7 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         difficulty: value,
                         numberOfKeys: 2,
-                    } as KeyCircleGameParams
+                    } as KeyGameParam
 
                     DebugEventSend<IGameParams>(Receive.start, {
                         type: GameType.KeyCircle,
@@ -97,7 +97,7 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                    } as KeySpamGameParams
+                    } as DifficultyParam
 
                     DebugEventSend<IGameParams>(Receive.start, {
                         type: GameType.KeySpam,
@@ -120,10 +120,33 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         difficulty: value,
                         numberOfKeys: 10,
-                    } as NumberSlideGameParams
+                    } as KeyGameParam
 
                     DebugEventSend<IGameParams>(Receive.start, {
                         type: GameType.NumberSlide,
+                        iterations: 1,
+                        config,
+                    })
+                },
+                value: 50,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'MouseClick',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        difficulty: value,
+                        numberOfKeys: 10,
+                    } as KeyGameParam
+
+                    DebugEventSend<IGameParams>(Receive.start, {
+                        type: GameType.MouseClick,
                         iterations: 1,
                         config,
                     })

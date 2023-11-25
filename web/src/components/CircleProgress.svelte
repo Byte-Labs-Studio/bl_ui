@@ -10,9 +10,9 @@
         PROGRESS
     } from './config/gameConfig';
     import { GameType } from '@enums/gameTypes';
-    import {type ProgressGameParams, type LevelState } from '@typings/gameState';
+    import {type DifficultyParam, type LevelState } from '@typings/gameState';
     import { Key } from '@enums/events';
-    import { TempKeyListener } from '@utils/keyhandler';
+    import { TempInteractListener } from '@utils/interactHandler';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
@@ -38,7 +38,7 @@
 
     let IterationState: LevelState = null;
 
-    let KeyListener: ReturnType<typeof TempKeyListener>;
+    let KeyListener: ReturnType<typeof TempInteractListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -82,7 +82,7 @@
                 resolve(false);
             }, duration);
 
-            KeyListener = TempKeyListener(Key.pressed, (e: KeyboardEvent) => {
+            KeyListener = TempInteractListener(Key.pressed, (e: KeyboardEvent) => {
 
                 const key = e.key.toUpperCase();
 
@@ -125,7 +125,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: ProgressGameParams) {
+    async function startGame(iterations, config: DifficultyParam) {
         if (!Visible) return;
 
         clearKeyListener();
