@@ -1,9 +1,9 @@
---- MouseClick Game
+--- RapidLines Game
 ---@param iterations number The amount of iterations to run
 ---@param difficulty number The difficulty of the game (1-100)]
 ---@param numberOfLines number The amount of keys to press
 ---@return boolean
-function MouseClick(iterations, difficulty, numberOfLines)
+function RapidLines(iterations, difficulty, numberOfLines)
     local promise = promise:new()
 
     ---@type KeyDifficultyConfig
@@ -12,9 +12,9 @@ function MouseClick(iterations, difficulty, numberOfLines)
         numberOfKeys = numberOfLines or 5,
     }
 
-    local result = StartGame(GameTypes.NumberSlide, iterations, config)
+    local result = StartGame(GameTypes.RapidLines, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)
 end
-exports("MouseClick", MouseClick)
+exports("RapidLines", RapidLines)

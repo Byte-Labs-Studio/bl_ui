@@ -134,7 +134,7 @@ const SendDebuggers: DebugItem[] = [
         ],
     },
     {
-        label: 'MouseClick',
+        label: 'RapidLines',
         actions: [
             {
                 label: 'Custom Difficulty',
@@ -146,7 +146,7 @@ const SendDebuggers: DebugItem[] = [
                     } as KeyGameParam
 
                     DebugEventSend<IGameParams>(Receive.start, {
-                        type: GameType.MouseClick,
+                        type: GameType.RapidLines,
                         iterations: 1,
                         config,
                     })

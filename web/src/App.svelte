@@ -8,7 +8,7 @@
     import KeyCircle from '@components/KeyCircle.svelte';
     import KeySpam from '@components/KeySpam.svelte';
     import NumberSlide from '@components/NumberSlide.svelte';
-    import MouseClick from '@components/MouseClick.svelte';
+    import RapidLines from '@components/RapidLines.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -24,7 +24,7 @@
     <KeyCircle />
     <KeySpam />
     <NumberSlide />
-    <MouseClick />
+    <RapidLines />
 </Visibility>
 
 {#if $IS_BROWSER}

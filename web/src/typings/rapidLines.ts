@@ -3,7 +3,7 @@ import { Tweened } from "svelte/motion";
 export type ILineState = 'success' | 'fail' | 'active' | null
 
 
-export interface IMouseClickState {
+export interface IRapidLinesState {
     lines: {
         left: Tweened<number>;
         state: ILineState;

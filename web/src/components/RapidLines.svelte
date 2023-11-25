@@ -1,48 +1,48 @@
 <script lang="ts">
-    import { type IMouseClickState } from '@typings/mouseClick';
+    import { type IRapidLinesState } from '@typings/rapidLines';
     import { scale } from 'svelte/transition';
-    import Line from './MouseClick/Line.svelte';
+    import Line from './RapidLines/Line.svelte';
     import { type KeyGameParam, type LevelState } from '@typings/gameState';
     import { TempInteractListener } from '@utils/interactHandler';
     import GAME_STATE from '@stores/GAME_STATE';
     import { GameType } from '@enums/gameTypes';
     import { delay } from '@utils/misc';
-    import { MOUSE_CLICK } from './config/gameConfig';
+    import { KEYS, RAPID_LINES } from './config/gameConfig';
     import { tweened } from 'svelte/motion';
     import { get } from 'svelte/store';
-    import { Mouse } from '@enums/events';
+    import { Key } from '@enums/events';
 
-    let MouseClickState: IMouseClickState = null;
+    let RapidLinesState: IRapidLinesState = null;
 
     let Visible: boolean = false;
 
     let IterationState: LevelState = null;
 
-    let MouseListener: ReturnType<typeof TempInteractListener>;
+    let KeyListener: ReturnType<typeof TempInteractListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
-            state.type === GameType.MouseClick &&
-            !MouseClickState;
+            state.type === GameType.RapidLines &&
+            !RapidLinesState;
 
         if (shouldShow) {
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
-            MouseClickState = null;
+            RapidLinesState = null;
             IterationState = null;
-            clearMouseListeners();
+            clearKeyListeners();
         }
     });
 
     /** This code is responsible for clearing the key listeners.
      */
-    function clearMouseListeners() {
-        MouseListener?.removeListener();
-        MouseListener = null;
+    function clearKeyListeners() {
+        KeyListener?.removeListener();
+        KeyListener = null;
     }
 
     /** This code is responsible for playing the iteration of the minigame.
@@ -54,9 +54,9 @@
         if (!Visible) return;
 
         return new Promise((resolve, _) => {
-            const { lines, zone } = MouseClickState;
+            const { lines, zone } = RapidLinesState;
 
-            const { ZONE_FROM_RIGHT } = MOUSE_CLICK;
+            const { ZONE_FROM_RIGHT } = RAPID_LINES;
 
             const zoneRange = {
                 max: ZONE_FROM_RIGHT,
@@ -72,7 +72,7 @@
                 lines.forEach((line, i) => {
                     let { left } = line;
                     left.set(get(left), { duration: 0 });
-                    MouseClickState.lines[i].state = success
+                    RapidLinesState.lines[i].state = success
                         ? 'success'
                         : 'fail';
                 });
@@ -81,7 +81,7 @@
             }
 
             lines.forEach((key, i) => {
-                let originalLine = MouseClickState.lines[i];
+                let originalLine = RapidLinesState.lines[i];
                 lineSubscriptions.push(
                     key.left.subscribe(value => {
                         if (
@@ -97,22 +97,28 @@
                             console.log(
                                 'fail',
                                 i,
-                                MouseClickState.lines[i],
+                                RapidLinesState.lines[i],
                                 value,
                                 originalLine.state,
-                                MouseClickState.lines[i],
+                                RapidLinesState.lines[i],
                             );
                             originalLine.state = 'fail';
                             clearLineSubscriptions(false);
                         }
-                        MouseClickState.lines[i] = originalLine;
+                        RapidLinesState.lines[i] = originalLine;
                     }),
                 );
             });
 
-            MouseListener = TempInteractListener(
-                Mouse.click,
+            KeyListener = TempInteractListener(
+                Key.pressed,
                 (e: KeyboardEvent) => {
+                    const key = e.key.toUpperCase();
+
+                    if (key !== KEYS.Primary) {
+                        return;
+                    }
+
                     let anyInZone = false;
 
                     let furthestLine = 0;
@@ -136,23 +142,21 @@
                         }
                     });
 
-                    console.log(anyInZone, furthestLine, furthestLineIndex);
-
                     if (!anyInZone) {
                         clearLineSubscriptions(false);
                     } else {
                         const targetLine =
-                            MouseClickState.lines[furthestLineIndex];
+                            RapidLinesState.lines[furthestLineIndex];
                         targetLine.state = 'success';
 
-                        MouseClickState.lines[furthestLineIndex] = targetLine;
+                        RapidLinesState.lines[furthestLineIndex] = targetLine;
 
                         console.log(
                             furthestLineIndex,
-                            MouseClickState.lines[furthestLineIndex],
+                            RapidLinesState.lines[furthestLineIndex],
                         );
 
-                        const allSuccess = MouseClickState.lines.every(
+                        const allSuccess = RapidLinesState.lines.every(
                             line => line.state === 'success',
                         );
 
@@ -172,21 +176,21 @@
     async function startGame(iterations, config: KeyGameParam) {
         if (!Visible) return;
 
-        clearMouseListeners();
+        clearKeyListeners();
 
         let { difficulty, numberOfKeys } = config;
         difficulty =
-            (difficulty || MOUSE_CLICK.FALLBACK_DIFFICULTY) >= 100
+            (difficulty || RAPID_LINES.FALLBACK_DIFFICULTY) >= 100
                 ? 99
                 : difficulty <= 0
                   ? 5
                   : difficulty;
-        numberOfKeys = numberOfKeys || MOUSE_CLICK.FALLBACK_NUM_LINES;
+        numberOfKeys = numberOfKeys || RAPID_LINES.FALLBACK_NUM_LINES;
 
         const duration = generateDuration(difficulty);
         const lines = generateLines(numberOfKeys, duration);
         const zone = generateZone(difficulty);
-        MouseClickState = {
+        RapidLinesState = {
             duration,
             lines,
             zone,
@@ -198,7 +202,7 @@
 
         const success = await playIteration();
 
-        clearMouseListeners();
+        clearKeyListeners();
 
         IterationState = success ? 'success' : 'fail';
 
@@ -211,12 +215,12 @@
                     startGame(iterations, config);
                 } else {
                     GAME_STATE.finish(true);
-                    MouseClickState = null;
+                    RapidLinesState = null;
                     return;
                 }
             } else {
                 GAME_STATE.finish(false);
-                MouseClickState = null;
+                RapidLinesState = null;
                 return;
             }
         }, 500);
@@ -225,7 +229,7 @@
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
      */
     function initialise() {
-        if (!$GAME_STATE.active || MouseClickState) return;
+        if (!$GAME_STATE.active || RapidLinesState) return;
 
         const { iterations, config } = $GAME_STATE;
         startGame(iterations, config as KeyGameParam);
@@ -237,7 +241,7 @@
      */
     function generateZone(difficulty: number): number {
         /** Set the minimum and maximum duration for a progress bar */
-        const { MIN, MAX } = MOUSE_CLICK.ZONE;
+        const { MIN, MAX } = RAPID_LINES.ZONE;
 
         /** Calculate the duration based on the difficulty */
         let size: number = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
@@ -257,7 +261,7 @@
      */
     function generateDuration(difficulty: number): number {
         /** Set the minimum and maximum duration for a progress bar */
-        const { MIN, MAX } = MOUSE_CLICK.DURATION;
+        const { MIN, MAX } = RAPID_LINES.DURATION;
 
         /** Calculate the duration based on the difficulty */
         let duration: number = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
@@ -304,22 +308,23 @@
         class="primary-shadow default-game-position w-[20vw] h-[0.5vw] bg-primary-50 flex items-center"
     >
         <div
-            class="h-[2.5vw] w-[5vw] absolute grid place-items-center center-y secondary-shadow bg-primary-50 -translate-x-[120%]"
+            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y secondary-shadow bg-primary-50 -translate-x-[130%]"
         >
             <p
                 transition:scale={{ duration: 100 }}
                 class="text-shadow absolute font-bold text-[2vw]"
             >
-                LMB
+                {KEYS.Primary}
             </p>
         </div>
-        {#if MouseClickState}
+
+        {#if RapidLinesState}
             <div
-                style="width: {MouseClickState.zone}%; left: {MOUSE_CLICK.ZONE_FROM_RIGHT}%;"
-                class="bg-primary secondary-shadow h-[2.5vw] z-0 absolute -translate-x-full"
+                style="width: {RapidLinesState.zone}%; left: {RAPID_LINES.ZONE_FROM_RIGHT}%;"
+                class="bg-primary secondary-shadow h-[1vw] z-0 absolute -translate-x-full"
             />
 
-            {#each MouseClickState.lines as line, i}
+            {#each RapidLinesState.lines as line, i}
                 <Line {...line} />
             {/each}
         {/if}

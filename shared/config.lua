@@ -6,7 +6,7 @@ GameTypes = {
     KeyCircle = "KeyCircle",
     KeySpam = "KeySpam",
     NumberSlide = "NumberSlide",
-    MouseClick = "MouseClick",
+    RapidLines = "RapidLines",
 }
 
 Config.KeepGameInput = {
@@ -15,5 +15,5 @@ Config.KeepGameInput = {
     [GameTypes.KeyCircle] = false,
     [GameTypes.KeySpam] = true,
     [GameTypes.NumberSlide] = true,
-    [GameTypes.MouseClick] = true,
+    [GameTypes.RapidLines] = true,
 }

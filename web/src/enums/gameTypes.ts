@@ -5,5 +5,5 @@ export enum GameType {
     KeyCircle = "KeyCircle",
     KeySpam = "KeySpam",
     NumberSlide = "NumberSlide",
-    MouseClick = "MouseClick",
+    RapidLines = "RapidLines",
 }

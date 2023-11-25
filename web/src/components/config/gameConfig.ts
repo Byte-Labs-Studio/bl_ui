@@ -72,7 +72,7 @@ export const NUMBER_SLIDE = {
     FALLBACK_DIFFICULTY: 50,
 }
 
-export const MOUSE_CLICK = {
+export const RAPID_LINES = {
     /**
      * The minimum and maximum duration of the lines from one side to the other.
      */
