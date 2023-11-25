@@ -112,7 +112,7 @@ export const KEYS = {
     /**
      * All the number keys used for games.
      * */
-    Numbers: ['1', '2', '3', '4'],
+    Numbers: ['1', '2', '3', '4', '5'],
 
     // NumbersOnShift: ['!', '@', '#', '$'],
 
