@@ -95,6 +95,28 @@ export const RAPID_LINES = {
     FALLBACK_NUM_LINES: 3,
 };
 
+export const RAPID_CIRCLE = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    DURATION: {
+        MIN: 500,
+        MAX: 3000,
+    },
+
+    
+    /**
+     * The minimum and maximum size of the zone in %.
+     */
+    ZONE: {
+        MIN: 5,
+        MAX: 10,
+    },
+
+    FALLBACK_DIFFICULTY: 50,
+    FALLBACK_TARGETS: 3,
+};
+
 /**
  * Key Sets used for the games.
  */
@@ -108,6 +130,8 @@ export const KEYS = {
      * The Secondary go to key.
      * */
     Secondary: 'Q',
+
+    Space: ' ',
 
     /**
      * All the number keys used for games.
