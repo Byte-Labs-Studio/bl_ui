@@ -3,7 +3,7 @@ type InteractListenerType = 'keydown' | 'keyup' | 'keypress' | 'click' | 'moused
 
 
 
-export function TempInteractListener(type: InteractListenerType, handler: (data: KeyboardEvent) => void,
+export function TempInteractListener(type: InteractListenerType, handler: (data: KeyboardEvent | MouseEvent) => void,
 ): {removeListener: () => void} {
     // const eventListener = (event: MessageEvent<NuiMessage<T>>) => {
     //     const { action: eventAction, data } = event.data;

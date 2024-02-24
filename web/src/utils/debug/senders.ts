@@ -156,6 +156,29 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
+    {
+        label: 'CircleShake',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        difficulty: value,
+                        numberOfKeys: 10,
+                    } as KeyGameParam
+
+                    DebugEventSend<IGameParams>(Receive.start, {
+                        type: GameType.CircleShake,
+                        iterations: 1,
+                        config,
+                    })
+                },
+                value: 50,
+                type: 'slider',
+            },
+        ],
+    },
 ]
 
 export default SendDebuggers

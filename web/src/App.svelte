@@ -9,10 +9,11 @@
     import KeySpam from '@components/KeySpam.svelte';
     import NumberSlide from '@components/NumberSlide.svelte';
     import RapidLines from '@components/RapidLines.svelte';
+    import CircleShake from '@components/CircleShake.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
-        allowEscapeKey: false,
+        allowEscapeKey: true,
     });
 
     InitialiseListen();
@@ -25,6 +26,7 @@
     <KeySpam />
     <NumberSlide />
     <RapidLines />
+    <CircleShake />
 </Visibility>
 
 {#if $IS_BROWSER}

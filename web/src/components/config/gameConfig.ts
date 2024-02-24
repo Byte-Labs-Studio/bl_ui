@@ -117,6 +117,27 @@ export const RAPID_CIRCLE = {
     FALLBACK_TARGETS: 3,
 };
 
+export const CIRCLE_SHAKE = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    DURATION: {
+        MIN: 1000,
+        MAX: 10000,
+    },
+
+    /**
+     * The minimum and maximum size of the circle in degrees.
+     */
+    SIZE: {
+        MIN: 2,
+        MAX: 15,
+    },
+
+    FALLBACK_DIFFICULTY: 50,
+    FALLBACK_NUM_KEYS: 3,
+};
+
 /**
  * Key Sets used for the games.
  */

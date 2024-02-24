@@ -35,7 +35,7 @@
 
     {#if menuOpen}
         <ol
-            class="flex flex-col gap-2 bg-primary z-[9999999] max-w-[25vw] h-full px-[0.5vw] py-[0.5vw]"
+            class="flex flex-col gap-2 bg-primary z-[9999999] max-w-[25vw] h-[80vh] overflow-y-auto px-[0.5vw] py-[0.5vw]"
         >
             {#each SendDebuggers as { label, actions }}
                 <li
