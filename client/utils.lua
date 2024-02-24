@@ -14,10 +14,12 @@ local keepInput = IsNuiFocusKeepingInput()
 
 --- Used to set the UI focus
 --- @param allowInput boolean
---- @param disableCursor boolean
-function SetUIFocus(allowInput, disableCursor)
+--- @param displayCursor boolean
+function SetUIFocus(allowInput, displayCursor)
     keepInput = IsNuiFocusKeepingInput()
-    SetNuiFocus(true, not disableCursor)
+    SetNuiFocus(true, displayCursor)
+
+    print(allowInput)
     SetNuiFocusKeepInput(allowInput)
 end
 

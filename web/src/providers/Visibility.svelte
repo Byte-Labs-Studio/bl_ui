@@ -14,11 +14,9 @@
 
         const keyHandler = (e: KeyboardEvent) => {
             if ($VISIBLE && ['Escape'].includes(e.code)) {
-
                 if ($GAME_STATE.active) {
                     GAME_STATE.finish(false)
                 }
-
             }
         };
         window.addEventListener('keydown', keyHandler);
