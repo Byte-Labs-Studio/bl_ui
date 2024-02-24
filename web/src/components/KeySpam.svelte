@@ -29,6 +29,7 @@
     let IterationState: LevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
+        let KeyUpListener: ReturnType<typeof TempInteractListener>;
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -50,6 +51,8 @@
     function clearKeyListeners() {
         KeyListener?.removeListener();
         KeyListener = null;
+        KeyUpListener?.removeListener();
+        KeyUpListener = null;
     }
 
     /** This code is responsible for playing the iteration of the minigame.
@@ -83,9 +86,16 @@
                 resolve(false);
             }, duration);
 
+            let isKeydown: boolean = false;
+
             KeyListener = TempInteractListener(
                 Key.pressed,
                 (e: KeyboardEvent) => {
+                    if (!Visible) return;
+
+                    if (isKeydown) return;
+                    isKeydown = true;
+
                     const key = e.key.toUpperCase();
 
                     if (!KEYS.PrimarySet.includes(key)) {
@@ -110,6 +120,15 @@
                             resolve(true);  
                         }
                     }
+                },
+            );
+
+            KeyUpListener = TempInteractListener(
+                Key.up,
+                (e: KeyboardEvent) => {
+                    if (!Visible) return;
+
+                    isKeydown = false;
                 },
             );
         });
