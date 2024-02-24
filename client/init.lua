@@ -35,14 +35,21 @@ function StartGame(gameType, iterations, config)
     })
 
     local configInput = Config.KeepGameInput[gameType]
-
     local keepGameInput = false
-    
+
     if configInput ~= nil then
         keepGameInput = configInput
     end
 
-    SetUIFocus(keepGameInput, true)
+    local configCursor = Config.DisplayCursor[gameType]
+    local displayCursor = false
+
+    if configCursor ~= nil then
+        displayCursor = configCursor
+    end
+
+    print("Keep game input: " .. tostring(keepGameInput))
+    SetUIFocus(keepGameInput, displayCursor)
 
     local result = Citizen.Await(currentGamePromise)
 	return result
