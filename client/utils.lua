@@ -19,7 +19,6 @@ function SetUIFocus(allowInput, displayCursor)
     keepInput = IsNuiFocusKeepingInput()
     SetNuiFocus(true, displayCursor)
 
-    print(allowInput)
     SetNuiFocusKeepInput(allowInput)
 end
 

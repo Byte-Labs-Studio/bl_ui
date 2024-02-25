@@ -48,7 +48,6 @@ function StartGame(gameType, iterations, config)
         displayCursor = configCursor
     end
 
-    print("Keep game input: " .. tostring(keepGameInput))
     SetUIFocus(keepGameInput, displayCursor)
 
     local result = Citizen.Await(currentGamePromise)
