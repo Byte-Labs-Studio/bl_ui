@@ -4,6 +4,7 @@
     import { InitialiseDebugReceivers } from '@utils/debug/receivers';
     import SendDebuggers from '@utils/debug/senders';
     import { DebugEventSend } from '@utils/eventsHandlers';
+    import debug_image from '@assets/debug_image.png';
     import { onMount } from 'svelte';
 
     onMount(() => {
@@ -126,7 +127,7 @@
     {/if}
 
     <div
-        style="background-image: url('https://cdn.discordapp.com/attachments/1068663854143389788/1074878298498281554/HUD_-_Target_Menu.png');"
+        style="background-image: url({debug_image});"
         class="absolute w-screen bg-cover bg-no-repeat bg-center h-screen top-0 left-0 dev-image"
     />
 </div>
