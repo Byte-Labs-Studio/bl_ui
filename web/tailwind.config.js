@@ -8,17 +8,12 @@ export default {
 
     extend: {
         colors: {
-            // Configure your color palette here
-            primary: '#FAF7FF',
-            secondary: '#2C2C2C',
-            tertiary: '#424050',
-            accent: '#8685EF',
-
-            fail: '#FF0039',
-            success: '#65E046',
-
-            "primary-50": '#FAF7FF50',
-            "primary-75": '#FAF7FF75',
+            primary: 'hsl(var(--primary) / <alpha-value>)',
+            secondary: 'hsl(var(--secondary) / <alpha-value>)',
+            tertiary: 'hsl(var(--tertiary) / <alpha-value>)',
+            accent: 'hsl(var(--accent) / <alpha-value>)',
+            fail: 'hsl(var(--fail) / <alpha-value>)',
+            success: 'hsl(var(--success) / <alpha-value>)',
           },
     },
   },

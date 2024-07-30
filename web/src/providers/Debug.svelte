@@ -40,7 +40,7 @@
         >
             {#each SendDebuggers as { label, actions }}
                 <li
-                    class="flex flex-col gap-1 border-l-[2px] border-[color:var(--accent)] px-[0.25vw]"
+                    class="flex flex-col gap-1 border-l-[2px] border-[color:hsl(var(--accent))] px-[0.25vw]"
                 >
                     <span class="w-full text-black">{label}</span>
 
@@ -54,7 +54,7 @@
 
                                     <input
                                         type="text"
-                                        class="h-full w-full text-[color:var(--text-secondary)] px-[0.25vw]"
+                                        class="h-full w-full text-[color:hsl(var(--text-secondary))] px-[0.25vw]"
                                         bind:value={action.value}
                                     />
                                     <button

@@ -249,7 +249,7 @@
         <div
             class:shake={isOverTarget}
             style={SIZE_STYLES_HALF}
-            class="absolute secondary-shadow grid place-items-center bg-primary-50 rounded-full"
+            class="absolute secondary-shadow grid place-items-center bg-secondary/80 rounded-full"
         >
             {#if CircleState}
                 {@const numStage = CircleState.stages}
@@ -270,7 +270,7 @@
                                 ? 'stroke-white'
                                 : stage == currentStage
                                   ? 'stroke-accent glow-accent '
-                                  : 'stroke-primary-50'} origin-center"
+                                  : 'stroke-secondary/80'} origin-center"
                             stroke-dasharray="{INNER_CIRCUMFERENCE}vw"
                             stroke-dashoffset="{INNER_CIRCUMFERENCE *
                                 ((101 - size) / 100)}vw"

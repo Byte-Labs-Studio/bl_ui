@@ -243,7 +243,7 @@
     >
         <div
             style={SIZE_STYLES_HALF}
-            class="absolute secondary-shadow grid place-items-center bg-primary-50 rounded-full"
+            class="absolute secondary-shadow grid place-items-center bg-secondary/80 rounded-full"
         >
             {#key CircleState.target}
                 <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
@@ -261,7 +261,7 @@
             {#if CircleState}
                 <circle
                     style="stroke-width: {RADIUS * 0.1}vw"
-                    class="absolute fill-none stroke-primary-50"
+                    class="absolute fill-none stroke-secondary/80"
                     cx="50%"
                     cy="50%"
                     r="{RADIUS * 0.95}vw"

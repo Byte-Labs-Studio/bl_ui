@@ -252,7 +252,7 @@
                     {#each KeyCircleState?.keys as key}
                         <div
                             style={SIZE_STYLES_QUARTER}
-                            class="grid place-items-center secondary-shadow bg-primary-50"
+                            class="grid place-items-center secondary-shadow bg-secondary/80"
                         >
                             <!-- {#key CircleState.target} -->
                             <p
@@ -276,7 +276,7 @@
         >
             <circle
                 style="stroke-width: {RADIUS * 0.1}vw"
-                class="absolute fill-none stroke-primary-50"
+                class="absolute fill-none stroke-secondary/80"
                 cx="50%"
                 cy="50%"
                 r="{RADIUS * 0.95}vw"

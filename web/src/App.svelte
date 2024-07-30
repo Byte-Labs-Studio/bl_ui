@@ -10,6 +10,7 @@
     import NumberSlide from '@components/NumberSlide.svelte';
     import RapidLines from '@components/RapidLines.svelte';
     import CircleShake from '@components/CircleShake.svelte';
+    import PathFind from '@components/PathFind.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -27,6 +28,8 @@
     <NumberSlide />
     <RapidLines />
     <CircleShake />
+
+    <PathFind />
 </Visibility>
 
 {#if $IS_BROWSER}

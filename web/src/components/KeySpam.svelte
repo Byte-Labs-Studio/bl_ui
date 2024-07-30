@@ -242,7 +242,7 @@
         >
             <circle
                 style="stroke-width: {RADIUS * 0.1}vw z-0"
-                class="absolute fill-primary-50"
+                class="absolute fill-secondary/80"
                 cx="50%"
                 cy="50%"
                 r="{RADIUS}vw"

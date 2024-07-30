@@ -245,7 +245,7 @@
 {#if Visible}
     <div
     transition:scale
-        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] bg-primary-50 flex items-center justify-center"
+        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] bg-secondary/80 flex items-center justify-center"
     >
         <div
             style="width: {NUMBER_SLIDE.ZONE_SIZE}%;"
