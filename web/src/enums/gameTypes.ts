@@ -7,4 +7,5 @@ export enum GameType {
     NumberSlide = "NumberSlide",
     RapidLines = "RapidLines",
     CircleShake = "CircleShake",
+    PathFind = "PathFind",
 }

@@ -19,3 +19,18 @@ export function numberToAngle(angle: number) {
     }
     return angle;
 }
+
+export function randomBetween(min: number, max: number) {
+    return Math.random() * (max - min) + min;
+}
+
+export function distanceBetween(x1: number, y1: number, x2: number, y2: number) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+export function viewUnitToPx(unit: 'width' | 'height', value: number) {
+    if (unit === 'width') {
+        return value *( window.innerWidth / 100);
+    }
+    return value * (window.innerHeight / 100);
+}

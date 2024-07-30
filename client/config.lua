@@ -8,6 +8,7 @@ GameTypes = {
     NumberSlide = "NumberSlide",
     RapidLines = "RapidLines",
     CircleShake = "CircleShake",
+    PathFind = "PathFind",
 }
 
 Config.KeepGameInput = {
@@ -20,4 +21,5 @@ Config.KeepGameInput = {
 
 Config.DisplayCursor = {
     [GameTypes.CircleShake] = true,
+    [GameTypes.PathFind] = true,
 }

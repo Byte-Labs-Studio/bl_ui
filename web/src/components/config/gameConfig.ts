@@ -1,7 +1,3 @@
-type MinMax = {
-    MIN: number;
-    MAX: number;
-};
 
 /**
  * The Configuration for the Progress games.
@@ -136,6 +132,26 @@ export const CIRCLE_SHAKE = {
 
     FALLBACK_DIFFICULTY: 50,
     FALLBACK_NUM_KEYS: 3,
+};
+
+export const PATH_FIND = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    POINTS: {
+        MIN: 2,
+        MAX: 30,
+    },
+
+    /**
+     * The minimum and maximum duration of the game in seconds.
+     */
+    DURATION: {
+        MIN: 60,
+        MAX: 10,
+    },
+
+    FALLBACK_DIFFICULTY: 50,
 };
 
 /**

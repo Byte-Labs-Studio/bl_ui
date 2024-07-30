@@ -8,7 +8,7 @@
     font-size: 62.5%;
 
     --primary: 270 100% 98%;
-    --secondary: 0 0% 10%;
+    --secondary: 0 0% 5%;
     --tertiary: 252 10% 28%;
     --accent: 241 76% 73%;
     --fail: 348 100% 50%;
@@ -96,4 +96,8 @@ body {
 
 .glow-success {
     filter: drop-shadow(0 0 0.3vw hsl(var(--success)));
+}
+
+.shadow-box {
+    box-shadow: 0 0 10vh 5vh hsl(var(--secondary));
 }

@@ -179,6 +179,28 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
+    {
+        label: 'PathFind',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        difficulty: value,
+                    } as KeyGameParam
+
+                    DebugEventSend<IGameParams>(Receive.start, {
+                        type: GameType.PathFind,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 50,
+                type: 'slider',
+            },
+        ],
+    },
 ]
 
 export default SendDebuggers
