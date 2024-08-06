@@ -8,4 +8,5 @@ export enum GameType {
     RapidLines = "RapidLines",
     CircleShake = "CircleShake",
     PathFind = "PathFind",
+    HexaPipe = "HexaPipe",
 }

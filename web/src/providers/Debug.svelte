@@ -40,9 +40,9 @@
         >
             {#each SendDebuggers as { label, actions }}
                 <li
-                    class="flex flex-col gap-1 border-l-[2px] border-[color:hsl(var(--accent))] px-[0.25vw]"
+                    class="flex flex-col gap-1 border-l-[2px] border-accent px-[0.25vw]"
                 >
-                    <span class="w-full text-black">{label}</span>
+                    <span class="w-full">{label}</span>
 
                     {#each actions as action}
                         <div class="flex flex-row flex-wrap gap-[0.5vw]">
@@ -54,7 +54,7 @@
 
                                     <input
                                         type="text"
-                                        class="h-full w-full text-[color:hsl(var(--text-secondary))] px-[0.25vw]"
+                                        class="h-full w-full px-[0.25vw]"
                                         bind:value={action.value}
                                     />
                                     <button
@@ -99,7 +99,7 @@
 
                                     />
                                     <button
-                                        class="px-[0.5vw] py-[0.25vw] w-[5vw] bg-accent border-primary border-2"
+                                        class="px-[0.5vw] py-[0.25vw] w-[5vw] bg-primary border-secondary border-2"
                                         on:click={() => {
                                             // @ts-ignore
                                             action.action(action.value);
@@ -126,8 +126,8 @@
         </ol>
     {/if}
 
-    <div
+    <!-- <div
         style="background-image: url({debug_image});"
         class="absolute w-screen bg-cover bg-no-repeat bg-center h-screen top-0 left-0 dev-image"
-    />
+    /> -->
 </div>
