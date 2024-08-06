@@ -135,3 +135,7 @@ body {
 .shadow-box {
     box-shadow: 0 0 10vh 5vh rgb(var(--secondary));
 }
+
+.bg-solid {
+    background: radial-gradient(at 50% top, rgb(var(--primary)) 50%, rgb(var(--background)));  
+}

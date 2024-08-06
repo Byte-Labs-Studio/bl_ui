@@ -1,4 +1,5 @@
-
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 
 export async function delay(ms: number) {
@@ -33,4 +34,8 @@ export function viewUnitToPx(unit: 'width' | 'height', value: number) {
         return value *( window.innerWidth / 100);
     }
     return value * (window.innerHeight / 100);
+}
+
+export function cn(...inputs: ClassValue[]) {
+	return twMerge(clsx(inputs));
 }

@@ -11,6 +11,7 @@
     import RapidLines from '@components/RapidLines.svelte';
     import CircleShake from '@components/CircleShake.svelte';
     import PathFind from '@components/PathFind.svelte';
+    import HackWrapper from '@lib/HackWrapper.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',

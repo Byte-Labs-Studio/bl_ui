@@ -11,6 +11,7 @@
     import { scale } from 'svelte/transition';
     import { PATH_FIND } from './config/gameConfig';
     import { Mouse } from '@enums/events';
+    import HackWrapper from '@lib/HackWrapper.svelte';
 
     let Visible: boolean = false;
 
@@ -29,7 +30,7 @@
 
     const _BODY = getComputedStyle(document.body);
 
-    const PRIMARY_COLOUR: string = `hsl(${_BODY.getPropertyValue('--primary').split(' ').join(',')}, 100%)`;
+    const PRIMARY_COLOUR: string = `rgba(${_BODY.getPropertyValue('--tertiary').split(' ').join(',')}, 1)`;
 
     // Viewport Height
     const ROOT_SIZE: number = 2.5;
@@ -346,20 +347,22 @@
 {#if Visible}
     {@const { targets, duration } = PathFindState}
 
-    <div
-        transition:scale
-        class="w-fit h-fit flex flex-col justify-center items-center center bg-none gap-[1vh]"
-    >
-        <div
-            class="w-full h-fit z-10 grid place-items-center rounded-[0.5vh] bg-secondary/90 border-[0.15vh] border-primary"
-        >
-            <p class="text-shadow font-bold text-[5vh]">Path Find</p>
-        </div>
+    <HackWrapper state={IterationState}>
+        <svelte:fragment slot="title-1">
+            Path
+        </svelte:fragment>
+        <svelte:fragment slot="title-2">
+            Find
+        </svelte:fragment>
+
+        <svelte:fragment slot="subtitle">
+            Go to the next point closest point.
+        </svelte:fragment>
 
         <div
             bind:clientWidth={WIDTH}
             bind:clientHeight={HEIGHT}
-            class=" rounded-[0.5vh] w-[60vh] h-[60vh] aspect-square bg-secondary/90 shadow-box border-[0.15vh] border-primary"
+            class=" w-[60vh] h-[60vh] aspect-square bg-secondary/90 shadow-box border-[0.15vh] border-tertiary/50"
         >
             <canvas width={WIDTH} height={HEIGHT} bind:this={canvasEl} />
 
@@ -367,19 +370,20 @@
                 {@const size = `${i == 0 ? ROOT_SIZE : POINT_SIZE}vh`}
                 <button
                     transition:scale|global={{
-                        duration: 100,
+                        duration: 250,
                         delay: 100 + Math.random() * 10 * 50,
                     }}
                     on:click={() => checkPoint(i)}
                     class="absolute hover:scale-125 duration-200 transition-all aspect-square rounded-full z-10 {i ==
-                        0 && 'border-[0.1vh] border-primary'} {IterationState ==
+                        0 &&
+                        'border-[0.1vh] border-tertiary'} {IterationState ==
                     'success'
                         ? 'bg-success glow-success scale-125'
                         : IterationState == 'fail'
                           ? 'bg-error glow-error  scale-125'
                           : selected
                             ? 'bg-accent  glow-accent animate-scale'
-                            : 'bg-primary active:!scale-95 hover:brightness-125 animate-scale-mini primary-shadow'}"
+                            : 'bg-tertiary active:!scale-95 hover:brightness-125 animate-scale-mini primary-shadow'}"
                     style="left: {x}%; top: {y}%; width: {size}; height: {size};"
                 />
             {/each}
@@ -393,7 +397,7 @@
                 </p>
             {/key}
         </div>
-    </div>
+    </HackWrapper>
 {/if}
 
 <style>
