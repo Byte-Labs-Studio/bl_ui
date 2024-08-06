@@ -44,14 +44,14 @@
     transition:scale={{ duration: 250 }}
     style="left: {$left}%;" class="grid place-items-center absolute">
         <p
-            class=" absolute font-bold text-[2vw] text-shadow default-colour-transition
+            class=" absolute font-bold text-[2vw] default-colour-transition
             {state === 'success'
-                ? 'text-success glow-success'
+                ? 'text-success glow-success '
                 : state === 'fail'
-                ? 'text-fail glow-fail'
+                ? 'text-error glow-error'
                 : active
-                ? 'text-accent'
-                : 'text-primary'}"
+                ? 'text-accent glow-accent'
+                : 'text-foreground text-shadow '}"
         >
             {$left < stopRandomisingZone ? fakeKey : key}
         </p>

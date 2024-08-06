@@ -7,11 +7,7 @@
         IPathFindGameState,
     } from '@typings/pathFind';
     import { TempInteractListener } from '@utils/interactHandler';
-    import {
-        delay,
-        distanceBetween,
-        randomBetween,
-    } from '@utils/misc';
+    import { delay, distanceBetween, randomBetween } from '@utils/misc';
     import { scale } from 'svelte/transition';
     import { PATH_FIND } from './config/gameConfig';
     import { Mouse } from '@enums/events';
@@ -76,8 +72,8 @@
                 () => {
                     if (!Visible || IterationState) {
                         clearInterval(checkInterval);
-                        return
-                    };
+                        return;
+                    }
 
                     if (firstTick) {
                         firstTick = false;
@@ -106,8 +102,6 @@
                 },
                 firstTick ? 1500 : 1000,
             );
-
-            // let tempOverTarget: boolean = false;
 
             MouseListener = TempInteractListener(
                 Mouse.move,
@@ -163,8 +157,6 @@
 
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
-
-
 
         setTimeout(() => {
             if (!Visible) return;
@@ -298,7 +290,6 @@
 
         ctx.beginPath();
 
-
         const { targets, activeIndex } = PathFindState;
         const length =
             activeIndex < targets.length - 1 ? activeIndex : targets.length - 1;
@@ -354,43 +345,54 @@
 
 {#if Visible}
     {@const { targets, duration } = PathFindState}
+
     <div
-        bind:clientWidth={WIDTH}
-        bind:clientHeight={HEIGHT}
         transition:scale
-        class="shadow-box rounded-[0.5vh] center w-[60vh] h-[60vh] aspect-square bg-secondary/80"
+        class="w-fit h-fit flex flex-col justify-center items-center center bg-none gap-[1vh]"
     >
-        <canvas width={WIDTH} height={HEIGHT} bind:this={canvasEl} />
+        <div
+            class="w-full h-fit z-10 grid place-items-center rounded-[0.5vh] bg-secondary/90 border-[0.15vh] border-primary"
+        >
+            <p class="text-shadow font-bold text-[5vh]">Path Find</p>
+        </div>
 
-        {#each targets as { x, y, selected }, i}
-            {@const size = `${i == 0 ? ROOT_SIZE : POINT_SIZE}vh`}
-            <button
-                transition:scale|global={{
-                    duration: 100,
-                    delay: 100 + Math.random() * 10 * 50,
-                }}
-                on:click={() => checkPoint(i)}
-                class="absolute hover:scale-125 duration-200 transition-all aspect-square rounded-full z-10 {i ==
-                    0 && 'border-[0.1vh] border-primary'} {IterationState ==
-                'success'
-                    ? 'bg-success glow-success scale-125'
-                    : IterationState == 'fail'
-                      ? 'bg-fail glow-fail  scale-125'
-                      : selected
-                        ? 'bg-accent  glow-accent animate-scale'
-                        : 'bg-primary active:!scale-95 hover:brightness-125 animate-scale-mini primary-shadow'}"
-                style="left: {x}%; top: {y}%; width: {size}; height: {size};"
-            />
-        {/each}
+        <div
+            bind:clientWidth={WIDTH}
+            bind:clientHeight={HEIGHT}
+            class=" rounded-[0.5vh] w-[60vh] h-[60vh] aspect-square bg-secondary/90 shadow-box border-[0.15vh] border-primary"
+        >
+            <canvas width={WIDTH} height={HEIGHT} bind:this={canvasEl} />
 
-        {#key duration}
-            <p
-                transition:scale={{ duration: 100 }}
-                class="text-shadow absolute font-bold text-[5vh] center"
-            >
-                {duration}
-            </p>
-        {/key}
+            {#each targets as { x, y, selected }, i}
+                {@const size = `${i == 0 ? ROOT_SIZE : POINT_SIZE}vh`}
+                <button
+                    transition:scale|global={{
+                        duration: 100,
+                        delay: 100 + Math.random() * 10 * 50,
+                    }}
+                    on:click={() => checkPoint(i)}
+                    class="absolute hover:scale-125 duration-200 transition-all aspect-square rounded-full z-10 {i ==
+                        0 && 'border-[0.1vh] border-primary'} {IterationState ==
+                    'success'
+                        ? 'bg-success glow-success scale-125'
+                        : IterationState == 'fail'
+                          ? 'bg-error glow-error  scale-125'
+                          : selected
+                            ? 'bg-accent  glow-accent animate-scale'
+                            : 'bg-primary active:!scale-95 hover:brightness-125 animate-scale-mini primary-shadow'}"
+                    style="left: {x}%; top: {y}%; width: {size}; height: {size};"
+                />
+            {/each}
+
+            {#key duration}
+                <p
+                    transition:scale={{ duration: 100 }}
+                    class="text-shadow absolute font-bold text-[5vh] center"
+                >
+                    {duration}
+                </p>
+            {/key}
+        </div>
     </div>
 {/if}
 

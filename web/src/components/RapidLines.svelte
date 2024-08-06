@@ -305,10 +305,10 @@
 {#if Visible}
     <div
         transition:scale
-        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] bg-secondary/80 flex items-center"
+        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] primary-bg flex items-center"
     >
         <div
-            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y secondary-shadow bg-secondary/80 -translate-x-[130%]"
+            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y primary-shadow  primary-bg -translate-x-[130%]"
         >
             <p
                 transition:scale={{ duration: 100 }}
@@ -321,7 +321,7 @@
         {#if RapidLinesState}
             <div
                 style="width: {RapidLinesState.zone}%; left: {RAPID_LINES.ZONE_FROM_RIGHT}%;"
-                class="bg-primary secondary-shadow h-[1vw] z-0 absolute -translate-x-full"
+                class="bg-tertiary primary-shadow h-[1vw] z-0 absolute -translate-x-full"
             />
 
             {#each RapidLinesState.lines as line, i}

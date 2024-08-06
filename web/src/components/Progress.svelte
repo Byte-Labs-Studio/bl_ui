@@ -211,10 +211,10 @@
 {#if Visible}
     <div
         transition:scale
-        class=" primary-shadow default-game-position  w-[20vw] h-[0.5vw] bg-secondary/80"
+        class=" primary-shadow default-game-position  w-[20vw] h-[0.5vw] primary-bg"
     >
         <div
-            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y secondary-shadow bg-secondary/80 -translate-x-[130%]"
+            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y primary-shadow primary-bg -translate-x-[130%]"
         >
             {#key ProgressState.target}
                 <p transition:scale={{duration: 100}}  class="text-shadow absolute font-bold text-[2vw]">
@@ -229,7 +229,7 @@
             'success'
                 ? 'glow-success bg-success'
                 : IterationState === 'fail'
-                ? 'glow-fail bg-fail'
+                ? 'glow-error bg-error'
                 : 'bg-accent glow-accent'}"
         />
 
@@ -237,7 +237,7 @@
             {@const { size, progress } = ProgressState.target}
             <div
                 style="left: {progress}%; width: {size}%"
-                class="h-[1vw] center-y absolute origin-center bg-primary z-0 target-segment"
+                class="h-[1vw] center-y absolute origin-center bg-tertiary z-0 target-segment"
             />
         {/if}
     </div>

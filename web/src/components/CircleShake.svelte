@@ -249,7 +249,7 @@
         <div
             class:shake={isOverTarget}
             style={SIZE_STYLES_HALF}
-            class="absolute secondary-shadow grid place-items-center bg-secondary/80 rounded-full"
+            class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
             {#if CircleState}
                 {@const numStage = CircleState.stages}
@@ -267,10 +267,10 @@
                         <circle
                             style="transform: rotate({-90 + rotation}deg);"
                             class="absolute radial {stage < currentStage
-                                ? 'stroke-white'
+                                ? 'stroke-tertiary'
                                 : stage == currentStage
                                   ? 'stroke-accent glow-accent '
-                                  : 'stroke-secondary/80'} origin-center"
+                                  : 'primary-stroke'} origin-center "
                             stroke-dasharray="{INNER_CIRCUMFERENCE}vw"
                             stroke-dashoffset="{INNER_CIRCUMFERENCE *
                                 ((101 - size) / 100)}vw"
@@ -283,7 +283,7 @@
                     {/each}
                 </svg>
                 <div
-                    class="absolute aspect-square  w-full grid place-items-center rounded-full overflow-hidden z-10"
+                    class="absolute aspect-square w-full grid place-items-center rounded-full overflow-hidden z-10"
                 >
                     <div
                         class="bg-accent glow-accent rounded-full aspect-square"
@@ -302,25 +302,11 @@
             {#if CircleState}
                 <circle
                     style="stroke-width: {RADIUS * 0.1}vw"
-                    class="absolute fill-none stroke-primary"
+                    class="absolute fill-none stroke-tertiary"
                     cx="50%"
                     cy="50%"
                     r="{RADIUS * 0.95}vw"
                 />
-
-                <!-- THIS IS FOR DEBUG!!!! -->
-                <!-- {@const { size, rotation } = CircleState.target}
-                <circle
-                    style="transform: rotate({rotation - 180}deg);"
-                    class=" absolute radial stroke-primary origin-center target-segment"
-                    stroke-dasharray="{CIRCUMFERENCE}vw"
-                    stroke-dashoffset="{CIRCUMFERENCE * ((100 - size) / 100)}vw"
-                    stroke-width="{STROKE_WIDTH}vw"
-                    fill-opacity="0"
-                    cx="50%"
-                    cy="50%"
-                    r="{RADIUS * 0.9}vw"
-                /> -->
 
                 <circle
                     style="transform: rotate({UserRotation - 180}deg);"
@@ -328,7 +314,7 @@
                     'success'
                         ? 'glow-success stroke-success'
                         : IterationState === 'fail'
-                          ? 'glow-fail stroke-fail'
+                          ? 'glow-error stroke-error'
                           : 'stroke-accent glow-accent'}"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *

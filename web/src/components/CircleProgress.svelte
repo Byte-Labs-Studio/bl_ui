@@ -243,7 +243,7 @@
     >
         <div
             style={SIZE_STYLES_HALF}
-            class="absolute secondary-shadow grid place-items-center bg-secondary/80 rounded-full"
+            class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
             {#key CircleState.target}
                 <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
@@ -261,7 +261,7 @@
             {#if CircleState}
                 <circle
                     style="stroke-width: {RADIUS * 0.1}vw"
-                    class="absolute fill-none stroke-secondary/80"
+                    class="absolute fill-none primary-stroke"
                     cx="50%"
                     cy="50%"
                     r="{RADIUS * 0.95}vw"
@@ -270,7 +270,7 @@
                 {@const { size, rotation } = CircleState.target}
                 <circle
                     style="transform: rotate({-90 + rotation}deg);"
-                    class=" absolute radial stroke-primary origin-center target-segment"
+                    class=" absolute radial stroke-tertiary origin-center target-segment"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE * ((100 - size) / 100)}vw"
                     stroke-width="{STROKE_WIDTH}vw"
@@ -286,7 +286,7 @@
                     'success'
                         ? 'glow-success stroke-success'
                         : IterationState === 'fail'
-                        ? 'glow-fail stroke-fail'
+                        ? 'glow-error stroke-error'
                         : 'stroke-accent glow-accent'}"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *

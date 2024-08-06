@@ -18,9 +18,9 @@
     class="grid place-items-center z-10 absolute h-[1vw] default-colour-transition {state === 'success'
     ? 'bg-success glow-success'
     : state === 'fail'
-    ? 'bg-fail glow-fail'
+    ? 'bg-error glow-error'
     : state === 'active'
     ? 'bg-accent glow-accent'
-    : 'bg-primary secondary-shadow'}">
+    : 'bg-tertiary primary-shadow'}">
     </div>
 {/if}

@@ -252,7 +252,7 @@
                     {#each KeyCircleState?.keys as key}
                         <div
                             style={SIZE_STYLES_QUARTER}
-                            class="grid place-items-center secondary-shadow bg-secondary/80"
+                            class="grid place-items-center primary-shadow primary-bg"
                         >
                             <!-- {#key CircleState.target} -->
                             <p
@@ -276,7 +276,7 @@
         >
             <circle
                 style="stroke-width: {RADIUS * 0.1}vw"
-                class="absolute fill-none stroke-secondary/80"
+                class="absolute fill-none primary-stroke"
                 cx="50%"
                 cy="50%"
                 r="{RADIUS * 0.95}vw"
@@ -286,7 +286,7 @@
                 {@const { stages } = KeyCircleState}
                 <circle
                     style="transform: rotate({(1 / stages) * 360 - 90}deg);"
-                    class=" absolute stroke-primary origin-center"
+                    class=" absolute stroke-tertiary origin-center"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *
                         ((100 - $UserRotation) / 100)}vw"
@@ -309,14 +309,14 @@
                     <div
                         class="absolute w-[0.5vw] h-[1vw] default-colour-transition -translate-y-1/4 center-x {IterationState ==
                         'fail'
-                            ? 'bg-fail glow-fail'
+                            ? 'bg-error glow-error'
                             : currentStage === i ||
                               (currentStage === stages && i === 0)
                             ? 'bg-accent glow-accent'
                             : (currentStage >= i && i !== 0) ||
                               IterationState === 'success'
                             ? 'bg-success glow-success'
-                            : 'bg-primary primary-shadow'} "
+                            : 'bg-tertiary primary-shadow'} "
                     />
                 </div>
             {/each}

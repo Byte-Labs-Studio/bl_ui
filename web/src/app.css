@@ -2,26 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Sen:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+* {
+  font-family: "Roboto", sans-serif;
+}
 
 :root {
     font-size: 62.5%;
 
-    --primary: 270 100% 98%;
-    --secondary: 0 0% 5%;
-    --tertiary: 252 10% 28%;
-    --accent: 241 76% 73%;
-    --fail: 348 100% 50%;
-    --success: 105 76% 58%;
+    --background: 0 0 0;
+    --foreground: 250 247 255;
+
+    --primary: 37 37 37;
+    --primary-foreground: 250 247 255;
+
+    --secondary: 60 60 60;
+    --secondary-foreground: 250 247 255;
+
+    --tertiary: 250 247 255;
+    --tertiary-foreground: 37 37 37;
+
+    --accent: 134 133 239;
+    --accent-foreground: 250 247 255;
+
+    --success: 102 231 138;
+    --success-foreground: 250 247 255;
+
+    --error: 229 40 62;
+    --error-foreground: 250 247 255;
+
+    --warning: 255 222 112;
+    --warning-foreground: 250 247 255;
+
+    --border: 60 60 60;
+    --radius: 0px;
 }
 
 * {
     margin: 0;
     padding: 0;
     font-smooth: auto;
-    font-family: 'Sen', sans-serif;
-
-    color: hsl(var(--primary));
+    color: rgb(var(--foreground));
 }
 
 *:focus {
@@ -39,17 +61,17 @@ body {
 ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
     box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
-    background-color: hsl(var(--secondary));
+    background-color: rgb(var(--secondary));
 }
 
 ::-webkit-scrollbar {
     height: 4px;
     width: 4px;
-    background-color: hsl(var(--secondary));
+    background-color: rgb(var(--secondary));
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--accent));
+    background-color: rgb(var(--accent));
 }
 
 @layer components {
@@ -74,11 +96,23 @@ body {
     @apply transition-colors duration-100;
 }
 
-.primary-shadow {
-    box-shadow: 0 0 0.5vw 0.1vw rgba(0, 0, 0, 0.75);
+.border-default {
+    @apply border border-secondary/50
+}
+.primary-bg {
+    @apply bg-primary/50 border border-secondary/50
 }
 
-.secondary-shadow {
+.primary-stroke {
+    @apply stroke-primary/50 border border-secondary/50
+}
+
+.primary-fill {
+    @apply fill-primary/50 border border-secondary/50
+}
+
+.primary-shadow {
+    /* box-shadow: 0 0 0.5vw 0.1vw rgba(0, 0, 0, 0.75); */
     box-shadow: 0 0 2vw 0.05vw rgba(0, 0, 0, 0.75);
 }
 
@@ -87,17 +121,17 @@ body {
 }
 
 .glow-accent {
-    filter: drop-shadow(0 0 0.3vw hsl(var(--accent)));
+    filter: drop-shadow(0 0 0.3vw rgb(var(--accent)));
 }
 
-.glow-fail {
-    filter: drop-shadow(0 0 0.3vw hsl(var(--fail)));
+.glow-error {
+    filter: drop-shadow(0 0 0.3vw rgb(var(--error)));
 }
 
 .glow-success {
-    filter: drop-shadow(0 0 0.3vw hsl(var(--success)));
+    filter: drop-shadow(0 0 0.3vw rgb(var(--success)));
 }
 
 .shadow-box {
-    box-shadow: 0 0 10vh 5vh hsl(var(--secondary));
+    box-shadow: 0 0 10vh 5vh rgb(var(--secondary));
 }

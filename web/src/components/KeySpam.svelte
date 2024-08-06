@@ -242,7 +242,7 @@
         >
             <circle
                 style="stroke-width: {RADIUS * 0.1}vw z-0"
-                class="absolute fill-secondary/80"
+                class="absolute primary-fill"
                 cx="50%"
                 cy="50%"
                 r="{RADIUS}vw"
@@ -255,7 +255,7 @@
                         'success'
                             ? 'glow-success fill-success'
                             : IterationState === 'fail'
-                            ? 'glow-fail fill-fail'
+                            ? 'glow-error fill-error'
                             : 'fill-accent glow-accent'}"
                     cx="50%"
                     cy="50%"
@@ -265,7 +265,7 @@
 
             <circle
                 style="transform: rotate(-90deg);"
-                class=" absolute radial stroke-primary origin-center target-segment secondary-shadow"
+                class=" absolute radial stroke-tertiary origin-center target-segment primary-shadow"
                 stroke-dasharray="{CIRCUMFERENCE}vw"
                 stroke-dashoffset="{CIRCUMFERENCE *
                     (-(100 - $UserTimer) / 100)}vw"
