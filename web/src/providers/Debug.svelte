@@ -126,8 +126,8 @@
         </ol>
     {/if}
 
-    <!-- <div
+    <div
         style="background-image: url({debug_image});"
         class="absolute w-screen bg-cover bg-no-repeat bg-center h-screen top-0 left-0 dev-image"
-    /> -->
+    />
 </div>

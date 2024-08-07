@@ -31,6 +31,7 @@
     <CircleShake />
 
     <PathFind />
+    <!-- <HackWrapper /> -->
 </Visibility>
 
 {#if $IS_BROWSER}

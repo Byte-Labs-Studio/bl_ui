@@ -1,23 +1,30 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { DifficultyParam, LevelState } from '@typings/gameState';
+    import type { DifficultyParam, LevelState, NodeHackGameParam } from '@typings/gameState';
     import type {
         IPathFindTarget,
         IPathFindGameState,
     } from '@typings/pathFind';
     import { TempInteractListener } from '@utils/interactHandler';
-    import { delay, distanceBetween, randomBetween } from '@utils/misc';
+    import { delay, distanceBetween, getRandomIntFromIntOrArray, randomBetween } from '@utils/misc';
     import { scale } from 'svelte/transition';
     import { PATH_FIND } from './config/gameConfig';
     import { Mouse } from '@enums/events';
     import HackWrapper from '@lib/HackWrapper.svelte';
+    import { type Tweened, tweened } from 'svelte/motion';
 
     let Visible: boolean = false;
 
     let PathFindState: IPathFindGameState = null;
 
     let IterationState: LevelState = null;
+
+    let OriginalDuration: number = null;
+    const UserDuration: Tweened<number> = tweened(0);
+
+    let Iterations: number = null;
+    let CurrentInteration: number = null;
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
@@ -66,43 +73,16 @@
         clickedWrongNode = false;
 
         drawTick();
+        setTimeout(() => {
+            UserDuration.set(OriginalDuration, {
+                duration: OriginalDuration,
+            });
+        }, 500);
+
         return new Promise((resolve, _) => {
-            let firstTick = true;
-
-            let checkInterval = setInterval(
-                () => {
-                    if (!Visible || IterationState) {
-                        clearInterval(checkInterval);
-                        return;
-                    }
-
-                    if (firstTick) {
-                        firstTick = false;
-                    }
-
-                    if (clickedWrongNode) {
-                        clearInterval(checkInterval);
-                        resolve(false);
-                        return;
-                    }
-
-                    let { targets, activeIndex } = PathFindState;
-
-                    if (activeIndex == targets.length - 1) {
-                        clearInterval(checkInterval);
-                        resolve(true);
-                        return;
-                    }
-
-                    PathFindState.duration--;
-
-                    if (PathFindState.duration <= 0) {
-                        clearInterval(checkInterval);
-                        resolve(false);
-                    }
-                },
-                firstTick ? 1500 : 1000,
-            );
+            let durationCheck = setTimeout(() => {
+                finish(false);
+            }, OriginalDuration);
 
             MouseListener = TempInteractListener(
                 Mouse.move,
@@ -110,9 +90,15 @@
                     if (!Visible) return;
                     if (!canvasEl) return;
 
+                    let { targets, activeIndex } = PathFindState;
+
+                    if (activeIndex == targets.length - 1) {
+                        finish(true);
+                        return;
+                    }
+
                     if (clickedWrongNode) {
-                        clearInterval(checkInterval);
-                        resolve(false);
+                        finish(false);
                         return;
                     }
 
@@ -124,6 +110,16 @@
                     MousePos.y = canvasY;
                 },
             );
+
+            function finish(bool: boolean) {
+                const currentValue = $UserDuration;
+                UserDuration.set(currentValue, {
+                    duration: 0,
+                });
+
+                clearTimeout(durationCheck);
+                resolve(bool);
+            }
         });
     }
 
@@ -131,26 +127,23 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: DifficultyParam) {
+    async function startGame(iterations, config: NodeHackGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
 
-        let { difficulty } = config;
-        difficulty =
-            (difficulty || PATH_FIND.FALLBACK_DIFFICULTY) >= 100
-                ? 99
-                : difficulty <= 0
-                  ? 5
-                  : difficulty;
+        UserDuration.set(0, {
+            duration: 0,
+        });
+
+        OriginalDuration = generateDuration(config.duration);
 
         PathFindState = {
-            targets: generateTargets(difficulty),
+            targets: generateTargets(config.numberOfNodes),
             activeIndex: 0,
-            duration: generateDuration(difficulty),
         };
 
-        // console.log(PathFindState);
+        CurrentInteration = Iterations - iterations;
 
         IterationState = null;
 
@@ -158,6 +151,8 @@
 
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
+
+        await delay(500);
 
         setTimeout(() => {
             if (!Visible) return;
@@ -187,19 +182,17 @@
         if (!$GAME_STATE.active || PathFindState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as DifficultyParam);
+        Iterations = iterations;
+        startGame(iterations, config as NodeHackGameParam);
     }
 
     /** Generate points for the given difficulty.
      * The higher the difficulty, the harder the more the points.
      * @param difficulty The difficulty should be between 0 and 100.
      */
-    function generateTargets(difficulty): IPathFindTarget[] {
-        // Make sure the difficulty is between 0 and 100.
-        difficulty = difficulty >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
-        // Calculate the target size based on the difficulty.
-        const { MIN, MAX } = PATH_FIND.POINTS;
-        const numPoints = MIN + (difficulty / 100) * (MAX - MIN);
+    function generateTargets(numberOfNodes: number | [number, number]): IPathFindTarget[] {
+
+        const numPoints = getRandomIntFromIntOrArray(numberOfNodes);
 
         const points: IPathFindTarget[] = [];
 
@@ -218,23 +211,9 @@
      * Generate a duration for a progress bar based on the difficulty
      * @param difficulty The difficulty should be between 0 and 100.
      */
-    function generateDuration(difficulty: number): number {
-        /** Set the minimum and maximum duration for a progress bar */
-        const { MIN, MAX } = PATH_FIND.DURATION;
-
+    function generateDuration(duration: number | [number, number]): number {
         /** Calculate the duration based on the difficulty */
-        let duration: number = MIN + (MAX - MIN) * ((100 - difficulty) / 100);
-
-        /** Make the duration vary by 20% */
-        const variation: number = duration * 0.2;
-        const randomVariation: number = Math.random() * variation;
-        duration =
-            Math.random() > 0.5
-                ? duration + randomVariation
-                : duration - randomVariation;
-
-        // Return the duration
-        return Math.floor(duration);
+        return getRandomIntFromIntOrArray(duration);
     }
 
     function checkPoint(index: number) {
@@ -345,24 +324,20 @@
 </script>
 
 {#if Visible}
-    {@const { targets, duration } = PathFindState}
+    {@const { targets } = PathFindState}
 
-    <HackWrapper state={IterationState}>
-        <svelte:fragment slot="title-1">
-            Path
-        </svelte:fragment>
-        <svelte:fragment slot="title-2">
-            Find
-        </svelte:fragment>
-
-        <svelte:fragment slot="subtitle">
-            Go to the next point closest point.
-        </svelte:fragment>
-
+    <HackWrapper
+        state={IterationState}
+        title={['Path', 'Find']}
+        subtitle="Go to the next point closest point."
+        iterations={Iterations}
+        iteration={CurrentInteration}
+        progress={($UserDuration / OriginalDuration) * 100}
+    >
         <div
             bind:clientWidth={WIDTH}
             bind:clientHeight={HEIGHT}
-            class=" w-[60vh] h-[60vh] aspect-square bg-secondary/90 shadow-box border-[0.15vh] border-tertiary/50"
+            class=" w-[60vh] h-[60vh] aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50"
         >
             <canvas width={WIDTH} height={HEIGHT} bind:this={canvasEl} />
 
@@ -387,15 +362,6 @@
                     style="left: {x}%; top: {y}%; width: {size}; height: {size};"
                 />
             {/each}
-
-            {#key duration}
-                <p
-                    transition:scale={{ duration: 100 }}
-                    class="text-shadow absolute font-bold text-[5vh] center"
-                >
-                    {duration}
-                </p>
-            {/key}
         </div>
     </HackWrapper>
 {/if}

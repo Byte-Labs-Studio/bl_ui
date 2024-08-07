@@ -7,69 +7,94 @@
     import IconFail from './icons/IconFail.svelte';
 
     export let state: string = null;
+    export let subtitle: string = null;
+    export let title: string[] = null;
+    export let iterations: number = 1;
+    export let iteration: number = 0;
+    export let progress: number = 0;
 </script>
 
 <div
     transition:scale
     class={cn(
-        'bg-solid center flex flex-col items-center justify-center p-[1vh] gap-[1vh] absolute',
+        'bg-solid center flex flex-col items-center justify-center p-[1vh] gap-[1vh] absolute shadow-box',
         $$props.class,
     )}
 >
-    {#if $$slots.subtitle || $$slots['title-1'] || $$slots['title-2']}
-        <div
-            class="w-full h-[4vh] z-10 flex flex-row items-center justify-start gap-[1vh] border-primary"
-        >
+    <div
+        class="w-full h-[4vh] z-10 flex flex-row items-center justify-start gap-[1vh] border-primary"
+    >
+        {#if title}
             <span
                 class="flex flex-row items-center uppercase justify-center font-bold text-[3vh] title"
             >
-                <p>
-                    <slot name="title-1" />
-                </p>
-                <p class="text-accent">
-                    <slot name="title-2" />
-                </p>
+                {#each title as titleItem, i}
+                    <p class:text-accent={i === title.length - 1}>
+                        {titleItem}
+                    </p>
+                {/each}
             </span>
+        {/if}
 
-            <p class="text-tertiary/75 font-medium w-full">
-                <slot name="subtitle" />
-            </p>
+        {#if subtitle}<p class="text-tertiary/75 font-medium w-full">
+                {subtitle}
+            </p>{/if}
 
-            <!-- <div class="ml-auto grid place-items-center bg-success default-colour-transition glow-success h-full aspect-square"> -->
-
-            <!-- </div> -->
-            <Hexagon
+        <Hexagon
             variant={state === 'success'
                 ? 'success'
                 : state === 'fail'
                   ? 'error'
                   : 'accent'}
-            >
-                {#if state === 'success'}
-                    <div
-                        class="absolute grid place-items-center w-full h-full aspect-square"
-                    >
-                        <IconSuccess />
-                    </div>
-                {:else if state === 'fail'}
-                    <div
-                        class="absolute grid place-items-center w-full h-full aspect-square"
-                    >
-                        <IconFail />
-                    </div>
-                {:else}
-                    <div
-                        transition:scale
-                        class="absolute grid place-items-center w-full h-full aspect-square"
-                    >
-                        <IconLoading />
-                    </div>
-                {/if}
-            </Hexagon>
-        </div>
-    {/if}
+        >
+            {#if state === 'success'}
+                <div
+                    class="absolute grid place-items-center w-full h-full aspect-square"
+                >
+                    <IconSuccess />
+                </div>
+            {:else if state === 'fail'}
+                <div
+                    class="absolute grid place-items-center w-full h-full aspect-square"
+                >
+                    <IconFail />
+                </div>
+            {:else}
+                <div
+                    transition:scale
+                    class="absolute grid place-items-center w-full h-full aspect-square"
+                >
+                    <IconLoading />
+                </div>
+            {/if}
+        </Hexagon>
+    </div>
 
     <slot />
+
+    {#if iterations > 0}
+        <div class="w-full h-[2vh] flex flex-row gap-[1vh] z-10">
+            {#each { length: iterations } as _, i}
+                <div class="w-full h-full primary-bg">
+                    {#if i === iteration}
+                        <div
+                            style="width: {progress}%;"
+                            class:bg-error={progress == 100 || state == 'fail'}
+                            class:bg-accent={state == null}
+                            class:glow-error={progress == 100 ||
+                                state == 'fail'}
+                            class:glow-accent={state == null}
+                            class:bg-success={state == 'success'}
+                            class:glow-success={state == 'success'}
+                            class="h-full transition-all duration-100 ease-linear"
+                        />
+                    {:else if iteration > i}
+                        <div class="h-full bg-tertiary w-full" />
+                    {/if}
+                </div>
+            {/each}
+        </div>
+    {/if}
 </div>
 
 <style>

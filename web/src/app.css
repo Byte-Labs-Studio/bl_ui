@@ -133,7 +133,7 @@ body {
 }
 
 .shadow-box {
-    box-shadow: 0 0 10vh 5vh rgb(var(--secondary));
+    box-shadow: 0 0 10vh 2vh rgb(var(--background));
 }
 
 .bg-solid {

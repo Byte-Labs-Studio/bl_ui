@@ -39,3 +39,17 @@ export function viewUnitToPx(unit: 'width' | 'height', value: number) {
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
+
+export function getRandomIntFromIntOrArray(num: number | [number, number]): number {
+    let [MIN, MAX] = [null, null];
+
+    if (Array.isArray(num)) {
+        MIN = num[0];
+        MAX = num[1];
+    } else {
+        MIN = num
+        MAX = num;
+    }
+
+    return Math.floor(MIN + Math.random() * (MAX - MIN));
+}

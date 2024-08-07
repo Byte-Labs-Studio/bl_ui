@@ -1,3 +1,4 @@
+import type { Tweened } from "svelte/motion";
 
 export type IPathFindTarget = {
     x: number;
@@ -11,9 +12,6 @@ export interface IPathFindGameState {
     targets: IPathFindTarget[],
     
     activeIndex: number;
-
-    // The duration of the game
-    duration?: number;
 }
 
 
