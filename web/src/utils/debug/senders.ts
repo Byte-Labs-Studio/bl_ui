@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive, Send } from '@enums/events'
 import { DebugEventSend, SendEvent } from '@utils/eventsHandlers'
-import { IGameParams, IGameState, KeyGameParam, DifficultyParam, KeyGameParam, DifficultyParam, NodeHackGameParam } from '@typings/gameState'
+import type { IGameParams, IGameState, KeyGameParam, DifficultyParam, NodeHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -183,7 +183,7 @@ const SendDebuggers: DebugItem[] = [
         label: 'PathFind',
         actions: [
             {
-                label: 'Custom Difficulty',
+                label: 'Duration',
                 action: (value: number) => {
 
                     const config = {
@@ -202,6 +202,7 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
+    
 ]
 
 export default SendDebuggers
