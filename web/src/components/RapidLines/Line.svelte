@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { type ILineState } from "@typings/rapidLines";
+    import { type TLineState } from "@typings/rapidLines";
     import { type Tweened } from "svelte/motion";
     import { scale } from "svelte/transition";
 
-    export let state: ILineState = null;
+    export let state: TLineState = null;
     export let left: Tweened<number> = null;
 
     const LineSize: number = 0.5;

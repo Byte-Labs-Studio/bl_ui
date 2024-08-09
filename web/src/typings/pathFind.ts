@@ -1,18 +1,17 @@
-import type { Tweened } from "svelte/motion";
-
-export type IPathFindTarget = {
+export type TPathFindTarget = {
     x: number;
     y: number;
     // If it has already been selected
     selected: boolean;
 }
 
-export interface IPathFindGameState {
+export type TPathFindGameState = {
     // Percentages of the container
-    targets: IPathFindTarget[],
+    targets: TPathFindTarget[],
     
     activeIndex: number;
+
+    duration: number;
+
+    currentIteration: number;
 }
-
-
-// export interface IPathGameParam

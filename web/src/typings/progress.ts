@@ -1,4 +1,4 @@
-export interface IProgressGameState {
+export type TProgressGameState = {
     target: {
         /** The target rotation, degrees. */
         progress: number;

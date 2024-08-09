@@ -1,8 +1,8 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type KeyGameParam, type LevelState } from '@typings/gameState';
-    import { type IKeyCircleGameState } from '@typings/keyCircle';
+    import { type TKeyGameParam, type TLevelState } from '@typings/gameState';
+    import { type TKeyCircleGameState } from '@typings/keyCircle';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
@@ -31,9 +31,9 @@
 
     let Visible: boolean = false;
 
-    let KeyCircleState: IKeyCircleGameState = null;
+    let KeyCircleState: TKeyCircleGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListeners: {
         Down: ReturnType<typeof TempInteractListener>;
@@ -158,7 +158,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -213,7 +213,7 @@
         if (!$GAME_STATE.active || KeyCircleState) return;
 
         const { iterations, config } = $GAME_STATE
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /**

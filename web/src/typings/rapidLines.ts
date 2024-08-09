@@ -1,12 +1,12 @@
 import { Tweened } from "svelte/motion";
 
-export type ILineState = 'success' | 'fail' | 'active' | null
+export type TLineState = 'success' | 'fail' | 'active' | null
 
 
-export interface IRapidLinesState {
+export type TRapidLinesState = {
     lines: {
         left: Tweened<number>;
-        state: ILineState;
+        state: TLineState;
     }[];
 
     /**

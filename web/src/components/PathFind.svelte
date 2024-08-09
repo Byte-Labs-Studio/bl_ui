@@ -1,10 +1,10 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { LevelState, NodeHackGameParam } from '@typings/gameState';
+    import type { TLevelState, TNodeHackGameParam } from '@typings/gameState';
     import type {
-        IPathFindTarget,
-        IPathFindGameState,
+        TPathFindTarget,
+        TPathFindGameState,
     } from '@typings/pathFind';
     import { TempInteractListener } from '@utils/interactHandler';
     import { delay, distanceBetween, getRandomIntFromIntOrArray, randomBetween } from '@utils/misc';
@@ -15,15 +15,13 @@
 
     let Visible: boolean = false;
 
-    let PathFindState: IPathFindGameState = null;
+    let PathFindState: TPathFindGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
-    let OriginalDuration: number = null;
     const UserDuration: Tweened<number> = tweened(0);
 
     let Iterations: number = null;
-    let CurrentInteration: number = null;
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
@@ -35,8 +33,7 @@
     let clickedWrongNode: boolean = false;
 
     const _BODY = getComputedStyle(document.body);
-
-    const PRIMARY_COLOUR: string = `rgba(${_BODY.getPropertyValue('--tertiary').split(' ').join(',')}, 1)`;
+    const TERTIARY_COLOUR: string = `rgba(${_BODY.getPropertyValue('--tertiary').split(' ').join(',')}, 1)`;
 
     // Viewport Height
     const ROOT_SIZE: number = 2.5;
@@ -74,15 +71,15 @@
         drawTick();
 
         setTimeout(() => {
-            UserDuration.set(OriginalDuration, {
-                duration: OriginalDuration,
+            UserDuration.set(PathFindState.duration, {
+                duration: PathFindState.duration,
             });
         }, 500);
 
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
-            }, OriginalDuration + 500);
+            }, PathFindState.duration + 500);
 
             MouseListener = TempInteractListener(
                 Mouse.move,
@@ -127,7 +124,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: NodeHackGameParam) {
+    async function startGame(iterations, config: TNodeHackGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
@@ -136,14 +133,14 @@
             duration: 0,
         });
 
-        OriginalDuration = generateDuration(config.duration);
+        const duration = getRandomIntFromIntOrArray(config.duration);
 
         PathFindState = {
             targets: generateTargets(config.numberOfNodes),
             activeIndex: 0,
+            duration,
+            currentIteration: Iterations - iterations,
         };
-
-        CurrentInteration = Iterations - iterations;
 
         IterationState = null;
 
@@ -183,18 +180,18 @@
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
-        startGame(iterations, config as NodeHackGameParam);
+        startGame(iterations, config as TNodeHackGameParam);
     }
 
     /** Generate points for the given difficulty.
      * The higher the difficulty, the harder the more the points.
      * @param difficulty The difficulty should be between 0 and 100.
      */
-    function generateTargets(numberOfNodes: number | [number, number]): IPathFindTarget[] {
+    function generateTargets(numberOfNodes: number | [number, number]): TPathFindTarget[] {
 
         const numPoints = getRandomIntFromIntOrArray(numberOfNodes);
 
-        const points: IPathFindTarget[] = [];
+        const points: TPathFindTarget[] = [];
 
         for (let i = 0; i < numPoints; i++) {
             points.push({
@@ -207,15 +204,6 @@
         return sortPoints(points);
     }
 
-    /**
-     * Generate a duration for a progress bar based on the difficulty
-     * @param difficulty The difficulty should be between 0 and 100.
-     */
-    function generateDuration(duration: number | [number, number]): number {
-        /** Calculate the duration based on the difficulty */
-        return getRandomIntFromIntOrArray(duration);
-    }
-
     function checkPoint(index: number) {
         const { activeIndex } = PathFindState;
         if (index !== activeIndex + 1) {
@@ -226,7 +214,7 @@
         }
     }
 
-    function sortPoints(points: IPathFindTarget[]) {
+    function sortPoints(points: TPathFindTarget[]) {
         // sort the points by distance from the first point
         // Sort the points by nearest neighbor
         const sortedPoints = [points[0]]; // Start with the first point
@@ -313,7 +301,7 @@
             ctx.lineTo(MousePos.x, MousePos.y);
         }
 
-        ctx.strokeStyle = PRIMARY_COLOUR;
+        ctx.strokeStyle = TERTIARY_COLOUR;
         ctx.lineWidth = (vh * ROOT_SIZE) / 4;
 
         // round the stroke
@@ -331,8 +319,8 @@
         title={['Path', 'Find']}
         subtitle="Go to the next point closest point."
         iterations={Iterations}
-        iteration={CurrentInteration}
-        progress={($UserDuration / OriginalDuration) * 100}
+        iteration={PathFindState.currentIteration}
+        progress={($UserDuration / PathFindState.duration) * 100}
     >
         <div
             bind:clientWidth={WIDTH}
@@ -343,26 +331,8 @@
 
             {#each targets as { x, y, selected }, i}
                 {@const size = `${i == 0 ? ROOT_SIZE : POINT_SIZE}vh`}
-                <Node {i} iterationState={IterationState} {selected} {x} {y} {size} on:click={() => checkPoint(i)} />
+                <Node root={i == 0} iterationState={IterationState} {selected} {x} {y} size={size} on:click={() => checkPoint(i)} />
             {/each}
         </div>
     </HackWrapper>
 {/if}
-
-<style>
-    @keyframes scale-in-out {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.2);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    .animate-scale {
-        animation: scale-in-out 2s infinite;
-    }
-</style>

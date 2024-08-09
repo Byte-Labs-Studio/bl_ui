@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { type IRapidLinesState } from '@typings/rapidLines';
+    import { type TRapidLinesState } from '@typings/rapidLines';
     import { scale } from 'svelte/transition';
     import Line from './RapidLines/Line.svelte';
-    import { type KeyGameParam, type LevelState } from '@typings/gameState';
+    import { type TKeyGameParam, type TLevelState } from '@typings/gameState';
     import { TempInteractListener } from '@utils/interactHandler';
     import GAME_STATE from '@stores/GAME_STATE';
     import { GameType } from '@enums/gameTypes';
@@ -12,11 +12,11 @@
     import { get } from 'svelte/store';
     import { Key } from '@enums/events';
 
-    let RapidLinesState: IRapidLinesState = null;
+    let RapidLinesState: TRapidLinesState = null;
 
     let Visible: boolean = false;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
@@ -173,7 +173,7 @@
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -232,7 +232,7 @@
         if (!$GAME_STATE.active || RapidLinesState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /**

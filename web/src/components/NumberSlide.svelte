@@ -3,10 +3,10 @@
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
     import {
-        type KeyGameParam,
-        type LevelState,
+        type TKeyGameParam,
+        type TLevelState,
     } from '@typings/gameState';
-    import { type INumberSlideGameState } from '@typings/numberSlide';
+    import { type TNumberSlideGameState } from '@typings/numberSlide';
     import { delay } from '@utils/misc';
     import { GetRandomKeyFromSet, KEYS, NUMBER_SLIDE } from './config/gameConfig';
     import { tweened } from 'svelte/motion';
@@ -19,9 +19,9 @@
 
     let Visible: boolean = false;
 
-    let NumberSlideState: INumberSlideGameState = null;
+    let NumberSlideState: TNumberSlideGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
@@ -137,7 +137,7 @@
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -191,7 +191,7 @@
         if (!$GAME_STATE.active || NumberSlideState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /**

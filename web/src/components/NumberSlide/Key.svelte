@@ -3,13 +3,13 @@
         GetRandomKeyFromSet,
         NUMBER_SLIDE,
     } from '@components/config/gameConfig';
-    import { type INumberSlideKeyState } from '@typings/numberSlide';
+    import { type TNumberSlideKeyState } from '@typings/numberSlide';
     import { onMount } from 'svelte';
     import { type Tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
 
     export let key: string = null;
-    export let state: INumberSlideKeyState = null;
+    export let state: TNumberSlideKeyState = null;
     export let left: Tweened<number> = null;
     export let active: boolean = null;
 

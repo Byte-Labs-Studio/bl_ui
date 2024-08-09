@@ -1,17 +1,17 @@
 import { Send } from '@enums/events';
-import { IGameParams, IGameState } from '@typings/gameState';
+import { TGameParams, TGameState } from '@typings/gameState';
 import { SendEvent } from '@utils/eventsHandlers';
 import { Writable, writable } from 'svelte/store';
 
 export const store = () => {
-    const GAME_STATE: Writable<Partial<IGameState>> = writable<
-        Partial<IGameState>
+    const GAME_STATE: Writable<Partial<TGameState>> = writable<
+        Partial<TGameState>
     >({
         active: false,
     });
 
     const methods = {
-        start: (data: IGameParams) => {
+        start: (data: TGameParams) => {
             let { type, iterations, config } = data;
 
             iterations = iterations || 1;

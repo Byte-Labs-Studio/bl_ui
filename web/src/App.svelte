@@ -12,6 +12,7 @@
     import CircleShake from '@components/CircleShake.svelte';
     import PathFind from '@components/PathFind.svelte';
     import HackWrapper from '@lib/HackWrapper.svelte';
+    import Untangle from '@components/Untangle.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -31,7 +32,7 @@
     <CircleShake />
 
     <PathFind />
-    <!-- <HackWrapper /> -->
+    <Untangle />
 </Visibility>
 
 {#if $IS_BROWSER}

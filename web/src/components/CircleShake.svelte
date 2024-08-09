@@ -1,8 +1,8 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { ICircleShakeGameState } from '@typings/circleShake';
-    import type { KeyGameParam, LevelState } from '@typings/gameState';
+    import type { TCircleShakeGameState } from '@typings/circleShake';
+    import type { TKeyGameParam, TLevelState } from '@typings/gameState';
     import { scale } from 'svelte/transition';
     import { CIRCLE_SHAKE } from './config/gameConfig';
     import { delay, angle, numberToAngle } from '@utils/misc';
@@ -33,10 +33,10 @@
 
     let Visible: boolean = false;
 
-    let CircleState: ICircleShakeGameState = null;
+    let CircleState: TCircleShakeGameState = null;
     let UserRotation: number = 0;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
@@ -143,7 +143,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
@@ -199,7 +199,7 @@
         if (!$GAME_STATE.active || CircleState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /** Generate a target segment for the given difficulty.

@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive, Send } from '@enums/events'
 import { DebugEventSend, SendEvent } from '@utils/eventsHandlers'
-import type { IGameParams, IGameState, KeyGameParam, DifficultyParam, NodeHackGameParam } from '@typings/gameState'
+import type { TGameParams, TGameState, TKeyGameParam, TDifficultyParam, TNodeHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -30,9 +30,9 @@ const SendDebuggers: DebugItem[] = [
                 action: (value: number) => {
                     const config = {
                         difficulty: value,
-                    } as DifficultyParam
+                    } as TDifficultyParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.CircleProgress,
                         iterations: 10,
                         config,
@@ -52,9 +52,9 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                    } as DifficultyParam
+                    } as TDifficultyParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.Progress,
                         iterations: 10,
                         config,
@@ -75,9 +75,9 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         difficulty: value,
                         numberOfKeys: 2,
-                    } as KeyGameParam
+                    } as TKeyGameParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.KeyCircle,
                         iterations: 1,
                         config,
@@ -97,9 +97,9 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                    } as DifficultyParam
+                    } as TDifficultyParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.KeySpam,
                         iterations: 1,
                         config,
@@ -120,9 +120,9 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         difficulty: value,
                         numberOfKeys: 10,
-                    } as KeyGameParam
+                    } as TKeyGameParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.NumberSlide,
                         iterations: 1,
                         config,
@@ -143,9 +143,9 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         difficulty: value,
                         numberOfKeys: 10,
-                    } as KeyGameParam
+                    } as TKeyGameParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.RapidLines,
                         iterations: 1,
                         config,
@@ -166,9 +166,9 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         difficulty: value,
                         numberOfKeys: 10,
-                    } as KeyGameParam
+                    } as TKeyGameParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.CircleShake,
                         iterations: 1,
                         config,
@@ -189,9 +189,9 @@ const SendDebuggers: DebugItem[] = [
                     const config = {
                         duration: value * 1000,
                         numberOfNodes: 10,
-                    } as NodeHackGameParam
+                    } as TNodeHackGameParam
 
-                    DebugEventSend<IGameParams>(Receive.start, {
+                    DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.PathFind,
                         iterations: 2,
                         config,
@@ -202,7 +202,29 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
-    
+    {
+        label: 'Untangle',
+        actions: [
+            {
+                label: 'Duration',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: value * 1000,
+                        numberOfNodes: 10,
+                    } as TNodeHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.Untangle,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 50,
+                type: 'slider',
+            },
+        ],
+    },
 ]
 
 export default SendDebuggers

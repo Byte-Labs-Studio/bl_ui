@@ -1,4 +1,4 @@
-export interface IKeySpamGameState {
+export type TKeySpamGameState = {
     size: number;
     key : string;
     duration: number;
