@@ -1,18 +1,17 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { DifficultyParam, LevelState, NodeHackGameParam } from '@typings/gameState';
+    import type { LevelState, NodeHackGameParam } from '@typings/gameState';
     import type {
         IPathFindTarget,
         IPathFindGameState,
     } from '@typings/pathFind';
     import { TempInteractListener } from '@utils/interactHandler';
     import { delay, distanceBetween, getRandomIntFromIntOrArray, randomBetween } from '@utils/misc';
-    import { scale } from 'svelte/transition';
-    import { PATH_FIND } from './config/gameConfig';
     import { Mouse } from '@enums/events';
     import HackWrapper from '@lib/HackWrapper.svelte';
     import { type Tweened, tweened } from 'svelte/motion';
+    import Node from './Nodes/Node.svelte';
 
     let Visible: boolean = false;
 
@@ -73,6 +72,7 @@
         clickedWrongNode = false;
 
         drawTick();
+
         setTimeout(() => {
             UserDuration.set(OriginalDuration, {
                 duration: OriginalDuration,
@@ -82,7 +82,7 @@
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
-            }, OriginalDuration);
+            }, OriginalDuration + 500);
 
             MouseListener = TempInteractListener(
                 Mouse.move,
@@ -343,24 +343,7 @@
 
             {#each targets as { x, y, selected }, i}
                 {@const size = `${i == 0 ? ROOT_SIZE : POINT_SIZE}vh`}
-                <button
-                    transition:scale|global={{
-                        duration: 250,
-                        delay: 100 + Math.random() * 10 * 50,
-                    }}
-                    on:click={() => checkPoint(i)}
-                    class="absolute hover:scale-125 duration-200 transition-all aspect-square rounded-full z-10 {i ==
-                        0 &&
-                        'border-[0.1vh] border-tertiary'} {IterationState ==
-                    'success'
-                        ? 'bg-success glow-success scale-125'
-                        : IterationState == 'fail'
-                          ? 'bg-error glow-error  scale-125'
-                          : selected
-                            ? 'bg-accent  glow-accent animate-scale'
-                            : 'bg-tertiary active:!scale-95 hover:brightness-125 animate-scale-mini primary-shadow'}"
-                    style="left: {x}%; top: {y}%; width: {size}; height: {size};"
-                />
+                <Node {i} iterationState={IterationState} {selected} {x} {y} {size} on:click={() => checkPoint(i)} />
             {/each}
         </div>
     </HackWrapper>
