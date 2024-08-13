@@ -89,7 +89,14 @@
                             class="h-full transition-colors duration-100 ease-linear"
                         />
                     {:else if iteration > i}
-                        <div class="h-full bg-tertiary w-full" />
+                        <div 
+                        class:bg-error={progress == 100 || state == 'fail'}
+                        class:bg-tertiary={state == null}
+                        class:glow-error={progress == 100 ||
+                            state == 'fail'}
+                        class:bg-success={state == 'success'}
+                        class:glow-success={state == 'success'}
+                        class="h-full bg-tertiary w-full" />
                     {/if}
                 </div>
             {/each}

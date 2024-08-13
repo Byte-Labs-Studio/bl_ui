@@ -24,6 +24,11 @@ export type TNodeHackGameParam = THackGameParam & {
     numberOfNodes: number | [number, number];
 }
 
+export type TLevelHackGameParam = THackGameParam & {
+    /** The number of levels to play. If its an array, the first number is the min number of levels and the second is the max number of levels. when randomized */
+    level: number | [number, number];
+}
+
 export type TTHackGameParams = THackGameParam | TNodeHackGameParam;
 
 export type TGameTypeParams = TDifficultyParam | TKeyGameParam | TTHackGameParams

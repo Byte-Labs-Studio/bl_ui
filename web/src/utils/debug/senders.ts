@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive, Send } from '@enums/events'
 import { DebugEventSend, SendEvent } from '@utils/eventsHandlers'
-import type { TGameParams, TGameState, TKeyGameParam, TDifficultyParam, TNodeHackGameParam } from '@typings/gameState'
+import type { TGameParams, TGameState, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -220,7 +220,33 @@ const SendDebuggers: DebugItem[] = [
                         config,
                     })
                 },
+                min: 1,
                 value: 50,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Lights Out',
+        actions: [
+            {
+                label: 'Duration',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: 30000,
+                        level: value,
+                    } as TLevelHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.LightsOut,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 0,
+                min: 0,
+                max: 50,
                 type: 'slider',
             },
         ],

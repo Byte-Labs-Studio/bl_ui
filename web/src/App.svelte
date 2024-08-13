@@ -13,6 +13,7 @@
     import PathFind from '@components/PathFind.svelte';
     import HackWrapper from '@lib/HackWrapper.svelte';
     import Untangle from '@components/Untangle.svelte';
+    import LightsOut from '@components/LightsOut.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -33,6 +34,8 @@
 
     <PathFind />
     <Untangle />
+
+    <LightsOut />
 </Visibility>
 
 {#if $IS_BROWSER}

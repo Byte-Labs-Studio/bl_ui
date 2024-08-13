@@ -53,7 +53,6 @@
     const _BODY = getComputedStyle(document.body);
     const TERTIARY_COLOUR: string = `rgba(${_BODY.getPropertyValue('--tertiary').split(' ').join(',')}, 1)`;
     const ERROR_COLOUR: string = `rgba(${_BODY.getPropertyValue('--error').split(' ').join(',')}, 1)`;
-    const ACCENT_COLOUR: string = `rgba(${_BODY.getPropertyValue('--accent').split(' ').join(',')}, 1)`;
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -337,6 +336,7 @@
         iterations={Iterations}
         iteration={UntangleState.currentIteration}
         progress={($UserDuration / UntangleState.duration) * 100}
+        state={IterationState}
     >
         <div
             bind:clientWidth={WIDTH}
