@@ -9,5 +9,6 @@ export enum GameType {
     CircleShake = "CircleShake",
     PathFind = "PathFind",
     Untangle = "Untangle",
+    LightsOut = "LightsOut",
     HexaPipe = "HexaPipe",
 }
