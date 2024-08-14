@@ -1,6 +1,8 @@
 # Byte Labs - UI
 Collection of UI Minigames for FiveM
 
+![Preview](preview.png)
+
 Website: [Byte Labs](https://byte-labs.net)
 Discord: [Byte Labs](https://discord.gg/fqsqSjZfxE)
 
