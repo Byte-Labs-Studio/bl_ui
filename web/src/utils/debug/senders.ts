@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive, Send } from '@enums/events'
 import { DebugEventSend, SendEvent } from '@utils/eventsHandlers'
-import type { TGameParams, TGameState, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam } from '@typings/gameState'
+import type { TGameParams, TGameState, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -247,6 +247,31 @@ const SendDebuggers: DebugItem[] = [
                 value: 0,
                 min: 0,
                 max: 50,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Number Crack',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: 60000,
+                        length: value,
+                    } as TLengthHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.NumberCrack,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 4,
+                min: 4,
+                max: 8,
                 type: 'slider',
             },
         ],

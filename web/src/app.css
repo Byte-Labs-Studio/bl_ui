@@ -96,6 +96,10 @@ body {
     @apply transition-colors duration-100;
 }
 
+.default-all-transition {
+    @apply transition-all duration-100;
+}
+
 .border-default {
     @apply border border-secondary/50
 }
@@ -109,6 +113,10 @@ body {
 
 .primary-fill {
     @apply fill-primary/50 border border-secondary/50
+}
+
+.btn-accent {
+    @apply bg-accent/50 border border-accent hover:bg-accent/75 hover:border-accent/75 
 }
 
 .primary-shadow {

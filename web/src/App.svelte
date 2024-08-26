@@ -11,9 +11,9 @@
     import RapidLines from '@components/RapidLines.svelte';
     import CircleShake from '@components/CircleShake.svelte';
     import PathFind from '@components/PathFind.svelte';
-    import HackWrapper from '@lib/HackWrapper.svelte';
     import Untangle from '@components/Untangle.svelte';
     import LightsOut from '@components/LightsOut.svelte';
+    import NumberCrack from '@components/NumberCrack.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -34,8 +34,8 @@
 
     <PathFind />
     <Untangle />
-
     <LightsOut />
+    <NumberCrack />
 </Visibility>
 
 {#if $IS_BROWSER}

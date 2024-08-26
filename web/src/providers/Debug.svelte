@@ -12,19 +12,9 @@
         InitialiseDebugReceivers();
     });
 
-    function onKeyDown(e: KeyboardEvent) {
-        DebugEventSend(Receive.keydown, e);
-    }
-
-    function onKeyUp(e: KeyboardEvent) {
-        DebugEventSend(Receive.keyup, e);
-    }
-
     let menuOpen: boolean = false;
 </script>
 
-
-<svelte:window on:keydown={onKeyDown} on:keyup={onKeyUp} />
 
 <div class="w-fit h-fit flex flex-col z-[9999999]">
     <button
