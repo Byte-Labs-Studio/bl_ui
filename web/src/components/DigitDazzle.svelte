@@ -21,6 +21,8 @@
 
     const UserDuration: Tweened<number> = tweened(0);
 
+    const DurationCheck = 250;
+
     let CodeLength: number = null;
     let UserCode: TDigitDazzleCode[] = [];
     let CheckingCode: boolean = false;
@@ -235,7 +237,7 @@
 
             UserCode[index].checking = true;
 
-            await delay(250);
+            await delay(DurationCheck);
 
             if (match) {
                 UserCode[index].state = 'correct';
@@ -253,11 +255,11 @@
             UserCode[index].checking = false;
         }
 
-        await delay(250);
+        await delay(DurationCheck);
 
         for (let index = UserCode.length - 1; index >= 0; index--) {
             UserCode[index].code = null;
-            await delay(250);
+            await delay(DurationCheck);
         }
 
         CheckingCode = false;
