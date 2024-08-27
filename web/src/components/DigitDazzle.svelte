@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { Key, Mouse } from '@enums/events';
+    import { Key } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import HackWrapper from '@lib/HackWrapper.svelte';
     import GAME_STATE from '@stores/GAME_STATE';
     import type { TLengthHackGameParam, TLevelState } from '@typings/gameState';
-    import type { TNumberCrackGameState } from '@typings/numberCrack';
+    import type {
+        TDigitDazzleCode,
+        TDigitDazzleGameState,
+    } from '@typings/digitDazzle';
     import { TempInteractListener } from '@utils/interactHandler';
     import { delay, getRandomIntFromIntOrArray } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
@@ -12,14 +15,16 @@
 
     let Visible: boolean = false;
 
-    let NumberCrackState: TNumberCrackGameState = null;
+    let NumberCrackState: TDigitDazzleGameState = null;
 
     let IterationState: TLevelState = null;
 
     const UserDuration: Tweened<number> = tweened(0);
 
     let CodeLength: number = null;
-    let UserCode: number[] = [];
+    let UserCode: TDigitDazzleCode[] = [];
+    let CheckingCode: boolean = false;
+    let CrackClick: HTMLButtonElement = null;
 
     let Iterations: number = null;
 
@@ -68,32 +73,53 @@
             let keyDownListener = TempInteractListener(
                 Key.down,
                 (e: KeyboardEvent) => {
+                    if (CheckingCode) return;
+
                     const key = e.key.toUpperCase();
                     if (key === 'BACKSPACE') {
-                        UserCode.pop();
-                        UserCode = UserCode;
+                        let index = UserCode.findIndex(
+                            code => code.code === null,
+                        );
+
+                        index = index === -1 ? CodeLength : index;
+                        index = index !== 0 ? index - 1 : index;
+                        UserCode[index].code = null;
                     }
                 },
             );
 
+            const checkClick = async () => {
+                const result = await check();
+                if (result) {
+                    finish(true);
+                }
+            };
+
             KeyListener = TempInteractListener(
                 Key.pressed,
                 (e: KeyboardEvent) => {
-                    // if its a number, add it to the code
-                    console.log(e.key);
+                    if (CheckingCode) return;
+
                     const key = e.key.toUpperCase();
+
+                    const index = UserCode.findIndex(
+                        code => code.code === null,
+                    );
                     if (
                         key.length === 1 &&
                         key >= '0' &&
                         key <= '9' &&
-                        UserCode.length < CodeLength
+                        index < CodeLength &&
+                        index !== -1
                     ) {
-                        UserCode.push(Number(key));
-                        UserCode = UserCode;
+                        UserCode[index].code = Number(key);
                     } else if (key === 'ENTER') {
+                        checkClick();
                     }
                 },
             );
+
+            CrackClick?.addEventListener('click', checkClick);
 
             function finish(bool: boolean) {
                 const currentValue = $UserDuration;
@@ -102,6 +128,7 @@
                 });
 
                 keyDownListener.removeListener();
+                CrackClick?.removeEventListener('click', checkClick);
 
                 clearTimeout(durationCheck);
                 resolve(bool);
@@ -127,6 +154,12 @@
         const duration = getRandomIntFromIntOrArray(config.duration);
         CodeLength = getRandomIntFromIntOrArray(config.length);
         const code = generateCode(CodeLength);
+
+        UserCode = Array.from({ length: CodeLength }, () => ({
+            code: null,
+            checking: false,
+            state: null,
+        }));
 
         NumberCrackState = {
             code,
@@ -182,6 +215,55 @@
 
         return code;
     }
+
+    async function check() {
+        if (!Visible) return;
+
+        const isFull = UserCode.every(code => code.code !== null);
+        if (!isFull) return;
+        
+
+        CheckingCode = true;
+
+        const code = UserCode.map(code => code.code);
+
+        let allMatch = true;
+
+        for (let index = 0; index < code.length; index++) {
+            const currentCode = code[index];
+            const match = currentCode === NumberCrackState.code[index];
+
+            UserCode[index].checking = true;
+
+            await delay(250);
+
+            if (match) {
+                UserCode[index].state = 'correct';
+            } else {
+                    const included = NumberCrackState.code.includes(currentCode)
+                if (included) {
+                    UserCode[index].state = 'included';
+                } else {
+                    UserCode[index].state = null;
+                }
+                allMatch = false;
+            }
+
+            
+            UserCode[index].checking = false;
+        }
+
+        await delay(250);
+
+        for (let index = UserCode.length - 1; index >= 0; index--) {
+            UserCode[index].code = null;
+            await delay(250);
+        }
+
+        CheckingCode = false;
+
+        return allMatch;
+    }
 </script>
 
 {#if Visible}
@@ -190,16 +272,25 @@
         title={['Digit', 'Dazzle']}
         subtitle="Find the correct code."
         iterations={Iterations}
+        iteration={NumberCrackState.currentIteration}
+        progress={($UserDuration / NumberCrackState.duration) * 100}
     >
         <div class=" w-fit h-fit flex flex-col gap-[1vh]">
             <div class="flex font-bold text-[5vh] gap-[3vh]">
                 {#each { length: CodeLength } as _, i}
+                    {@const code = UserCode[i]}
                     <div
-                        class="grid place-items-center w-[10vh] primary-bg aspect-square"
+                        class="grid place-items-center w-[10vh] aspect-square {IterationState == 'fail' ? 'bg-error/50 glow-error ' : code.checking
+                            ? 'bg-accent/25 shadow-accent border border-accent'
+                            : code.state === 'correct'
+                              ? 'bg-success/25 shadow-success border border-success'
+                              : code.state === 'included'
+                                ? 'bg-warning/25 shadow-warning border border-warning'
+                                : ' primary-bg'}"
                     >
-                        {#if UserCode && UserCode[i] !== undefined}
+                        {#if code !== undefined}
                             <p transition:scale={{ duration: 250 }}>
-                                {UserCode[i]}
+                                {code.code !== null ? code.code : ''}
                             </p>
                         {/if}
                     </div>
@@ -207,7 +298,8 @@
             </div>
 
             <button
-                class="w-full h-[5vh] font-bold uppercase btn-accent default-all-transition"
+                bind:this={CrackClick}
+                class="w-full h-[5vh] {IterationState == 'fail' ? 'bg-error/50 glow-error' : 'btn-accent' } font-bold uppercase  default-all-transition"
             >
                 Crack
             </button>

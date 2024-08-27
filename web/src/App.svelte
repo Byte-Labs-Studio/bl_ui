@@ -13,7 +13,7 @@
     import PathFind from '@components/PathFind.svelte';
     import Untangle from '@components/Untangle.svelte';
     import LightsOut from '@components/LightsOut.svelte';
-    import NumberCrack from '@components/NumberCrack.svelte';
+    import DigitDazzle from '@components/DigitDazzle.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -35,7 +35,7 @@
     <PathFind />
     <Untangle />
     <LightsOut />
-    <NumberCrack />
+    <DigitDazzle />
 </Visibility>
 
 {#if $IS_BROWSER}

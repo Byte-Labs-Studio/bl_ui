@@ -132,12 +132,32 @@ body {
     filter: drop-shadow(0 0 0.3vw rgb(var(--accent)));
 }
 
+.shadow-accent {
+    box-shadow: 0 0 0.3vw rgb(var(--accent));
+}
+
 .glow-error {
     filter: drop-shadow(0 0 0.3vw rgb(var(--error)));
 }
 
+.shadow-error {
+    box-shadow: 0 0 0.3vw rgb(var(--error));
+}
+
 .glow-success {
     filter: drop-shadow(0 0 0.3vw rgb(var(--success)));
+}
+
+.shadow-success {
+    box-shadow: 0 0 0.3vw rgb(var(--success));
+}
+
+.glow-warning {
+    filter: drop-shadow(0 0 0.3vw rgb(var(--warning)));
+}
+
+.shadow-warning {
+    box-shadow: 0 0 0.3vw rgb(var(--warning));
 }
 
 .shadow-box {
