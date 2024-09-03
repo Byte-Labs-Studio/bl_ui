@@ -159,8 +159,6 @@
         WordLength = getCodeLength(config.length);
         const word = generateWord(WordLength);
 
-        console.log(word);
-
         UserWord = Array.from({ length: WordLength }, () => ({
             letter: null,
             checking: false,

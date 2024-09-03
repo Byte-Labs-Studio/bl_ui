@@ -110,8 +110,6 @@
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
 
-        console.log(IterationState);
-
         await delay(500);
 
         setTimeout(() => {

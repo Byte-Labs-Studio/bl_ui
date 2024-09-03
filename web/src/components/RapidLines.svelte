@@ -68,7 +68,7 @@
             function clearLineSubscriptions(success: boolean) {
                 lineSubscriptions.forEach(sub => sub());
                 lineSubscriptions = [];
-                console.log('clearing', success);
+
                 lines.forEach((line, i) => {
                     let { left } = line;
                     left.set(get(left), { duration: 0 });
@@ -94,14 +94,6 @@
                             (value == 100 || value > zoneRange.max) &&
                             originalLine.state !== 'success'
                         ) {
-                            console.log(
-                                'fail',
-                                i,
-                                RapidLinesState.lines[i],
-                                value,
-                                originalLine.state,
-                                RapidLinesState.lines[i],
-                            );
                             originalLine.state = 'fail';
                             clearLineSubscriptions(false);
                         }
@@ -150,11 +142,6 @@
                         targetLine.state = 'success';
 
                         RapidLinesState.lines[furthestLineIndex] = targetLine;
-
-                        console.log(
-                            furthestLineIndex,
-                            RapidLinesState.lines[furthestLineIndex],
-                        );
 
                         const allSuccess = RapidLinesState.lines.every(
                             line => line.state === 'success',

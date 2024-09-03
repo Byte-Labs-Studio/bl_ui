@@ -164,8 +164,6 @@
         CodeLength = getCodeLength(config.length);
         const code = generateCode(CodeLength);
 
-        console.log(code, CodeLength)
-
         UserCode = Array.from({ length: CodeLength }, () => ({
             code: null,
             checking: false,
