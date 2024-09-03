@@ -10,6 +10,7 @@ export enum GameType {
     PathFind = "PathFind",
     Untangle = "Untangle",
     LightsOut = "LightsOut",
-    NumberCrack = "NumberCrack",
+    DigitDazzle = "DigitDazzle",
+    WordWiz = "WordWiz",
     HexaPipe = "HexaPipe",
 }

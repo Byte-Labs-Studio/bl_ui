@@ -4,19 +4,20 @@
     import HackWrapper from '@lib/HackWrapper.svelte';
     import GAME_STATE from '@stores/GAME_STATE';
     import type { TLengthHackGameParam, TLevelState } from '@typings/gameState';
-    import type {
-        TDigitDazzleCode,
-        TDigitDazzleGameState,
-    } from '@typings/digitDazzle';
+    import type { TWordWizCode, TWordWizGameState } from '@typings/wordWiz';
     import { TempInteractListener } from '@utils/interactHandler';
-    import { delay, generateNumbers, getRandomIntFromIntOrArray } from '@utils/misc';
+    import {
+        delay,
+        getRandomIntFromIntOrArray,
+        getWordWithLength,
+    } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
-    import { DIGIT_DAZZLE } from './config/gameConfig';
+    import { WORD_WIZ } from './config/gameConfig';
 
     let Visible: boolean = false;
 
-    let DigitDazeState: TDigitDazzleGameState = null;
+    let WordWizState: TWordWizGameState = null;
 
     let IterationState: TLevelState = null;
 
@@ -24,8 +25,8 @@
 
     const DurationCheck = 250;
 
-    let CodeLength: number = null;
-    let UserCode: TDigitDazzleCode[] = [];
+    let WordLength: number = null;
+    let UserWord: TWordWizCode[] = [];
     let CheckingCode: boolean = false;
     let CrackClick: HTMLButtonElement = null;
 
@@ -35,15 +36,13 @@
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
-            state.active &&
-            state.type === GameType.DigitDazzle &&
-            !IterationState;
+            state.active && state.type === GameType.WordWiz && !IterationState;
         if (shouldShow) {
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
-            DigitDazeState = null;
+            WordWizState = null;
             IterationState = null;
             clearKeyListener();
         }
@@ -63,18 +62,15 @@
         if (!Visible) return;
 
         setTimeout(() => {
-            UserDuration.set(DigitDazeState.duration, {
-                duration: DigitDazeState.duration,
+            UserDuration.set(WordWizState.duration, {
+                duration: WordWizState.duration,
             });
         }, 500);
 
         return new Promise((resolve, _) => {
-
-            let timerDone = false;
             let durationCheck = setTimeout(() => {
                 finish(false);
-                timerDone = true;
-            }, DigitDazeState.duration + 500);
+            }, WordWizState.duration + 500);
 
             let keyDownListener = TempInteractListener(
                 Key.down,
@@ -83,20 +79,20 @@
 
                     const key = e.key.toUpperCase();
                     if (key === 'BACKSPACE') {
-                        let index = UserCode.findIndex(
-                            code => code.code === null,
+                        let index = UserWord.findIndex(
+                            code => code.letter === null,
                         );
 
-                        index = index === -1 ? CodeLength : index;
+                        index = index === -1 ? WordLength : index;
                         index = index !== 0 ? index - 1 : index;
-                        UserCode[index].code = null;
+                        UserWord[index].letter = null;
                     }
                 },
             );
 
             const checkClick = async () => {
                 const result = await check();
-                if (result || timerDone) {
+                if (result) {
                     finish(true);
                 }
             };
@@ -108,17 +104,17 @@
 
                     const key = e.key.toUpperCase();
 
-                    const index = UserCode.findIndex(
-                        code => code.code === null,
+                    const index = UserWord.findIndex(
+                        code => code.letter === null,
                     );
                     if (
                         key.length === 1 &&
-                        key >= '0' &&
-                        key <= '9' &&
-                        index < CodeLength &&
+                        key >= 'A' &&
+                        key <= 'Z' &&
+                        index < WordLength &&
                         index !== -1
                     ) {
-                        UserCode[index].code = Number(key);
+                        UserWord[index].letter = key;
                     } else if (key === 'ENTER') {
                         checkClick();
                     }
@@ -151,8 +147,8 @@
     async function startGame(iterations, config: TLengthHackGameParam) {
         if (!Visible) return;
 
-        UserCode = [];
-        CodeLength = null;
+        UserWord = [];
+        WordLength = null;
         clearKeyListener();
 
         UserDuration.set(0, {
@@ -160,20 +156,19 @@
         });
 
         const duration = getRandomIntFromIntOrArray(config.duration);
+        WordLength = getCodeLength(config.length);
+        const word = generateWord(WordLength);
 
-        CodeLength = getCodeLength(config.length);
-        const code = generateCode(CodeLength);
+        console.log(word);
 
-        console.log(code, CodeLength)
-
-        UserCode = Array.from({ length: CodeLength }, () => ({
-            code: null,
+        UserWord = Array.from({ length: WordLength }, () => ({
+            letter: null,
             checking: false,
             state: null,
         }));
 
-        DigitDazeState = {
-            code,
+        WordWizState = {
+            word,
             duration,
             currentIteration: Iterations - iterations,
         };
@@ -196,12 +191,12 @@
                     startGame(iterations, config);
                 } else {
                     GAME_STATE.finish(true);
-                    DigitDazeState = null;
+                    WordWizState = null;
                     return;
                 }
             } else {
                 GAME_STATE.finish(false);
-                DigitDazeState = null;
+                WordWizState = null;
                 return;
             }
         }, 1000);
@@ -210,20 +205,23 @@
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
      */
     function initialise() {
-        if (!$GAME_STATE.active || DigitDazeState) return;
+        if (!$GAME_STATE.active || WordWizState) return;
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
         startGame(iterations, config as TLengthHackGameParam);
     }
 
-    function generateCode(length: number) {
-        return generateNumbers(length);
+    /** This code is responsible for generating a word of a given length. */
+    function generateWord(length: number) {
+        const word = getWordWithLength(length);
+
+        return word.toUpperCase().split('');
     }
 
     function getCodeLength(length: number | [number, number]): number {
-        const sizeMin = DIGIT_DAZZLE.SIZE.MIN;
-        const sizeMax = DIGIT_DAZZLE.SIZE.MAX;
+        const sizeMin = WORD_WIZ.SIZE.MIN;
+        const sizeMax = WORD_WIZ.SIZE.MAX;
 
         if (Array.isArray(length)) {
             length[0] = length[0] < sizeMin ? sizeMin : length[0];
@@ -236,52 +234,51 @@
             return getRandomIntFromIntOrArray(length);
         }
 
-        return DIGIT_DAZZLE.DEFAULT_LENGTH;
+        return WORD_WIZ.DEFAULT_LENGTH;
     }
 
     async function check() {
         if (!Visible) return;
 
-        const isFull = UserCode.every(code => code.code !== null);
+        const isFull = UserWord.every(code => code.letter !== null);
         if (!isFull) return;
-        
 
         CheckingCode = true;
 
-        const code = UserCode.map(code => code.code);
+        const code = UserWord.map(code => code.letter);
 
         let allMatch = true;
 
         for (let index = 0; index < code.length; index++) {
-            const currentCode = code[index];
-            const match = currentCode === DigitDazeState.code[index];
+            const currentLetter = code[index];
+            const match = currentLetter === WordWizState.word[index];
 
-            UserCode[index].checking = true;
+            UserWord[index].checking = true;
 
             if (match) {
-                UserCode[index].state = 'correct';
+                UserWord[index].state = 'correct';
             } else {
-                    const included = DigitDazeState.code.includes(currentCode)
+                const included = WordWizState.word.includes(currentLetter);
                 if (included) {
-                    UserCode[index].state = 'included';
+                    UserWord[index].state = 'included';
                 } else {
-                    UserCode[index].state = null;
+                    UserWord[index].state = null;
                 }
                 allMatch = false;
             }
 
             await delay(DurationCheck);
 
-            UserCode[index].checking = false;
+            UserWord[index].checking = false;
         }
-        
+
         // Because Im smart and I know how JS works ;)
         setTimeout(async () => {
             if (allMatch) return;
             await delay(500);
 
-            for (let index = UserCode.length - 1; index >= 0; index--) {
-                UserCode[index].code = null;
+            for (let index = UserWord.length - 1; index >= 0; index--) {
+                UserWord[index].letter = null;
                 await delay(DurationCheck / 2);
             }
         }, 0);
@@ -295,28 +292,31 @@
 {#if Visible}
     <HackWrapper
         state={IterationState}
-        title={['Digit', 'Dazzle']}
-        subtitle="Find the correct code."
+        title={['Word', 'Wiz']}
+        subtitle="Find the correct word."
         iterations={Iterations}
-        iteration={DigitDazeState.currentIteration}
-        progress={($UserDuration / DigitDazeState.duration) * 100}
+        iteration={WordWizState.currentIteration}
+        progress={($UserDuration / WordWizState.duration) * 100}
     >
         <div class=" w-fit h-fit flex flex-col gap-[1vh]">
             <div class="flex font-bold text-[5vh] gap-[3vh]">
-                {#each { length: CodeLength } as _, i}
-                    {@const code = UserCode[i]}
+                {#each { length: WordLength } as _, i}
+                    {@const code = UserWord[i]}
                     <div
-                        class="grid place-items-center w-[10vh] aspect-square {IterationState == 'fail' ? 'bg-error/50 glow-error ' : code.checking
-                            ? 'bg-accent/25 shadow-accent border border-accent'
-                            : code.state === 'correct'
-                              ? 'bg-success/25 shadow-success border border-success'
-                              : code.state === 'included'
-                                ? 'bg-warning/25 shadow-warning border border-warning'
-                                : ' primary-bg'}"
+                        class="grid place-items-center w-[10vh] aspect-square {IterationState ==
+                        'fail'
+                            ? 'bg-error/50 glow-error '
+                            : code.checking
+                              ? 'bg-accent/25 shadow-accent border border-accent'
+                              : code.state === 'correct'
+                                ? 'bg-success/25 shadow-success border border-success'
+                                : code.state === 'included'
+                                  ? 'bg-warning/25 shadow-warning border border-warning'
+                                  : ' primary-bg'}"
                     >
                         {#if code !== undefined}
                             <p transition:scale={{ duration: 250 }}>
-                                {code.code !== null ? code.code : ''}
+                                {code.letter !== null ? code.letter : ''}
                             </p>
                         {/if}
                     </div>
@@ -325,7 +325,9 @@
 
             <button
                 bind:this={CrackClick}
-                class="w-full h-[5vh] {IterationState == 'fail' ? 'bg-error/50 glow-error' : 'btn-accent' } font-bold uppercase  default-all-transition"
+                class="w-full h-[5vh] {IterationState == 'fail'
+                    ? 'bg-error/50 glow-error'
+                    : 'btn-accent'} font-bold uppercase default-all-transition"
             >
                 Crack
             </button>

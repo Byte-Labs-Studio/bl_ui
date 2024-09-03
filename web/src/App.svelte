@@ -14,6 +14,7 @@
     import Untangle from '@components/Untangle.svelte';
     import LightsOut from '@components/LightsOut.svelte';
     import DigitDazzle from '@components/DigitDazzle.svelte';
+    import WordWiz from '@components/WordWiz.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -36,6 +37,7 @@
     <Untangle />
     <LightsOut />
     <DigitDazzle />
+    <WordWiz />
 </Visibility>
 
 {#if $IS_BROWSER}

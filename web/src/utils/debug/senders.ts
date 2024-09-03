@@ -252,7 +252,7 @@ const SendDebuggers: DebugItem[] = [
         ],
     },
     {
-        label: 'Number Crack',
+        label: 'Digit Dazzle',
         actions: [
             {
                 label: 'Custom Difficulty',
@@ -264,14 +264,39 @@ const SendDebuggers: DebugItem[] = [
                     } as TLengthHackGameParam
 
                     DebugEventSend<TGameParams>(Receive.start, {
-                        type: GameType.NumberCrack,
+                        type: GameType.DigitDazzle,
                         iterations: 2,
                         config,
                     })
                 },
                 value: 4,
-                min: 4,
-                max: 8,
+                min: 1,
+                max: 12,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Word Wiz',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: 20000,
+                        length: value,
+                    } as TLengthHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.WordWiz,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 4,
+                min: 1,
+                max: 12,
                 type: 'slider',
             },
         ],

@@ -134,6 +134,30 @@ export const CIRCLE_SHAKE = {
     FALLBACK_NUM_KEYS: 3,
 };
 
+export const DIGIT_DAZZLE = {
+    /**
+     * The minimum and maximum size of numbers.
+     */
+    SIZE: {
+        MIN: 2,
+        MAX: 8,
+    },
+
+    DEFAULT_LENGTH: 4,
+};
+
+export const WORD_WIZ = {
+    /**
+     * The minimum and maximum size of numbers.
+     */
+    SIZE: {
+        MIN: 2,
+        MAX: 8,
+    },
+
+    DEFAULT_LENGTH: 4,
+};
+
 export const PATH_FIND = {
     /**
      * The minimum and maximum duration of the game in milliseconds.

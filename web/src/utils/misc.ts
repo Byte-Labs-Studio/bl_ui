@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import words from "./data/words";
 
 
 export async function delay(ms: number) {
@@ -52,4 +53,18 @@ export function getRandomIntFromIntOrArray(num: number | [number, number]): numb
     }
 
     return Math.floor(MIN + Math.random() * (MAX - MIN));
+}
+
+export function generateNumbers(length: number) {
+    return Array.from({ length }, () => Math.floor(Math.random() * 10));
+}
+
+// export function generateWords(length: number) {
+//     // return getRandomWord(length).toUpperCase().split('');
+// }
+
+export function getWordWithLength(length: number): string {
+    const wordsWithLength = words[length];
+    const randomIndex = Math.floor(Math.random() * wordsWithLength.length);
+    return wordsWithLength[randomIndex];
 }
