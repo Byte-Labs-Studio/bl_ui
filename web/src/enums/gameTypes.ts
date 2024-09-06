@@ -12,5 +12,6 @@ export enum GameType {
     LightsOut = "LightsOut",
     DigitDazzle = "DigitDazzle",
     WordWiz = "WordWiz",
+    CircleSum = "CircleSum",
     HexaPipe = "HexaPipe",
 }

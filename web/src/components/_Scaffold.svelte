@@ -5,7 +5,7 @@
     import type { TLevelState } from "@typings/gameState";
     import { TempInteractListener } from "@utils/interactHandler";
     import { delay } from "@utils/misc";
-    import { Tweened, tweened } from "svelte/motion";
+    import { type Tweened, tweened } from "svelte/motion";
 
     let Visible: boolean = false;
 

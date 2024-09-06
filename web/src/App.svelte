@@ -15,6 +15,7 @@
     import LightsOut from '@components/LightsOut.svelte';
     import DigitDazzle from '@components/DigitDazzle.svelte';
     import WordWiz from '@components/WordWiz.svelte';
+    import CircleSum from '@components/CircleSum.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -38,6 +39,7 @@
     <LightsOut />
     <DigitDazzle />
     <WordWiz />
+    <CircleSum />
 </Visibility>
 
 {#if $IS_BROWSER}

@@ -301,6 +301,31 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
+    {
+        label: 'Circle Sum',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: 10000,
+                        length: value,
+                    } as TLengthHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.CircleSum,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 4,
+                min: 1,
+                max: 12,
+                type: 'slider',
+            },
+        ],
+    },
 ]
 
 export default SendDebuggers

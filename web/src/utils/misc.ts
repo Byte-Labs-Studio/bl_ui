@@ -22,6 +22,12 @@ export function numberToAngle(angle: number) {
     return angle;
 }
 
+
+export function degToRad(deg: number) {
+    return deg * (Math.PI / 180)
+}
+
+
 export function randomBetween(min: number, max: number) {
     return Math.random() * (max - min) + min;
 }
