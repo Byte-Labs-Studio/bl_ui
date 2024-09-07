@@ -23,9 +23,7 @@
 
     let Iterations: number = null;
 
-    function isAllDone() {
-        return LightsOutState?.items && LightsOutState.items.every(e => e === false) || false;
-    }
+    let SuccessCheck: Function = null;
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -56,18 +54,17 @@
 
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
-                if (isAllDone()) {
-                    finish(true);
-                    return;
-                }
-                finish(false);
+                finish(SuccessCheck(true))
             }, LightsOutState.duration + 500);
 
-            let finishedCheck = setInterval(() => {
-                if (isAllDone()) {
+            SuccessCheck = (_return: boolean = false) => {
+                const success = LightsOutState.items.every(e => e === true);
+                if (_return) return success
+
+                if (LightsOutState.items.every(e => e === false)) {
                     finish(true);
                 }
-            }, 500);
+            }
 
             function finish(bool: boolean) {
                 const currentValue = $UserDuration;
@@ -75,7 +72,6 @@
                     duration: 0,
                 });
 
-                clearInterval(finishedCheck);
                 clearTimeout(durationCheck);
                 resolve(bool);
             }
@@ -146,7 +142,7 @@
      * Handle Click/Touchstart on Knob
      */
     let handleKnobClick = (index, event) => {
-        if (!Visible || isAllDone()) return;
+        if (!Visible || (SuccessCheck && SuccessCheck())) return;
         event.preventDefault();
         event.stopPropagation();
         toggleActive(index);
@@ -179,6 +175,8 @@
         otherIndezes.map(i => {
             toggleActive(i);
         });
+
+        SuccessCheck();
     };
 
     function toggleActive(index: number) {
