@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { Mouse } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import HackWrapper from '@lib/HackWrapper.svelte';
     import GAME_STATE from '@stores/GAME_STATE';
@@ -17,6 +16,7 @@
     import { type Tweened, tweened } from 'svelte/motion';
     import radial from './CircleSum/radial';
     import RadialSegment from './CircleSum/RadialSegment.svelte';
+    import { scale } from 'svelte/transition';
 
     let Visible: boolean = false;
 
@@ -26,7 +26,9 @@
 
     const UserDuration: Tweened<number> = tweened(0);
 
+    let UserRotation: number = 0;
     let UserValue: number = 0;
+
     let hoveredIndex: number = null;
 
     let Iterations: number = null;
@@ -113,6 +115,7 @@
             duration: 0,
         });
 
+        UserRotation = 0;
         UserValue = 0;
 
         const numToggles = getRandomIntFromIntOrArray(config.length);
@@ -127,6 +130,7 @@
         };
 
         IterationState = null;
+        startRotation();
 
         await delay(500);
 
@@ -217,7 +221,41 @@
         }
     }
 
+    function startRotation() {
+        let fpsInterval: number,
+            now: number,
+            then: number,
+            elapsed: number;
+        function startAnimating(fps: number) {
+            fpsInterval = 1000 / fps;
+            then = window.performance.now();
+            animate();
+        }
+
+        const currentIteration = CircleSumState.currentIteration
+
+
+        async function animate() {
+            if (!Visible || IterationState) return;
+            if (currentIteration !== CircleSumState.currentIteration) return;
+
+            requestAnimationFrame(animate);
+
+            now = window.performance.now();
+            elapsed = now - then;
+            if (elapsed > fpsInterval) {
+                then = now - (elapsed % fpsInterval);
+
+                UserRotation += 0.5;
+            }
+        }
+
+        startAnimating(60);
+    }
+
     function clickHandler(index) {
+        if (IterationState) return;
+
         CircleSumState.toggles[index].active =
             !CircleSumState.toggles[index].active;
 
@@ -231,26 +269,26 @@
     }
 </script>
 
-<!--  -->
-
 {#if Visible}
     <HackWrapper
         state={IterationState}
-        title={['Path', 'Find']}
+        title={['Circle', 'Sum']}
         iterations={Iterations}
         iteration={CircleSumState.currentIteration}
         progress={($UserDuration / CircleSumState.duration) * 100}
-        subtitle="Go to the next point closest point."
+        subtitle="Find the right combination to match the target."
     >
         <div
             class=" w-[60vh] h-[60vh] grid place-items-center aspect-square rounded-full overflow-hidden"
         >
             <div
             bind:this={circleRef}
-                class="w-1/3 h-1/3 grid place-items-center overflow-visible aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50 rounded-full"
+            transition:scale|global={{delay: 500}}
+                class="w-1/3 h-1/3 grid place-items-center overflow-hidden aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50 rounded-full"
             >
                 {#if UserValue !== null && circleRef}
-                    {@const size = (UserValue / CircleSumState.target) * circleRef.clientWidth}
+                    {@const _size = (UserValue / CircleSumState.target) * circleRef.clientWidth}
+                    {@const size = _size > circleRef.clientWidth ? containerRef?.clientWidth : _size}
                     <div
                     style="width: {size}px;"
                     class="aspect-square rounded-full absolute duration-200 transition-all {
@@ -258,7 +296,7 @@
                             ? 'border-success glow-success bg-success/50'
                             : IterationState == 'fail'
                                 ? 'border-error glow-error bg-error/50'
-                                : size > circleRef.clientWidth
+                                : _size > circleRef.clientWidth
                                     ? 'glow-error bg-error/50' 
                                     : 'bg-accent glow-accent'
                     }"
@@ -270,8 +308,9 @@
                 {@const containerSize = containerRef?.clientWidth}
                 {@const { size, gap, innerHoleSize } = radial}
                 <svg
+                transition:scale|global={{delay: 250}}
                     bind:this={containerRef}
-                    style="width: {size}%;"
+                    style="width: {size}%; rotate: {UserRotation}deg;"
                     class="absolute z-[100] overflow-visible aspect-square"
                 >
                     {#each CircleSumState.toggles as item, index}
@@ -286,7 +325,7 @@
                                 containerSize}
                             bind:hoveredIndex
                             active={item.active}
-                            on:click={e => clickHandler(index)}
+                            on:click={_ => clickHandler(index)}
                         />
                     {/each}
                 </svg>
