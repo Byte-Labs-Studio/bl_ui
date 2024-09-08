@@ -288,7 +288,7 @@
             >
                 {#if UserValue !== null && circleRef}
                     {@const _size = (UserValue / CircleSumState.target) * circleRef.clientWidth}
-                    {@const size = _size > circleRef.clientWidth ? containerRef?.clientWidth : _size}
+                    {@const size = _size > containerRef.clientWidth ? containerRef?.clientWidth : _size}
                     <div
                     style="width: {size}px;"
                     class="aspect-square rounded-full absolute duration-200 transition-all {

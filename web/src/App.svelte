@@ -40,6 +40,7 @@
     <DigitDazzle />
     <WordWiz />
     <CircleSum />
+    <WaveMatch />
 </Visibility>
 
 {#if $IS_BROWSER}

@@ -36,7 +36,7 @@
             </span>
         {/if}
 
-        {#if subtitle}<p class="text-tertiary/75 font-medium w-full">
+        {#if subtitle}<p class="text-tertiary/75 font-medium w-full text-[1.5vh]">
                 {subtitle}
             </p>{/if}
 

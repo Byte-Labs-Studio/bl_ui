@@ -27,7 +27,8 @@
     let CodeLength: number = null;
     let UserCode: TDigitDazzleCode[] = [];
     let CheckingCode: boolean = false;
-    let CrackClick: HTMLButtonElement = null;
+
+    let SuccessChecker: Function = null;
 
     let Iterations: number = null;
 
@@ -94,7 +95,7 @@
                 },
             );
 
-            const checkClick = async () => {
+            SuccessChecker = async () => {
                 const result = await check();
                 if (result || timerDone) {
                     finish(true);
@@ -120,12 +121,11 @@
                     ) {
                         UserCode[index].code = Number(key);
                     } else if (key === 'ENTER') {
-                        checkClick();
+                        SuccessChecker();
                     }
                 },
             );
 
-            CrackClick?.addEventListener('click', checkClick);
 
             function finish(bool: boolean) {
                 if (CheckingCode) return;
@@ -136,8 +136,6 @@
                 });
 
                 keyDownListener.removeListener();
-                CrackClick?.removeEventListener('click', checkClick);
-
                 clearTimeout(durationCheck);
                 resolve(bool);
             }
@@ -151,6 +149,7 @@
     async function startGame(iterations, config: TLengthHackGameParam) {
         if (!Visible) return;
 
+        SuccessChecker = null;
         UserCode = [];
         CodeLength = null;
         clearKeyListener();
@@ -285,7 +284,7 @@
         }, 0);
 
         CheckingCode = false;
-
+        
         return allMatch;
     }
 </script>
@@ -322,7 +321,7 @@
             </div>
 
             <button
-                bind:this={CrackClick}
+                on:click={()=>SuccessChecker()}
                 class="w-full h-[5vh] {IterationState == 'fail' ? 'bg-error/50 glow-error' : 'btn-accent' } font-bold uppercase  default-all-transition"
             >
                 Crack
