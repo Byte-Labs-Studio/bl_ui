@@ -16,6 +16,7 @@
     import DigitDazzle from '@components/DigitDazzle.svelte';
     import WordWiz from '@components/WordWiz.svelte';
     import CircleSum from '@components/CircleSum.svelte';
+    import WaveMatch from '@components/WaveMatch.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',

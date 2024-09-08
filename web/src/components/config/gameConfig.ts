@@ -213,6 +213,46 @@ export const KEYS = {
 };
 
 
+export const WAVE_MATCH = {
+    DEFAULT_WAVE: {
+        speed: 1,
+        amplitude: 1,
+        wavelength: 1,
+        segmentLength: 1,
+        lineWidth: 10,
+        timeModifier: 1,
+    },
+
+    MIN_WAVE: {
+        speed: 0.1,
+        amplitude: 0,
+        wavelength: 0,
+        segmentLength: 0.1,
+        lineWidth: 10,
+        timeModifier: 0.1,
+    },
+
+    MAX_WAVE: {
+        speed: 5,
+        amplitude: 100,
+        wavelength: 10,
+        segmentLength: 10,
+        lineWidth: 30,
+        timeModifier: 1,
+    },
+
+    STEP_WAVE: {
+        speed: 0.1,
+        amplitude: 0.1,
+        wavelength: 0.1,
+        segmentLength: 0.1,
+        lineWidth: 0.1,
+        timeModifier: 0.1,
+    },
+
+    MATCH_THRESHOLD: 95,
+};
+
 /**
  * Get a random key from a set of keys.
  * @param set The set of keys to get a random key from.

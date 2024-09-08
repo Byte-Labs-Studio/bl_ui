@@ -1,68 +1,75 @@
 <script lang="ts">
-    import { Mouse } from "@enums/events";
-    import HackWrapper from "@lib/HackWrapper.svelte";
-    import GAME_STATE from "@stores/GAME_STATE";
-    import type { TLevelState } from "@typings/gameState";
-    import { TempInteractListener } from "@utils/interactHandler";
-    import { delay } from "@utils/misc";
-    import { type Tweened, tweened } from "svelte/motion";
+    import { GameType } from '@enums/gameTypes';
+    import HackWrapper from '@lib/HackWrapper.svelte';
+    import GAME_STATE from '@stores/GAME_STATE';
+    import type { THackGameParam, TLevelState } from '@typings/gameState';
+    import { deepClone, delay, getRandomIntFromIntOrArray } from '@utils/misc';
+    import { type Tweened, tweened } from 'svelte/motion';
+    import Wave from './WaveMatch/Wave.svelte';
+    import Slider from './micro/Slider.svelte';
+    import type { TWaveMatchGameState, TWaveOptions } from '@typings/waveMatch';
+    import { WAVE_MATCH } from './config/gameConfig';
+    import { flip } from 'svelte/animate';
+    import { blur, slide } from 'svelte/transition';
+
+    const _BODY = getComputedStyle(document.body);
+    const FOREGROUND_COLOUR: string = `rgba(${_BODY.getPropertyValue('--foreground').split(' ').join(',')}, 0.5)`;
+    const ACCENT_COLOUR: string = `rgba(${_BODY.getPropertyValue('--accent').split(' ').join(',')}, 0.5)`;
 
     let Visible: boolean = false;
 
-    let State: any = null;
+    let WaveMatchState: TWaveMatchGameState = null;
 
     let IterationState: TLevelState = null;
 
     const UserDuration: Tweened<number> = tweened(0);
 
     let Iterations: number = null;
-    
-    let MouseListener: ReturnType<typeof TempInteractListener>;
+
+    let containerRef: HTMLDivElement = null;
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
-            state.active && state.type === 'CHANGE THIS TO ENUM' && !IterationState;
+            state.active &&
+            state.type === GameType.WaveMatch &&
+            !IterationState;
         if (shouldShow) {
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
-            State = null;
+            WaveMatchState = null;
             IterationState = null;
-            clearMouseListener();
         }
     });
 
-    /** This code is responsible for clearing the key listeners. */
-    function clearMouseListener() {
-        MouseListener?.removeListener();
-        MouseListener = null;
-    }
+    let SuccessChecker: Function = null;
 
-        /** This code is responsible for playing the iteration of the minigame.
+    /** This code is responsible for playing the iteration of the minigame.
      * The code will return a promise that resolves to true if the user has
      * correctly input the key, and false otherwise.
      */
-     async function playIteration() {
+    async function playIteration() {
         if (!Visible) return;
 
         setTimeout(() => {
-            UserDuration.set(State.duration, {
-                duration: State.duration,
+            UserDuration.set(WaveMatchState.duration, {
+                duration: WaveMatchState.duration,
             });
         }, 500);
 
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
-            }, State.duration + 500);
+            }, WaveMatchState.duration + 500);
 
-            MouseListener = TempInteractListener(
-                Mouse.move,
-                (e: MouseEvent) => {
-
-                },
-            );
+            SuccessChecker = () => {
+                const overThreshold =
+                    WaveMatchState.match >= WAVE_MATCH.MATCH_THRESHOLD;
+                if (overThreshold) {
+                    finish(true);
+                }
+            };
 
             function finish(bool: boolean) {
                 const currentValue = $UserDuration;
@@ -80,20 +87,24 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-     async function startGame(iterations, config: any) {
+    async function startGame(iterations, config: THackGameParam) {
         if (!Visible) return;
 
-        clearMouseListener();
-
-        
         UserDuration.set(0, {
             duration: 0,
         });
 
+        SuccessChecker = null;
 
-        State = {
-            // currentIteration: Iterations - iterations,
+        WaveMatchState = {
+            duration: getRandomIntFromIntOrArray(config.duration),
+            currentIteration: Iterations - iterations,
+            userWave: deepClone(WAVE_MATCH.DEFAULT_WAVE),
+            targetWave: generateTargetWave(),
+            match: 0,
         };
+
+        checkMatch();
 
         IterationState = null;
 
@@ -113,46 +124,201 @@
                     startGame(iterations, config);
                 } else {
                     GAME_STATE.finish(true);
-                    State = null;
+                    WaveMatchState = null;
                     return;
                 }
             } else {
                 GAME_STATE.finish(false);
-                State = null;
+                WaveMatchState = null;
                 return;
             }
         }, 1000);
     }
 
-
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
      */
-     function initialise() {
-        if (!$GAME_STATE.active || State) return;
+    function initialise() {
+        if (!$GAME_STATE.active || WaveMatchState) return;
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
-        startGame(iterations, config as any);
+        startGame(iterations, config as THackGameParam);
     }
 
+    function generateTargetWave() {
+        const { DEFAULT_WAVE, MIN_WAVE, MAX_WAVE, STEP_WAVE } = WAVE_MATCH;
+        let targetWave = deepClone(DEFAULT_WAVE);
+
+        for (const key in targetWave) {
+            const randomValue = Math.random() * (MAX_WAVE[key] - MIN_WAVE[key]) + MIN_WAVE[key];
+
+            // make sure the value fits with the step Config
+            targetWave[key] = Math.round(randomValue / STEP_WAVE[key]) * STEP_WAVE[key];
+        }
+
+        console.log(targetWave);
+
+        return targetWave;
+    }
+
+    function checkMatch(): number {
+        if (IterationState) return;
+        if (!WaveMatchState?.userWave || !WaveMatchState?.targetWave) return 0;
+
+        const userConfig = WaveMatchState.userWave;
+        const waveConfig = WaveMatchState.targetWave;
+
+        let totalMatch = 0;
+        const keys = Object.keys(userConfig) as (keyof TWaveOptions)[];
+        const totalKeys = keys.length;
+
+        const { MIN_WAVE, MAX_WAVE } = WAVE_MATCH;
+
+        keys.forEach(key => {
+            const userValue = userConfig[key];
+            const waveValue = waveConfig[key];
+            const minValue = Number(MIN_WAVE[key]);
+            const maxValue = Number(MAX_WAVE[key]);
+
+            // Calculate how close the user's value is to the wave value within the range
+            if (maxValue !== minValue) {
+                const userNormalized =
+                    (Number(userValue) - minValue) / (maxValue - minValue);
+                const waveNormalized =
+                    (Number(waveValue) - minValue) / (maxValue - minValue);
+
+                const match = 1 - Math.abs(userNormalized - waveNormalized);
+                totalMatch += match;
+            }
+        });
+
+        // Calculate the percentage match
+        WaveMatchState.match = Math.round((totalMatch / totalKeys) * 100);
+
+        if (!SuccessChecker) return;
+        SuccessChecker();
+    }
 </script>
-<!-- iterations={Iterations}
-iteration={State.currentIteration}
-progress={($UserDuration / State.duration) * 100} -->
 
 {#if Visible}
-
     <HackWrapper
-    state={IterationState}
-    title={['Wave', 'Match']}
-    subtitle="Change the parameters to match the wave."
-
+        state={IterationState}
+        title={['Wave', 'Match']}
+        subtitle="Change the parameters to match the wave."
+        iterations={Iterations}
+        iteration={WaveMatchState.currentIteration}
+        progress={($UserDuration / WaveMatchState.duration) * 100}
     >
+        <div class=" w-[80vh] h-[60vh] flex flex-col items-center gap-[5vh]">
+            <div
+                bind:this={containerRef}
+                class="w-full h-[40vh] bg-secondary/90 border-[0.15vh] border-tertiary/50"
+            >
+                {#if containerRef && !IterationState}
+                    {@const borderpx = window.innerHeight * 0.0015}
+                    {@const height = containerRef.clientHeight - borderpx}
+                    {@const width = containerRef.clientWidth - borderpx}
+                    <div
+                        out:blur={{ delay: 500 }}
+                        in:blur={{ delay: 250 }}
+                        class="w-full h-full grid place-items-center"
+                    >
+                        <Wave
+                            strokeStyle={FOREGROUND_COLOUR}
+                            {...WaveMatchState.targetWave}
+                            {height}
+                            {width}
+                        />
+                        <Wave
+                            strokeStyle={ACCENT_COLOUR}
+                            {...WaveMatchState.userWave}
+                            {height}
+                            {width}
+                        />
+                    </div>
+                {/if}
+            </div>
 
-    <div
-    class=" w-[80vh] h-[60vh] aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50"
->
+            {#if WaveMatchState?.userWave}
+                {@const maxConfig = WAVE_MATCH.MAX_WAVE}
+                {@const minConfig = WAVE_MATCH.MIN_WAVE}
+                {@const stepConfig = WAVE_MATCH.STEP_WAVE}
+                {@const threshold = WAVE_MATCH.MATCH_THRESHOLD}
+                <div
+                    class="w-full h-[20vh] px-[5vh] flex flex-col items-center justify-center gap-[2vh]"
+                >
+                    <div
+                        class="w-full h-[2vh] grid place-items-center primary-bg"
+                    >
+                        <div
+                            class="h-full transition-all duration-200 {IterationState ==
+                            'success'
+                                ? 'border-success glow-success bg-success/50'
+                                : IterationState == 'fail'
+                                  ? 'border-error glow-error bg-error/50'
+                                  : 'bg-accent glow-accent'}"
+                            style="width: {(WaveMatchState.match / threshold) *
+                                100}%"
+                        />
+                        <div
+                            class="h-full bg-success transition-all duration-200 absolute"
+                        />
+                    </div>
 
-    </div>
-</HackWrapper>
+                    <div
+                        class="w-full h-full grid grid-cols-3 items-center justify-between"
+                    >
+                        <Slider
+                            disabled={!!IterationState}
+                            bind:value={WaveMatchState.userWave.speed}
+                            min={minConfig.speed}
+                            max={maxConfig.speed}
+                            step={stepConfig.speed}
+                            on:change={checkMatch}
+                        />
+                        <Slider
+                            disabled={!!IterationState}
+                            bind:value={WaveMatchState.userWave.amplitude}
+                            min={minConfig.amplitude}
+                            max={maxConfig.amplitude}
+                            step={stepConfig.amplitude}
+                            on:change={checkMatch}
+                        />
+                        <Slider
+                            disabled={!!IterationState}
+                            bind:value={WaveMatchState.userWave.wavelength}
+                            min={minConfig.wavelength}
+                            max={maxConfig.wavelength}
+                            step={stepConfig.wavelength}
+                            on:change={checkMatch}
+                        />
+                        <Slider
+                            disabled={!!IterationState}
+                            bind:value={WaveMatchState.userWave.segmentLength}
+                            min={minConfig.segmentLength}
+                            max={maxConfig.segmentLength}
+                            step={stepConfig.segmentLength}
+                            on:change={checkMatch}
+                        />
+                        <Slider
+                            disabled={!!IterationState}
+                            bind:value={WaveMatchState.userWave.lineWidth}
+                            min={minConfig.lineWidth}
+                            max={maxConfig.lineWidth}
+                            step={stepConfig.lineWidth}
+                            on:change={checkMatch}
+                        />
+                        <Slider
+                            disabled={!!IterationState}
+                            bind:value={WaveMatchState.userWave.timeModifier}
+                            min={minConfig.timeModifier}
+                            max={maxConfig.timeModifier}
+                            step={stepConfig.timeModifier}
+                            on:change={checkMatch}
+                        />
+                    </div>
+                </div>
+            {/if}
+        </div>
+    </HackWrapper>
 {/if}

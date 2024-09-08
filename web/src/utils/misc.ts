@@ -65,12 +65,12 @@ export function generateNumbers(length: number) {
     return Array.from({ length }, () => Math.floor(Math.random() * 10));
 }
 
-// export function generateWords(length: number) {
-//     // return getRandomWord(length).toUpperCase().split('');
-// }
-
 export function getWordWithLength(length: number): string {
     const wordsWithLength = words[length];
     const randomIndex = Math.floor(Math.random() * wordsWithLength.length);
     return wordsWithLength[randomIndex];
+}
+
+export function deepClone(obj: any) {
+    return JSON.parse(JSON.stringify(obj));
 }

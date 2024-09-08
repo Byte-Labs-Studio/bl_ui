@@ -1,8 +1,8 @@
 import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
-import { Receive, Send } from '@enums/events'
-import { DebugEventSend, SendEvent } from '@utils/eventsHandlers'
-import type { TGameParams, TGameState, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam } from '@typings/gameState'
+import { Receive } from '@enums/events'
+import { DebugEventSend } from '@utils/eventsHandlers'
+import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -322,6 +322,30 @@ const SendDebuggers: DebugItem[] = [
                 value: 4,
                 min: 1,
                 max: 12,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Wave Match',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: value,
+                    } as TLengthHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.WaveMatch,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 20000,
+                min: 1000,
+                max: 1200000,
                 type: 'slider',
             },
         ],

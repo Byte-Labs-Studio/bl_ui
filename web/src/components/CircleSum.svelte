@@ -33,8 +33,6 @@
 
     let Iterations: number = null;
 
-    let MouseListener: ReturnType<typeof TempInteractListener>;
-
     let containerRef: SVGSVGElement = null;
     let circleRef: HTMLDivElement = null;
 
@@ -52,15 +50,9 @@
             Visible = false;
             CircleSumState = null;
             IterationState = null;
-            clearMouseListener();
         }
     });
 
-    /** This code is responsible for clearing the key listeners. */
-    function clearMouseListener() {
-        MouseListener?.removeListener();
-        MouseListener = null;
-    }
 
     /** This code is responsible for playing the iteration of the minigame.
      * The code will return a promise that resolves to true if the user has
@@ -108,8 +100,6 @@
      */
     async function startGame(iterations, config: TLengthHackGameParam) {
         if (!Visible) return;
-
-        clearMouseListener();
 
         UserDuration.set(0, {
             duration: 0,
