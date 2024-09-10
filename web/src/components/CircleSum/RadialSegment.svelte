@@ -54,6 +54,6 @@
         A${hoveredRadius},${hoveredRadius},0,${isLargeArc},0,
         ${point(centerX, centerX, hoveredRadius, pieAngle * index + gap)},
         Z`}
-    class="transition-all duration-150 stroke-[0.1vw] {!state && 'hover:fill-accent/75'}  {state == 'success' ? 'stroke-success glow-success fill-success/50' : state == 'fail' ? 'stroke-error glow-error fill-error/50': active ?
+    class="default-all-transition stroke-[0.1vw] {!state && 'hover:fill-accent/75'}  {state == 'success' ? 'stroke-success glow-success fill-success/50' : state == 'fail' ? 'stroke-error glow-error fill-error/50': active ?
 		'fill-accent glow-accent' : 'fill-accent/50 scale-100 stroke-accent'} cursor-pointer"
 />

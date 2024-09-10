@@ -17,6 +17,7 @@
     import WordWiz from '@components/WordWiz.svelte';
     import CircleSum from '@components/CircleSum.svelte';
     import WaveMatch from '@components/WaveMatch.svelte';
+    import MineSweeper from '@components/MineSweeper.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -42,6 +43,7 @@
     <WordWiz />
     <CircleSum />
     <WaveMatch />
+    <MineSweeper />
 </Visibility>
 
 {#if $IS_BROWSER}

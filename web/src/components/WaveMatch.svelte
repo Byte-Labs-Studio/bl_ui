@@ -251,7 +251,7 @@
                         class="w-full h-[2vh] grid place-items-center primary-bg"
                     >
                         <div
-                            class="h-full transition-all duration-200 {IterationState ==
+                            class="h-full default-all-transition {IterationState ==
                             'success'
                                 ? 'border-success glow-success bg-success/50'
                                 : IterationState == 'fail'
@@ -261,12 +261,12 @@
                                 100}%"
                         />
                         <div
-                            class="h-full bg-success transition-all duration-200 absolute"
+                            class="h-full bg-success default-all-transition absolute"
                         />
                     </div>
 
                     <div
-                        class="w-full h-full grid grid-cols-3 items-center justify-between"
+                        class="w-full h-full grid grid-cols-3 items-center justify-between gap-[0.5vh]"
                     >
                         <Slider
                             disabled={!!IterationState}

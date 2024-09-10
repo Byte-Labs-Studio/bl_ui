@@ -247,10 +247,15 @@ export const WAVE_MATCH = {
         wavelength: 0.1,
         segmentLength: 0.1,
         lineWidth: 0.1,
-        timeModifier: 0.1,
+        timeModifier: 0.01,
     },
 
-    MATCH_THRESHOLD: 95,
+    MATCH_THRESHOLD: 97.5,
+};
+
+export const MINE_SWEEPER = {
+
+    MISTAKES: 3,
 };
 
 /**

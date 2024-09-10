@@ -86,7 +86,7 @@
                             class:glow-accent={state == null}
                             class:bg-success={state == 'success'}
                             class:glow-success={state == 'success'}
-                            class="h-full transition-colors duration-100 ease-linear"
+                            class="h-full default-colour-transition ease-linear"
                         />
                     {:else if iteration > i}
                         <div 

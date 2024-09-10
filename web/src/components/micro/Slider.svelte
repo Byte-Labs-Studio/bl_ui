@@ -18,7 +18,7 @@
     }
 </script>
 
-<div class="flex items-center justify-center w-full h-[3vh] gap-[0.5vh]">
+<div class="flex items-center justify-center w-full h-[3vh] gap-[0.5vh] primary-bg">
 
     <slot name="before" />
 

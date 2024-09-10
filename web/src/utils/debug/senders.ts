@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive } from '@enums/events'
 import { DebugEventSend } from '@utils/eventsHandlers'
-import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam } from '@typings/gameState'
+import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam, TGridHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -339,6 +339,32 @@ const SendDebuggers: DebugItem[] = [
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.WaveMatch,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 20000,
+                min: 1000,
+                max: 1200000,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Mine Sweeper',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: value,
+                        grid: 5,
+                        target: 10,
+                    } as TGridHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.MineSweeper,
                         iterations: 2,
                         config,
                     })

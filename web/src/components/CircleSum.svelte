@@ -281,7 +281,7 @@
                     {@const size = _size > containerRef.clientWidth ? containerRef?.clientWidth : _size}
                     <div
                     style="width: {size}px;"
-                    class="aspect-square rounded-full absolute duration-200 transition-all {
+                    class="aspect-square rounded-full absolute default-all-transition {
                         IterationState == 'success'
                             ? 'border-success glow-success bg-success/50'
                             : IterationState == 'fail'

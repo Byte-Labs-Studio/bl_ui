@@ -43,7 +43,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <button
     bind:clientHeight={height}
-    class={cn('aspect-square h-full grid place-items-center transition-all duration-100 hover:scale-105 active:scale-100 ', $$props.class)}
+    class={cn('aspect-square h-full grid place-items-center default-all-transition hover:scale-105 active:scale-100 ', $$props.class)}
     on:click={() => dispatch('click')}
 >
 <div class="w-full h-full grid place-items-center z-10">
@@ -54,7 +54,7 @@
         {height}
         version="1.1"
         style="filter: {filter};"
-        class="origin-center transition-all duration-200 absolute z-0 {active
+        class="origin-center default-all-transition absolute z-0 {active
             ? fill
             : transparentFill}"
         xmlns="http://www.w3.org/2000/svg"

@@ -212,7 +212,7 @@
         state={IterationState}
     >
         <div
-            class="w-[60vh] h-[60vh] aspect-square grid-cols-5 grid-rows-5 gap-[1vh] grid"
+            class="w-[60vh] h-[60vh] aspect-square grid-cols-5 grid-rows-5 gap-[2vh] grid"
         >
             {#each items as item, index}
                 <div

@@ -93,11 +93,11 @@ body {
 }
 
 .default-colour-transition {
-    @apply transition-colors duration-100;
+    @apply transition-colors duration-200;
 }
 
 .default-all-transition {
-    @apply transition-all duration-100;
+    @apply transition-all duration-200;
 }
 
 .border-default {
@@ -150,6 +150,10 @@ body {
 
 .shadow-success {
     box-shadow: 0 0 0.3vw rgb(var(--success));
+}
+
+.shadow-accent {
+    box-shadow: 0 0 0.3vw rgb(var(--accent));
 }
 
 .glow-warning {

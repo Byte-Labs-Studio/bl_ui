@@ -20,7 +20,7 @@
     on:click={() => dispatch('click')}
     on:mousedown={() => dispatch('mousedown')}
     on:mouseup={() => dispatch('mouseup')} 
-    class="absolute {$$props.class} hover:scale-125 duration-200 transition-colors aspect-square rounded-full z-10 {root && 'border-[0.1vh] border-tertiary'} {iterationState == 'success'
+    class="absolute {$$props.class} hover:scale-125 default-colour-transition aspect-square rounded-full z-10 {root && 'border-[0.1vh] border-tertiary'} {iterationState == 'success'
         ? 'bg-success glow-success scale-125'
         : iterationState == 'fail'
           ? 'bg-error glow-error  scale-125'
