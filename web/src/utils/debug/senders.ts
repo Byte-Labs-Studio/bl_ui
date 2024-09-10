@@ -359,7 +359,7 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         duration: value,
-                        grid: 5,
+                        grid: 7,
                         target: 10,
                     } as TGridHackGameParam
 

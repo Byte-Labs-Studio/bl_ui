@@ -58,7 +58,7 @@
             }, LightsOutState.duration + 500);
 
             SuccessCheck = (_return: boolean = false) => {
-                const success = LightsOutState.items.every(e => e === true);
+                const success = LightsOutState?.items.every(e => e === true);
                 if (_return) return success
 
                 if (LightsOutState.items.every(e => e === false)) {
@@ -212,7 +212,8 @@
         state={IterationState}
     >
         <div
-            class="w-[60vh] h-[60vh] aspect-square grid-cols-5 grid-rows-5 gap-[2vh] grid"
+        style="grid-template-columns: repeat(5, 1fr);"
+            class="w-[60vh] h-[60vh] aspect-square gap-[2vh] grid"
         >
             {#each items as item, index}
                 <div
