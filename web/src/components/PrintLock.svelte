@@ -11,6 +11,7 @@
         randomBetween,
     } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
+    import { blur } from 'svelte/transition';
 
     let Visible: boolean = false;
 
@@ -28,8 +29,8 @@
     const CONST_SIZE = vhWidthInPx * 0.85;
 
     const NUMBER_OF_RIDGES: number = 100;
-    const RIDGE_SIZE: number = 4;
-    const RIDE_SPACING: number = 5;
+    const RIDGE_SIZE: number = 5;
+    const RIDGE_SPACING: number = 5;
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -88,15 +89,16 @@
         });
 
         const length = getRandomIntFromIntOrArray(config.length);
+        const lengthIndex = length - 1;
         const prints = generatePrints(length);
-        const lockedIndex = getRandomIntFromIntOrArray(prints.length);
+        const lockedIndex = getRandomIntFromIntOrArray([0, lengthIndex]);
 
         console.log(prints);
         PrintLockState = {
             prints,
             lockedSection: lockedIndex,
             sections: Array.from({ length: 5 }, (_, i) => ({
-                print: getRandomIntFromIntOrArray(prints.length),
+                print: getRandomIntFromIntOrArray([0, lengthIndex]),
                 locked: i === lockedIndex,
             })),
             duration: getRandomIntFromIntOrArray(config.duration),
@@ -166,36 +168,48 @@
     }
 
     function calculateContainerSize() {
-    const vhWidthInPx = (VH_WIDTH * window.innerHeight) / 100;
-    const containerWidth = vhWidthInPx * 0.85; // 85% of VH_WIDTH
-    return {
-        width: containerWidth,
-        height: containerWidth // It's a square, so height = width
-    };
-}
+        const vhWidthInPx = (VH_WIDTH * window.innerHeight) / 100;
+        const containerWidth = vhWidthInPx * 0.85; // 85% of VH_WIDTH
+        return {
+            width: containerWidth,
+            height: containerWidth, // It's a square, so height = width
+        };
+    }
 
     function generatePaths() {
         const width = CONST_SIZE;
         const height = CONST_SIZE;
-        console.log(width, height);
 
         const centerX = width / 2;
         const centerY = height / 2;
 
         const minMax = Math.min(width, height);
-        const exclusionRadius = width * 0.2;
-        const maxRadius = minMax / 2.2;
+        const exclusionRadius = width * 0.15;
+        const maxRadius = minMax / 2;
 
         const paths = [];
 
-        for (let i = 0; i < NUMBER_OF_RIDGES; i++) {
-            // Ensure radius is not too close to the exclusion radius
-            let minRadius = Math.max(
-                exclusionRadius + 1,
-                maxRadius * ((i + 1) / NUMBER_OF_RIDGES),
-            );
+        const ridges = getRandomIntFromIntOrArray([
+            NUMBER_OF_RIDGES / 2,
+            NUMBER_OF_RIDGES,
+        ]);
 
-            let radius = randomBetween(exclusionRadius + 1, minRadius);
+        // Calculate the available space for ridges
+        const availableSpace = maxRadius - exclusionRadius;
+
+        // Calculate the maximum number of ridges that can fit in the available space
+        const maxRidges = Math.floor(availableSpace / RIDGE_SPACING);
+
+        // Use the smaller of the two: calculated max ridges or the random ridge count
+        const actualRidges = Math.min(ridges, maxRidges);
+
+        for (let i = 0; i < actualRidges; i++) {
+            // Calculate the radius based on the ridge spacing
+            let radius = exclusionRadius + (i + 1) * RIDGE_SPACING;
+
+            // Add some randomness to the radius, but keep it within the bounds
+            radius += randomBetween(-RIDGE_SPACING / 2, RIDGE_SPACING / 2);
+            radius = Math.max(exclusionRadius, Math.min(radius, maxRadius));
 
             let startAngle = randomBetween(0, 360);
             let endAngle = startAngle + randomBetween(30, 90);
@@ -237,6 +251,8 @@
         }
 
         section.print = newPrintIndex;
+
+        PrintLockState.sections[index] = section;
     }
 </script>
 
@@ -256,35 +272,47 @@
         >
             <div
                 bind:this={containerRef}
-                class="w-[85%] aspect-square grid place-items-center absolute "
+                class="w-[85%] aspect-square grid place-items-center absolute"
             >
                 <div
-                    class="w-[30%] aspect-square absolute bg-accent/50 glow-accent border-accent rounded-full border"
+                    class="w-[20%] aspect-square absolute bg-accent/50 glow-accent border-accent rounded-full border"
                 ></div>
 
-                {#each prints as print}
-                    <svg
-                        version="1.1"
-                        class="w-full aspect-square absolute overflow-visible"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 {CONST_SIZE} {CONST_SIZE}"
-                    >
-                        {#each print as path}
-                            <path
-                                d={path}
-                                fill="none"
-                                class="stroke-tertiary"
-                                stroke-width={RIDGE_SIZE}
-                            />
-                        {/each}
-                    </svg>
+                {#each sections as section, i}
+                    {#key section.print}
+                        <svg
+                            transition:blur={{ duration: 250 }}
+                            version="1.1"
+                            class="w-full aspect-square absolute overflow-visible"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 {CONST_SIZE} {CONST_SIZE}"
+                        >
+                            <mask id="mask-{i}_{section.print}">
+                                <rect
+                                    x="0"
+                                    y={(CONST_SIZE / 5) * i}
+                                    width={CONST_SIZE}
+                                    height={CONST_SIZE / 5}
+                                    fill="white"
+                                />
+                            </mask>
+
+                            {#each prints[section.print] as path}
+                                <path
+                                    d={path}
+                                    fill="none"
+                                    mask="url(#mask-{i}_{section.print})"
+                                    class="stroke-tertiary"
+                                    stroke-width={RIDGE_SIZE}
+                                />
+                            {/each}
+                        </svg>
+                    {/key}
                 {/each}
-                <div class="w-[101%] h-[101%] bg-secondary/90 absolute -z-10"/>
+                <div class="w-[101%] h-[101%] bg-secondary/90 absolute -z-10" />
             </div>
 
-
-
-            {#each sections as section, i}
+            {#each sections as _, i}
                 <div
                     class="w-full h-full flex items-center justify-center z-10"
                 >
@@ -296,7 +324,7 @@
                         class="{lockedSection == i
                             ? 'border-accent/50 border-[0.5vh]'
                             : 'border-tertiary/50 border-[0.25vh]'} w-full h-full"
-                    >{section.print}</div>
+                    />
                     <button
                         on:click={() => onButtonClick(i, 1)}
                         class="w-[4vh] h-[80%] bg-accent glow-accent"
