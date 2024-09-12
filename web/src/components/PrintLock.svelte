@@ -2,7 +2,11 @@
     import { GameType } from '@enums/gameTypes';
     import HackWrapper from '@lib/HackWrapper.svelte';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { TLengthHackGameParam, TLevelState } from '@typings/gameState';
+    import type {
+        TGridHackGameParam,
+        TLengthHackGameParam,
+        TLevelState,
+    } from '@typings/gameState';
     import { type TPrintLockGameState } from '@typings/printLock';
     import {
         delay,
@@ -31,6 +35,8 @@
     const NUMBER_OF_RIDGES: number = 100;
     const RIDGE_SIZE: number = 5;
     const RIDGE_SPACING: number = 5;
+
+    let SuccessChecker: Function = null;
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -65,11 +71,26 @@
                 finish(false);
             }, PrintLockState.duration + 500);
 
+            SuccessChecker = async () => {
+                await delay(250);
+                const targetPrint = PrintLockState.sections.find(
+                    section => section.locked,
+                );
+                const allCorrect = PrintLockState.sections.every(
+                    section => section.print === targetPrint?.print,
+                );
+                if (allCorrect) {
+                    finish(true);
+                }
+            };
+
             function finish(bool: boolean) {
                 const currentValue = $UserDuration;
                 UserDuration.set(currentValue, {
                     duration: 0,
                 });
+
+                SuccessChecker = null;
 
                 clearTimeout(durationCheck);
                 resolve(bool);
@@ -81,24 +102,22 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: TLengthHackGameParam) {
+    async function startGame(iterations, config: TGridHackGameParam) {
         if (!Visible) return;
 
         UserDuration.set(0, {
             duration: 0,
         });
 
-        const length = getRandomIntFromIntOrArray(config.length);
-        const lengthIndex = length - 1;
+        const length = getRandomIntFromIntOrArray(config.target);
         const prints = generatePrints(length);
-        const lockedIndex = getRandomIntFromIntOrArray([0, lengthIndex]);
+        const sectionsLength = getRandomIntFromIntOrArray(config.grid);
+        const lockedIndex = getRandomIntFromIntOrArray([0, sectionsLength - 1]);
 
-        console.log(prints);
         PrintLockState = {
             prints,
-            lockedSection: lockedIndex,
-            sections: Array.from({ length: 5 }, (_, i) => ({
-                print: getRandomIntFromIntOrArray([0, lengthIndex]),
+            sections: Array.from({ length: sectionsLength }, (_, i) => ({
+                print: getRandomIntFromIntOrArray([0, sectionsLength - 1]),
                 locked: i === lockedIndex,
             })),
             duration: getRandomIntFromIntOrArray(config.duration),
@@ -141,7 +160,7 @@
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
-        startGame(iterations, config as TLengthHackGameParam);
+        startGame(iterations, config as TGridHackGameParam);
     }
 
     function describeArc(x, y, radius, startAngle, endAngle) {
@@ -165,15 +184,6 @@
         ].join(' ');
 
         return d;
-    }
-
-    function calculateContainerSize() {
-        const vhWidthInPx = (VH_WIDTH * window.innerHeight) / 100;
-        const containerWidth = vhWidthInPx * 0.85; // 85% of VH_WIDTH
-        return {
-            width: containerWidth,
-            height: containerWidth, // It's a square, so height = width
-        };
     }
 
     function generatePaths() {
@@ -233,7 +243,7 @@
     }
 
     function onButtonClick(index: number, direction: number) {
-        if (IterationState) return;
+        if (IterationState || !SuccessChecker) return;
 
         const { sections } = PrintLockState;
         const { prints } = PrintLockState;
@@ -253,6 +263,19 @@
         section.print = newPrintIndex;
 
         PrintLockState.sections[index] = section;
+
+        if (SuccessChecker) SuccessChecker();
+    }
+
+    function getStateClass(iterationState) {
+        switch (iterationState) {
+            case 'success':
+                return 'bg-success/50 glow-success border-success';
+            case 'fail':
+                return 'bg-error/50 glow-error border-error';
+            default:
+                return 'bg-accent/50 glow-accent border-accent';
+        }
     }
 </script>
 
@@ -265,24 +288,26 @@
         iteration={PrintLockState.currentIteration}
         progress={($UserDuration / PrintLockState.duration) * 100}
     >
-        {@const { prints, sections, lockedSection } = PrintLockState}
+        {@const { prints, sections } = PrintLockState}
+        {@const sectionsLength = sections.length}
+        {@const stateClass = getStateClass(IterationState)}
+
         <div
             style="width: calc({CONST_SIZE}px + 7.5vh); height: {CONST_SIZE}px;"
-            class=" flex flex-col items-center justify-center"
+            class="flex flex-col items-center justify-center"
         >
             <div
                 bind:this={containerRef}
                 class="w-[85%] aspect-square grid place-items-center absolute"
             >
                 <div
-                    class="w-[20%] aspect-square absolute bg-accent/50 glow-accent border-accent rounded-full border"
+                    class="w-[20%] aspect-square absolute rounded-full border {stateClass}"
                 ></div>
 
                 {#each sections as section, i}
                     {#key section.print}
                         <svg
                             transition:blur={{ duration: 250 }}
-                            version="1.1"
                             class="w-full aspect-square absolute overflow-visible"
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 {CONST_SIZE} {CONST_SIZE}"
@@ -290,9 +315,9 @@
                             <mask id="mask-{i}_{section.print}">
                                 <rect
                                     x="0"
-                                    y={(CONST_SIZE / 5) * i}
+                                    y={(CONST_SIZE / sectionsLength) * i}
                                     width={CONST_SIZE}
-                                    height={CONST_SIZE / 5}
+                                    height={CONST_SIZE / sectionsLength}
                                     fill="white"
                                 />
                             </mask>
@@ -302,7 +327,7 @@
                                     d={path}
                                     fill="none"
                                     mask="url(#mask-{i}_{section.print})"
-                                    class="stroke-tertiary"
+                                    class="stroke-tertiary overflow-visible default-colour-transition {stateClass}"
                                     stroke-width={RIDGE_SIZE}
                                 />
                             {/each}
@@ -311,23 +336,34 @@
                 {/each}
                 <div class="w-[101%] h-[101%] bg-secondary/90 absolute -z-10" />
             </div>
-
-            {#each sections as _, i}
+            {#each sections as section, i}
+                {@const locked = section.locked}
+                {@const lockedClass =
+                    locked && !IterationState
+                        ? ''
+                        : 'hover:scale-x-105 active:scale-x-100'}
+                {@const buttonClass = locked
+                    ? 'bg-foreground '
+                    : 'bg-accent hover:scale-105 active:scale-100 glow-accent'}
                 <div
                     class="w-full h-full flex items-center justify-center z-10"
                 >
                     <button
                         on:click={() => onButtonClick(i, -1)}
-                        class="w-[4vh] h-[80%] bg-accent glow-accent"
+                        class="w-[4vh] h-[80%] default-all-transition {lockedClass} {buttonClass}"
                     />
                     <div
-                        class="{lockedSection == i
-                            ? 'border-accent/50 border-[0.5vh]'
-                            : 'border-tertiary/50 border-[0.25vh]'} w-full h-full"
+                        class="w-full h-full border-x-[0.2vh] {i === 0
+                            ? 'border-b-[0.1vh] border-t-[0.2vh]'
+                            : i === sectionsLength - 1
+                              ? 'border-t-[0.1vh] border-b-[0.2vh]'
+                              : ' border-y-[0.1vh]'}
+                        
+                        {locked ? 'border-foreground ' : 'border-accent'}"
                     />
                     <button
                         on:click={() => onButtonClick(i, 1)}
-                        class="w-[4vh] h-[80%] bg-accent glow-accent"
+                        class="w-[4vh] h-[80%] default-all-transition {lockedClass} {buttonClass}"
                     />
                 </div>
             {/each}

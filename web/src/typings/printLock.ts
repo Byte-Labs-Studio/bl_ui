@@ -9,8 +9,6 @@ export type TPrintLockSection = {
 export type TPrintLockGameState = {
     prints: TPrintLockPrint[];
 
-    lockedSection: number;
-
     sections: TPrintLockSection[]
 
     currentIteration: number;

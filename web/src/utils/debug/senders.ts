@@ -385,8 +385,9 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         duration: 60000,
-                        length: value,
-                    } as TLengthHackGameParam
+                        grid: 5,
+                        target: 10,
+                    } as TGridHackGameParam
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.PrintLock,
