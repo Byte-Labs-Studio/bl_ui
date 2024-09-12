@@ -15,5 +15,6 @@ export enum GameType {
     CircleSum = "CircleSum",
     WaveMatch = "WaveMatch",
     MineSweeper = "MineSweeper",
+    PrintLock = "PrintLock",
     HexaPipe = "HexaPipe",
 }

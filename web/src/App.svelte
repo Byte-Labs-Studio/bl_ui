@@ -18,6 +18,7 @@
     import CircleSum from '@components/CircleSum.svelte';
     import WaveMatch from '@components/WaveMatch.svelte';
     import MineSweeper from '@components/MineSweeper.svelte';
+    import PrintLock from '@components/PrintLock.svelte';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -44,6 +45,7 @@
     <CircleSum />
     <WaveMatch />
     <MineSweeper />
+    <PrintLock />
 </Visibility>
 
 {#if $IS_BROWSER}

@@ -376,6 +376,31 @@ const SendDebuggers: DebugItem[] = [
             },
         ],
     },
+    {
+        label: 'Print Lock',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: 60000,
+                        length: value,
+                    } as TLengthHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.PrintLock,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 5,
+                min: 3,
+                max: 10,
+                type: 'slider',
+            },
+        ],
+    },
 ]
 
 export default SendDebuggers

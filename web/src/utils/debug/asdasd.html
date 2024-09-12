@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Fingerprint Generator</title>
+  <style>
+    svg {
+      border: 1px solid #000;
+      display: block;
+      margin: 20px auto;
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<svg id="fingerprintSVG" width="400" height="400"></svg>
+
+<script>
+  function randomRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    let angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  }
+
+  function describeArc(x, y, radius, startAngle, endAngle) {
+    let start = polarToCartesian(x, y, radius, endAngle);
+    let end = polarToCartesian(x, y, radius, startAngle);
+
+    let largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+    let d = [
+      "M", start.x, start.y, 
+      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+    ].join(" ");
+
+    return d;       
+  }
+
+  function drawFingerprint() {
+    const svg = document.getElementById('fingerprintSVG');
+    svg.innerHTML = '';  // Clear previous SVG content
+    
+    const centerX = svg.clientWidth / 2;
+    const centerY = svg.clientHeight / 2;
+
+    const numRidges = 60; // Number of ridges
+    const ridgeSpacing = 5; // Space between ridges
+
+    for (let i = 0; i < numRidges; i++) {
+      let radius = i * ridgeSpacing + randomRange(-2, 2);
+
+      // Ensure the radius is positive
+      if (radius < 1) {
+        radius = 1;
+      }
+
+      let startAngle = randomRange(0, 360);
+      let endAngle = startAngle + randomRange(30, 90); // Random arc length
+
+      let pathData = describeArc(centerX, centerY, radius, startAngle, endAngle);
+
+      let pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      pathElement.setAttribute("d", pathData);
+      pathElement.setAttribute("stroke", "black");
+      pathElement.setAttribute("stroke-width", "1");
+      pathElement.setAttribute("fill", "none");
+
+      svg.appendChild(pathElement);
+    }
+  }
+
+  // Generate random fingerprint on page load
+  drawFingerprint();
+
+  // Optionally regenerate fingerprint on click
+  document.getElementById('fingerprintSVG').addEventListener('click', drawFingerprint);
+</script>
+
+</body>
+</html>
