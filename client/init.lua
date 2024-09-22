@@ -1,4 +1,5 @@
 local currentGamePromise = nil
+local loaded = false
 
 RegisterNUICallback(Receive.finish, function(success, cb)
     if currentGamePromise then
@@ -9,12 +10,30 @@ RegisterNUICallback(Receive.finish, function(success, cb)
     cb(1)
 end)
 
+RegisterNUICallback(Receive.uiLoaded, function(_, cb)
+    loaded = true
+    cb(1)
+end)
+
+local function isUILoaded()
+    local timeout = 5000
+    local elapsedTime = 0
+    local interval = 100
+
+    while not loaded and elapsedTime < timeout do
+        Wait(interval)
+        elapsedTime += interval
+    end
+
+    return loaded
+end
 --- The main function to start a game
 ---@param gameType string The type of game to start
 ---@param iterations number The amount of iterations to run
----@param config DifficultyConfig | KeyDifficultyConfig The config for the game
+---@param config DifficultyConfig | KeyDifficultyConfig | LengthConfig | LevelConfig The config for the game
 function StartGame(gameType, iterations, config)
-
+    assert(isUILoaded(), 'UI loading timeout')
+    
     if not gameType then
         print("No game type provided")
         return
