@@ -12,7 +12,7 @@ GameTypes = {
 
     circleSum = "CircleSum",
     digitDazzle = "DigitDazzle",
-    hexaPipe = "HexaPipe",
+    -- hexaPipe = "HexaPipe",
     lightsOut = "LightsOut",
     mineSweeper = "MineSweeper",
     printLock = "PrintLock",
