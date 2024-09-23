@@ -5,6 +5,7 @@ export enum Receive {
 
 export enum Send {
     close = 'ui:close',
+    uiLoaded = 'ui:loaded',
     finish = `ui:finish`,
 }
 

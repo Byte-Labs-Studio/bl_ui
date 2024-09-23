@@ -1,6 +1,8 @@
 <script lang="ts">
     import { CONFIG, IS_BROWSER } from './stores/stores';
     import { InitialiseListen } from '@utils/listeners';
+    import { Send } from '@enums/events';
+    import { SendEvent } from '@utils/eventsHandlers';
     import Visibility from '@providers/Visibility.svelte';
     import Debug from '@providers/Debug.svelte';
     import CircleProgress from '@components/CircleProgress.svelte';
@@ -26,6 +28,8 @@
     });
 
     InitialiseListen();
+
+    SendEvent(Send.uiLoaded);
 </script>
 
 <Visibility>

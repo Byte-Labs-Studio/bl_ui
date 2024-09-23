@@ -94,10 +94,6 @@
         });
     }
 
-    /** This code is responsible for starting the game.
-     * @param iterations The number of iterations to play.
-     * @param difficulty The difficulty of the game.
-     */
     async function startGame(iterations, config: TLengthHackGameParam) {
         if (!Visible) return;
 

@@ -9,6 +9,16 @@ GameTypes = {
     RapidLines = "RapidLines",
     CircleShake = "CircleShake",
     PathFind = "PathFind",
+
+    circleSum = "CircleSum",
+    digitDazzle = "DigitDazzle",
+    -- hexaPipe = "HexaPipe",
+    lightsOut = "LightsOut",
+    mineSweeper = "MineSweeper",
+    printLock = "PrintLock",
+    untangle = "Untangle",
+    waveMatch = "WaveMatch",
+    wordWiz = "WordWiz",
 }
 
 Config.KeepGameInput = {
@@ -22,4 +32,7 @@ Config.KeepGameInput = {
 Config.DisplayCursor = {
     [GameTypes.CircleShake] = true,
     [GameTypes.PathFind] = true,
+    [GameTypes.circleSum] = true,
+    [GameTypes.digitDazzle] = true,
+    [GameTypes.lightsOut] = true,
 }
