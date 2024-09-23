@@ -15,6 +15,7 @@
         const keyHandler = (e: KeyboardEvent) => {
             if ($VISIBLE && ['Escape'].includes(e.code)) {
                 if ($GAME_STATE.active) {
+                    console.log('finishing game')
                     GAME_STATE.finish(false)
                 }
             }

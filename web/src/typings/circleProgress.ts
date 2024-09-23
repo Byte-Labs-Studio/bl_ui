@@ -7,4 +7,6 @@ export type TCircleProgressGameState = {
     }
     duration: number;
     key : string;
+
+    sessionId: string;
 }

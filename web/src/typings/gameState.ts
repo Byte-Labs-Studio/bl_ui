@@ -54,5 +54,6 @@ export type TGameParams = {
 
 export type TGameState = TGameParams & {
     active: boolean;
+    sessionId: string;
 }
 

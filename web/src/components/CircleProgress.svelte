@@ -96,9 +96,6 @@
                     duration: 0,
                 });
 
-                
-
-
                 if (key === CircleState.key) {
                     const userRotDeg = ($UserRotation / 100) * 360;
                     const targetRotDeg = CircleState.target.rotation;
@@ -139,31 +136,38 @@
         difficulty = (difficulty || PROGRESS.FALLBACK_DIFFICULTY ) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
         CircleState = {
+            sessionId: $GAME_STATE.sessionId,
             target: generateTargetSegment(difficulty),
             duration: generateDuration(difficulty),
             key: GetRandomKeyFromSet('Numbers'),
         };
+        console.log('current session id', CircleState?.sessionId)
+
         IterationState = null;
 
         await delay(500);
 
         const success = await playIteration();
+
+        if (!GAME_STATE.isCurrentSession(CircleState?.sessionId)) return 
+
         IterationState = success ? 'success' : 'fail';
 
         setTimeout(() => {
             if (!Visible) return;
+            if (!GAME_STATE.isCurrentSession(CircleState?.sessionId)) return
 
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
                     startGame(iterations, config);
                 } else {
-                    GAME_STATE.finish(true);
+                    GAME_STATE.finish(true, CircleState?.sessionId);
                     CircleState = null;
                     return;
                 }
             } else {
-                GAME_STATE.finish(false);
+                GAME_STATE.finish(false, CircleState?.sessionId);
                 CircleState = null;
                 return;
             }
@@ -176,7 +180,7 @@
         if (!$GAME_STATE.active || CircleState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config);
+        startGame(iterations, config as TDifficultyParam);
     }
 
     /**
@@ -235,7 +239,7 @@
     }
 </script>
 
-{#if Visible}
+{#if Visible && CircleState}
     <div
         transition:scale
         style={SIZE_STYLES}
