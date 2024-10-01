@@ -35,4 +35,9 @@ Config.DisplayCursor = {
     [GameTypes.circleSum] = true,
     [GameTypes.digitDazzle] = true,
     [GameTypes.lightsOut] = true,
+    [GameTypes.mineSweeper] = true,
+    [GameTypes.printLock] = true,
+    [GameTypes.untangle] = true,
+    [GameTypes.waveMatch] = true,
+    [GameTypes.wordWiz] = true,
 }

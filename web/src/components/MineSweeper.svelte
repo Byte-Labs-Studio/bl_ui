@@ -94,7 +94,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: TGridHackGameParam) {
+    async function startGame(iterations: number, config: TGridHackGameParam) {
         if (!Visible) return;
 
         UserMistakes = 0;

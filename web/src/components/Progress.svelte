@@ -104,7 +104,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: TDifficultyParam) {
+    async function startGame(iterations: number, config: TDifficultyParam) {
         if (!Visible) return;
 
         clearKeyListener();

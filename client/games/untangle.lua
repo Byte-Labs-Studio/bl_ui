@@ -1,10 +1,7 @@
-local function untangle(iterations, difficulty)
+---@param iterations number The amount of iterations to run
+---@param config NodeConfig
+local function untangle(iterations, config)
     local promise = promise:new()
-
-    ---@type DifficultyConfig
-    local config = {
-        difficulty = difficulty,
-    }
 
     local result = StartGame(GameTypes.untangle, iterations, config)
     promise:resolve(result)

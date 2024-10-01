@@ -147,7 +147,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: TNodeHackGameParam) {
+    async function startGame(iterations: number, config: TNodeHackGameParam) {
         if (!Visible) return;
 
         clearMouseListener();

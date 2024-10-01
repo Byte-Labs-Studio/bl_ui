@@ -87,7 +87,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: THackGameParam) {
+    async function startGame(iterations: number, config: THackGameParam) {
         if (!Visible) return;
 
         UserDuration.set(0, {

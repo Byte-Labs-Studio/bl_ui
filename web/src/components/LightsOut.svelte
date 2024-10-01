@@ -82,7 +82,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: TLevelHackGameParam) {
+    async function startGame(iterations: number, config: TLevelHackGameParam) {
         if (!Visible) return;
 
         UserDuration.set(0, {
