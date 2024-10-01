@@ -25,6 +25,8 @@
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     let WIDTH: number;
     let HEIGHT: number;
     let canvasEl: HTMLCanvasElement;
@@ -43,12 +45,14 @@
         let shouldShow =
             state.active && state.type === GameType.PathFind && !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             PathFindState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
             clearMouseListener();
         }
     });
@@ -70,14 +74,15 @@
 
         drawTick();
 
-        setTimeout(() => {
-            UserDuration.set(PathFindState.duration, {
-                duration: PathFindState.duration,
-            });
-        }, 500);
+        await delay(500);
+
+        UserDuration.set(PathFindState.duration, {
+            duration: PathFindState.duration,
+        });
+
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(false);
             }, PathFindState.duration + 500);
 
@@ -114,7 +119,7 @@
                     duration: 0,
                 });
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -124,7 +129,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TNodeHackGameParam) {
+    async function startGame(iterations, config: TNodeHackGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
@@ -151,8 +156,11 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
+            
             const ctx = canvasEl.getContext('2d');
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 

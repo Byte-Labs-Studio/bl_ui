@@ -27,6 +27,8 @@
 
     let Iterations: number = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     let containerRef: HTMLDivElement = null;
     const VH_WIDTH: number = 67.5;
     const vhWidthInPx = (VH_WIDTH * window.innerHeight) / 100;
@@ -44,12 +46,14 @@
             state.type === GameType.PrintLock &&
             !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             PrintLockState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
         }
     });
 
@@ -60,14 +64,14 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(PrintLockState.duration, {
-                duration: PrintLockState.duration,
-            });
-        }, 500);
+        await delay(500);
+
+        UserDuration.set(PrintLockState.duration, {
+            duration: PrintLockState.duration,
+        });
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(false);
             }, PrintLockState.duration + 500);
 
@@ -92,7 +96,7 @@
 
                 SuccessChecker = null;
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -102,7 +106,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TGridHackGameParam) {
+    async function startGame(iterations, config: TGridHackGameParam) {
         if (!Visible) return;
 
         UserDuration.set(0, {
@@ -133,8 +137,10 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;

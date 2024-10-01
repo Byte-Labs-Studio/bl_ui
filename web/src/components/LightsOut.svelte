@@ -25,17 +25,21 @@
 
     let SuccessCheck: Function = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.LightsOut && !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             LightsOutState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
         }
     });
 
@@ -46,14 +50,14 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(LightsOutState.duration, {
-                duration: LightsOutState.duration,
-            });
-        }, 500);
+        await delay(500);
+
+        UserDuration.set(LightsOutState.duration, {
+            duration: LightsOutState.duration,
+        });
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(SuccessCheck(true))
             }, LightsOutState.duration + 500);
 
@@ -72,7 +76,7 @@
                     duration: 0,
                 });
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -82,7 +86,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TLevelHackGameParam) {
+    async function startGame(iterations, config: TLevelHackGameParam) {
         if (!Visible) return;
 
         UserDuration.set(0, {
@@ -108,8 +112,11 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
+
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {

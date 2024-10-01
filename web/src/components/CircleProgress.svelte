@@ -40,6 +40,15 @@
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
+    let CleanUpFunctions: Function[] = [];
+
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -48,11 +57,13 @@
             !CircleState;
         if (shouldShow) {
             Visible = true;
+            clearCleanUpFunctions();
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             CircleState = null;
             IterationState = null;
+            clearCleanUpFunctions();
             clearKeyListener();
         }
     });
@@ -64,6 +75,7 @@
         KeyListener = null;
     }
 
+
     /** This code is responsible for playing the iteration of the minigame.
      * This code should be called when the user presses the spacebar.
      * The code will return a promise that resolves to true if the user has
@@ -73,14 +85,20 @@
         if (!Visible) return;
 
         const duration = CircleState.duration;
+        
         UserRotation.set(100, {
             duration,
         });
 
         return new Promise((resolve, _) => {
-            let timeout = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 resolve(false);
             }, duration);
+
+            CleanUpFunctions.push(() => {
+                clearTimeout(GameTimeout);
+                resolve(false);
+            });
 
             KeyListener = TempInteractListener(Key.pressed, (e: KeyboardEvent) => {
 
@@ -90,7 +108,7 @@
                     return;
                 }
 
-                clearTimeout(timeout);
+                clearTimeout(GameTimeout);
 
                 UserRotation.set($UserRotation, {
                     duration: 0,
@@ -122,7 +140,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TDifficultyParam) {
+    async function startGame(iterations, config: TDifficultyParam) {
         if (!Visible) return;
 
         clearKeyListener();
@@ -136,12 +154,10 @@
         difficulty = (difficulty || PROGRESS.FALLBACK_DIFFICULTY ) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
 
         CircleState = {
-            sessionId: $GAME_STATE.sessionId,
             target: generateTargetSegment(difficulty),
             duration: generateDuration(difficulty),
             key: GetRandomKeyFromSet('Numbers'),
         };
-        console.log('current session id', CircleState?.sessionId)
 
         IterationState = null;
 
@@ -149,29 +165,32 @@
 
         const success = await playIteration();
 
-        if (!GAME_STATE.isCurrentSession(CircleState?.sessionId)) return 
+        if (!CircleState) return
 
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
-            if (!GAME_STATE.isCurrentSession(CircleState?.sessionId)) return
-
+            
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
                     startGame(iterations, config);
                 } else {
-                    GAME_STATE.finish(true, CircleState?.sessionId);
+                    GAME_STATE.finish(true);
                     CircleState = null;
                     return;
                 }
             } else {
-                GAME_STATE.finish(false, CircleState?.sessionId);
+                GAME_STATE.finish(false);
                 CircleState = null;
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        });
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -249,11 +268,9 @@
             style={SIZE_STYLES_HALF}
             class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
-            {#key CircleState.target}
-                <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
-                    {CircleState.key}
-                </p>
-            {/key}
+            <p class="text-shadow absolute font-bold text-[2vw]">
+                {CircleState.key}
+            </p>
         </div>
 
         <svg

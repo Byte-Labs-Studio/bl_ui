@@ -9,7 +9,11 @@
         TDigitDazzleGameState,
     } from '@typings/digitDazzle';
     import { TempInteractListener } from '@utils/interactHandler';
-    import { delay, generateNumbers, getRandomIntFromIntOrArray } from '@utils/misc';
+    import {
+        delay,
+        generateNumbers,
+        getRandomIntFromIntOrArray,
+    } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import { DIGIT_DAZZLE } from './config/gameConfig';
@@ -34,18 +38,30 @@
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
+        let CleanUpFunctions: Function[] = [];
+    
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.DigitDazzle &&
             !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
+            clearCleanUpFunctions()
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             DigitDazeState = null;
             IterationState = null;
+            clearCleanUpFunctions()
             clearKeyListener();
         }
     });
@@ -63,16 +79,30 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(DigitDazeState.duration, {
-                duration: DigitDazeState.duration,
-            });
-        }, 500);
+        const hasDuration = DigitDazeState?.duration !== -1;
+        const duration = DigitDazeState.duration;
+
+        if (hasDuration) {
+            let indexOfFunction;
+            let timeout = setTimeout(() => {
+                UserDuration.set(duration, {
+                    duration: hasDuration ? duration : 0,
+                });
+                if (timeout) clearTimeout(timeout);
+
+                if (indexOfFunction !== -1) {
+                    CleanUpFunctions.splice(indexOfFunction, 1);
+                }
+            }, 500);
+
+            indexOfFunction = CleanUpFunctions.push(() => {
+                clearTimeout(timeout);
+            }) - 1;
+        }
 
         return new Promise((resolve, _) => {
-
             let timerDone = false;
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(false);
                 timerDone = true;
             }, DigitDazeState.duration + 500);
@@ -97,7 +127,7 @@
 
             SuccessChecker = async () => {
                 const result = await check();
-                if (result || timerDone) {
+                if (result || (timerDone && result)) {
                     finish(true);
                 }
             };
@@ -126,17 +156,14 @@
                 },
             );
 
-
             function finish(bool: boolean) {
-                if (CheckingCode) return;
-
                 const currentValue = $UserDuration;
                 UserDuration.set(currentValue, {
                     duration: 0,
                 });
 
                 keyDownListener.removeListener();
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -146,7 +173,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TLengthHackGameParam) {
+    async function startGame(iterations, config: TLengthHackGameParam) {
         if (!Visible) return;
 
         SuccessChecker = null;
@@ -184,8 +211,10 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;
@@ -241,7 +270,6 @@
 
         const isFull = UserCode.every(code => code.code !== null);
         if (!isFull) return;
-        
 
         CheckingCode = true;
 
@@ -258,7 +286,7 @@
             if (match) {
                 UserCode[index].state = 'correct';
             } else {
-                    const included = DigitDazeState.code.includes(currentCode)
+                const included = DigitDazeState.code.includes(currentCode);
                 if (included) {
                     UserCode[index].state = 'included';
                 } else {
@@ -271,20 +299,25 @@
 
             UserCode[index].checking = false;
         }
-        
+
         // Because Im smart and I know how JS works ;)
         setTimeout(async () => {
-            if (allMatch) return;
+            if (allMatch) {
+                CheckingCode = false;
+                return;
+            }
             await delay(500);
 
             for (let index = UserCode.length - 1; index >= 0; index--) {
                 UserCode[index].code = null;
                 await delay(DurationCheck / 2);
             }
+
+            CheckingCode = false;
         }, 0);
 
-        CheckingCode = false;
-        
+        console.log('done');
+
         return allMatch;
     }
 </script>
@@ -303,13 +336,16 @@
                 {#each { length: CodeLength } as _, i}
                     {@const code = UserCode[i]}
                     <div
-                        class="grid place-items-center w-[10vh] aspect-square {IterationState == 'fail' ? 'bg-error/50 glow-error ' : code.checking
-                            ? 'bg-accent/25 shadow-accent border border-accent'
-                            : code.state === 'correct'
-                              ? 'bg-success/25 shadow-success border border-success'
-                              : code.state === 'included'
-                                ? 'bg-warning/25 shadow-warning border border-warning'
-                                : ' primary-bg'}"
+                        class="grid place-items-center w-[10vh] aspect-square default-all-transition {IterationState ==
+                        'fail'
+                            ? 'bg-error/50 glow-error '
+                            : code.checking
+                              ? 'bg-accent/25 shadow-accent border border-accent'
+                              : code.state === 'correct'
+                                ? 'bg-success/25 shadow-success border border-success'
+                                : code.state === 'included'
+                                  ? 'bg-warning/25 shadow-warning border border-warning'
+                                  : ' primary-bg'}"
                     >
                         {#if code !== undefined}
                             <p transition:scale={{ duration: 250 }}>
@@ -321,8 +357,12 @@
             </div>
 
             <button
-                on:click={()=>SuccessChecker()}
-                class="w-full h-[5vh] {IterationState == 'fail' ? 'bg-error/50 glow-error' : 'btn-accent' } font-bold uppercase  default-all-transition"
+                on:click={() => SuccessChecker()}
+                class="w-full h-[5vh] {IterationState == 'fail'
+                    ? 'bg-error/50 glow-error'
+                    : IterationState == 'success'
+                      ? 'bg-success/50 glow-success'
+                      : 'btn-accent'} font-bold uppercase default-all-transition"
             >
                 Crack
             </button>

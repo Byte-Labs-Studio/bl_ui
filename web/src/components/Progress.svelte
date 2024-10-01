@@ -25,16 +25,20 @@
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.Progress && !ProgressState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             ProgressState = null;
+            clearTimeout(GameTimeout);
             clearKeyListener();
         }
     });
@@ -61,7 +65,7 @@
         });
 
         return new Promise((resolve, _) => {
-            let timeout = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 resolve(false);
             }, duration); 
 
@@ -72,7 +76,7 @@
                     return;
                 }
 
-                clearTimeout(timeout);
+                clearTimeout(GameTimeout);
 
                 UserProgress.set($UserProgress, {
                     duration: 0,
@@ -104,7 +108,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TDifficultyParam) {
+    async function startGame(iterations, config: TDifficultyParam) {
         if (!Visible) return;
 
         clearKeyListener();
@@ -127,8 +131,10 @@
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             IterationState = null;
             if (success && iterations > 0) {
@@ -154,7 +160,7 @@
         if (!$GAME_STATE.active || ProgressState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config);
+        startGame(iterations, config as TDifficultyParam);
     }
 
     /**

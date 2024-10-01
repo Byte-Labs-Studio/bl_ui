@@ -40,20 +40,32 @@
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     let isOverTarget: boolean = false;
+
+    let CleanUpFunctions: Function[] = [];
+    
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.CircleShake && !CircleState;
         if (shouldShow) {
             Visible = true;
+            clearCleanUpFunctions();
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             CircleState = null;
             IterationState = null;
             isOverTarget = false;
+            clearTimeout(GameTimeout);
             clearMouseListener();
+            clearCleanUpFunctions();
         }
     });
 
@@ -96,6 +108,11 @@
                     }
                 }
             }, speed);
+
+            CleanUpFunctions.push(() => {
+                clearInterval(checkInterval);
+                resolve(false);
+            });
 
             let tempOverTarget: boolean = false;
 
@@ -143,7 +160,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TKeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
@@ -171,10 +188,15 @@
         await delay(500);
 
         const success = await playIteration(difficulty);
+
+        if (!CircleState) return
+        
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;
@@ -191,6 +213,10 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        });
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.

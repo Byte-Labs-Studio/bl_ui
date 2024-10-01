@@ -30,6 +30,9 @@
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+    let ClearPromise: Function = null;
+
     let IsDragging: boolean = false;
     let selectedNode: number = null;
 
@@ -58,15 +61,24 @@
         let shouldShow =
             state.active && state.type === GameType.Untangle && !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
+            cleanupPromise()
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             UntangleState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
+            cleanupPromise()
             clearMouseListener();
         }
     });
+
+    function cleanupPromise() {
+        if (ClearPromise) ClearPromise();
+        ClearPromise = null;
+    }
 
     /** This code is responsible for clearing the key listeners. */
     function clearMouseListener() {
@@ -86,16 +98,27 @@
 
         drawTick();
 
-        setTimeout(() => {
-            UserDuration.set(UntangleState.duration, {
-                duration: UntangleState.duration,
+        const hasDuration = UntangleState?.duration !== -1;
+        const duration = UntangleState.duration;
+
+        if (hasDuration) {
+            await delay(500);
+            UserDuration.set(duration, {
+                duration: hasDuration ? duration : 0,
             });
-        }, 500);
+        }
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
-                finish(false);
-            }, UntangleState.duration + 500);
+            if (hasDuration) {
+                GameTimeout = setTimeout(() => {
+                    finish(false);
+                }, UntangleState.duration);
+            }
+
+            ClearPromise = () => {
+                console.log('clearing promise')
+                resolve(false);
+            }
 
             MouseListener = TempInteractListener(
                 Mouse.move,
@@ -134,10 +157,7 @@
                 UserDuration.set(currentValue, {
                     duration: 0,
                 });
-
                 IsDragging = false;
-
-                clearTimeout(durationCheck);
                 resolve(bool);
             }
         });
@@ -147,7 +167,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TNodeHackGameParam) {
+    async function startGame(iterations, config: TNodeHackGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
@@ -172,10 +192,15 @@
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
-
-        setTimeout(() => {
+        clearTimeout(GameTimeout);
+        
+        GameTimeout = setTimeout(() => {
+            console.log("Still here cleanasjdn")
             if (!Visible) return;
+            console.log('clearing')
+
+            clearTimeout(GameTimeout);
+
             const ctx = canvasEl.getContext('2d');
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
@@ -255,6 +280,8 @@
     }
 
     function calculateIntersect(lines: TLine[]) {
+        if (!UntangleState) return;
+
         UntangleState.intersections = 0;
 
         const ctx = canvasEl.getContext('2d');
@@ -295,7 +322,7 @@
 
     function drawLines() {
         if (IterationState || !canvasEl) return;
-        const nodes = UntangleState.nodes;
+        const nodes = UntangleState?.nodes || [];
 
         const lines: TLine[] = [];
 
@@ -330,11 +357,13 @@
 
 {#if Visible}
     {@const { nodes } = UntangleState}
+    {@const hasDuration = UntangleState?.duration !== -1}
     <HackWrapper
         title={['Un', 'tangle']}
         subtitle="Make sure none of the lines intersect each other."
         iterations={Iterations}
         iteration={UntangleState.currentIteration}
+        hasDuration={hasDuration}
         progress={($UserDuration / UntangleState.duration) * 100}
         state={IterationState}
     >

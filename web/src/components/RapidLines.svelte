@@ -20,6 +20,8 @@
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -28,12 +30,14 @@
             !RapidLinesState;
 
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             RapidLinesState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
             clearKeyListeners();
         }
     });
@@ -160,7 +164,7 @@
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations: number, config: TKeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -193,8 +197,10 @@
 
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;

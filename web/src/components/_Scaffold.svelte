@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { Mouse } from '@enums/events';
-    import HackWrapper from '@lib/HackWrapper.svelte';
-    import GAME_STATE from '@stores/GAME_STATE';
-    import type { TLevelState } from '@typings/gameState';
-    import { TempInteractListener } from '@utils/interactHandler';
-    import { delay } from '@utils/misc';
-    import { type Tweened, tweened } from 'svelte/motion';
+    import { Mouse } from "@enums/events";
+    import HackWrapper from "@lib/HackWrapper.svelte";
+    import GAME_STATE from "@stores/GAME_STATE";
+    import type { TLevelState } from "@typings/gameState";
+    import { TempInteractListener } from "@utils/interactHandler";
+    import { delay } from "@utils/misc";
+    import { type Tweened, tweened } from "svelte/motion";
 
     let Visible: boolean = false;
 
@@ -16,14 +16,12 @@
     const UserDuration: Tweened<number> = tweened(0);
 
     let Iterations: number = null;
-
+    
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
-            state.active &&
-            state.type === 'CHANGE THIS TO ENUM' &&
-            !IterationState;
+            state.active && state.type === 'CHANGE THIS TO ENUM' && !IterationState;
         if (shouldShow) {
             Visible = true;
             initialise();
@@ -41,11 +39,11 @@
         MouseListener = null;
     }
 
-    /** This code is responsible for playing the iteration of the minigame.
+        /** This code is responsible for playing the iteration of the minigame.
      * The code will return a promise that resolves to true if the user has
      * correctly input the key, and false otherwise.
      */
-    async function playIteration() {
+     async function playIteration() {
         if (!Visible) return;
 
         setTimeout(() => {
@@ -61,7 +59,9 @@
 
             MouseListener = TempInteractListener(
                 Mouse.move,
-                (e: MouseEvent) => {},
+                (e: MouseEvent) => {
+
+                },
             );
 
             function finish(bool: boolean) {
@@ -80,14 +80,16 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: any) {
+     async function startGame(iterations, config: any) {
         if (!Visible) return;
 
         clearMouseListener();
 
+        
         UserDuration.set(0, {
             duration: 0,
         });
+
 
         State = {
             // currentIteration: Iterations - iterations,
@@ -122,28 +124,35 @@
         }, 1000);
     }
 
+
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
      */
-    function initialise() {
+     function initialise() {
         if (!$GAME_STATE.active || State) return;
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
         startGame(iterations, config as any);
     }
+
 </script>
 
+
 {#if Visible}
+
     <HackWrapper
-        state={IterationState}
-        title={['Path', 'Find']}
-        subtitle="Go to the next point closest point."
-        iterations={Iterations}
-        iteration={State.currentIteration}
-        progress={($UserDuration / State.duration) * 100}
+    state={IterationState}
+    title={['Path', 'Find']}
+    subtitle="Go to the next point closest point."
+    iterations={Iterations}
+    iteration={State.currentIteration}
+    progress={($UserDuration / State.duration) * 100}
     >
-        <div
-            class=" w-[60vh] h-[60vh] aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50"
-        ></div>
-    </HackWrapper>
+
+    <div
+    class=" w-[60vh] h-[60vh] aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50"
+>
+
+    </div>
+</HackWrapper>
 {/if}

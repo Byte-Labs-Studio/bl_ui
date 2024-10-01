@@ -31,18 +31,22 @@
 
     let SuccessChecker: Function = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.MineSweeper &&
             !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             MineSweeperState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
         }
     });
 
@@ -55,15 +59,16 @@
 
         UserMistakes = 0;
         UserCorrect = 0;
+    
 
-        setTimeout(() => {
-            UserDuration.set(MineSweeperState.duration, {
-                duration: MineSweeperState.duration,
-            });
-        }, 500);
+        await delay(500);
+
+        UserDuration.set(MineSweeperState.duration, {
+            duration: MineSweeperState.duration,
+        });
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(false);
             }, MineSweeperState.duration + 500);
 
@@ -84,7 +89,7 @@
 
                 SuccessChecker = null;
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -94,7 +99,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TGridHackGameParam) {
+    async function startGame(iterations, config: TGridHackGameParam) {
         if (!Visible) return;
 
         UserMistakes = 0;
@@ -130,8 +135,10 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;
