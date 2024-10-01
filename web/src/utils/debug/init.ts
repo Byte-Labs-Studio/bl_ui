@@ -1,4 +1,4 @@
-import { DebugAction } from '@typings/events'
+import { type DebugAction } from '@typings/events'
 import { toggleVisible } from './visibility'
 
 /**

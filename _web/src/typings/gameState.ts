@@ -15,7 +15,10 @@ export type TKeyGameParam = TGameParams & {
 }
 
 export type THackGameParam = TGameParams & {
-    /** In Seconds. The duration of the game. If its an array, the first number is the min duration and the second is the max duration. when randomized */
+    /** 
+     * In Seconds. The duration of the game. If its an array, the first number is the min duration and the second is the max duration when randomized 
+     * If its -1, there will be no countdown
+     * */
     duration: number | [number, number];
 }
 
@@ -54,6 +57,5 @@ export type TGameParams = {
 
 export type TGameState = TGameParams & {
     active: boolean;
-    sessionId: string;
 }
 

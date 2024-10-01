@@ -59,13 +59,12 @@ export function cn(...inputs: ClassValue[]) {
 export function getRandomIntFromIntOrArray(num: number | [number, number]): number {
     let [MIN, MAX] = [null, null];
 
-    if (Array.isArray(num)) {
-        MIN = num[0];
-        MAX = num[1];
-    } else {
-        MIN = num;
-        MAX = num;
+    if (!Array.isArray(num)) {
+        return num;
     }
+
+    MIN = num[0];
+    MAX = num[1];
 
     return FLOOR(MIN + RANDOM() * (MAX - MIN));
 }

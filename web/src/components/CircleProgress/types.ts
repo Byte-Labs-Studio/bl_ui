@@ -1,3 +1,4 @@
+
 export type TCircleProgressGameState = {
     target: {
         /** The target rotation, degrees. */
@@ -5,8 +6,10 @@ export type TCircleProgressGameState = {
         /** The target size, degrees. */
         size: number;
     }
-    duration: number;
+
+    /** The key to display on the circle. */
     key : string;
 
-    sessionId: string;
+    /** The duration of the game. */
+    duration: number;
 }

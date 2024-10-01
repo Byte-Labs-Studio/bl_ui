@@ -1,5 +1,5 @@
 import { Receive } from '@enums/events'
-import { DebugEventSend } from '@utils/eventsHandlers'
+import { DebugEventSend } from '@utils/events'
 /**
  * The debug response for the visibility debug action.
  */

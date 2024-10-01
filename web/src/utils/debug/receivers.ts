@@ -1,6 +1,6 @@
 import { Send } from "@enums/events"
-import { DebugEventCallback } from "@typings/events"
-import { DebugEventReceive } from "@utils/eventsHandlers"
+import { type DebugEventCallback } from "@typings/events"
+import { DebugEventReceive } from "@utils/events"
 
 /**
  * These Receivers will emulate what the client receives from the UI.

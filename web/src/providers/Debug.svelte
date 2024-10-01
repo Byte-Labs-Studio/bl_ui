@@ -1,9 +1,7 @@
 <script lang="ts">
-    import { Receive } from '@enums/events';
     import { InitialiseDebugSenders } from '@utils/debug/init';
     import { InitialiseDebugReceivers } from '@utils/debug/receivers';
     import SendDebuggers from '@utils/debug/senders';
-    import { DebugEventSend } from '@utils/eventsHandlers';
     import debug_image from '@assets/debug_image.png';
     import { onMount } from 'svelte';
 
@@ -34,7 +32,7 @@
                 >
                     <span class="w-full">{label}</span>
 
-                    {#each actions as action}
+                    {#each (actions || []) as action}
                         <div class="flex flex-row flex-wrap gap-[0.5vw]">
                             {#if action.type === 'text'}
                                 <span
@@ -119,5 +117,5 @@
     <div
         style="background-image: url({debug_image});"
         class="absolute w-screen bg-cover bg-no-repeat bg-center h-screen top-0 left-0 dev-image"
-    />
+    ></div>
 </div>

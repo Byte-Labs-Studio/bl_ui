@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { Receive, Send } from '@enums/events';
-    import { VISIBLE, CONFIG } from '@stores/stores';
-    import { ReceiveEvent, SendEvent } from '@utils/eventsHandlers';
+	import { VISIBLE, CONFIG } from '@controllers/debug';
+    import { Receive } from '@enums/events';
+    import { ReceiveEvent } from '@utils/events';
     import { onMount } from 'svelte';
-    import GAME_STATE from '@stores/GAME_STATE';
 
     ReceiveEvent(Receive.visible, (visible: boolean): void => {
         $VISIBLE = visible;
@@ -14,10 +13,9 @@
 
         const keyHandler = (e: KeyboardEvent) => {
             if ($VISIBLE && ['Escape'].includes(e.code)) {
-                if ($GAME_STATE.active) {
-                    console.log('finishing game')
-                    GAME_STATE.finish(false)
-                }
+                // if (gameController.active) {
+                //     gameController.finish(false)
+                // }
             }
         };
         window.addEventListener('keydown', keyHandler);

@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+* {
+  font-family: "Roboto", sans-serif;
+}
+
+:root {
+    font-size: 62.5%;
+
+    --background: 0 0 0;
+    --foreground: 250 247 255;
+
+    --primary: 37 37 37;
+    --primary-foreground: 250 247 255;
+
+    --secondary: 60 60 60;
+    --secondary-foreground: 250 247 255;
+
+    --tertiary: 250 247 255;
+    --tertiary-foreground: 37 37 37;
+
+    --accent: 134 133 239;
+    --accent-foreground: 250 247 255;
+
+    --success: 102 231 138;
+    --success-foreground: 250 247 255;
+
+    --error: 229 40 62;
+    --error-foreground: 250 247 255;
+
+    --warning: 255 222 112;
+    --warning-foreground: 250 247 255;
+
+    --border: 60 60 60;
+    --radius: 0px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-smooth: auto;
+    color: rgb(var(--foreground));
+}
+
+*:focus {
+    outline: none;
+}
+
+html,
+body {
+    height: 100vh;
+    width: 100vw;
+    font-size: 1.6rem;
+    overflow: hidden;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
+    background-color: rgb(var(--secondary));
+}
+
+::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+    background-color: rgb(var(--secondary));
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--accent));
+}
+
+@layer components {
+    .center {
+        @apply absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2;
+    }
+
+    .center-x {
+        @apply absolute left-1/2 -translate-x-1/2;
+    }
+
+    .center-y {
+        @apply absolute top-1/2 -translate-y-1/2;
+    }
+}
+
+.default-game-position {
+    @apply absolute left-1/2 -translate-x-1/2 bottom-[5vh];
+}
+
+.default-colour-transition {
+    @apply transition-colors duration-200;
+}
+
+.default-all-transition {
+    @apply transition-all duration-200;
+}
+
+.border-default {
+    @apply border border-secondary/50
+}
+.primary-bg {
+    @apply bg-primary/50 border border-secondary/50
+}
+
+.primary-stroke {
+    @apply stroke-primary/50 border border-secondary/50
+}
+
+.primary-fill {
+    @apply fill-primary/50 border border-secondary/50
+}
+
+.btn-accent {
+    @apply bg-accent/50 border border-accent hover:bg-accent/75 hover:border-accent/75 
+}
+
+.primary-shadow {
+    /* box-shadow: 0 0 0.5vw 0.1vw rgba(0, 0, 0, 0.75); */
+    box-shadow: 0 0 2vw 0.05vw rgba(0, 0, 0, 0.75);
+}
+
+.text-shadow {
+    text-shadow: 0 0 0.3vw rgba(0, 0, 0, 0.75);
+}
+
+.glow-accent {
+    filter: drop-shadow(0 0 0.3vw rgb(var(--accent)));
+}
+
+.shadow-accent {
+    box-shadow: 0 0 0.3vw rgb(var(--accent));
+}
+
+.glow-error {
+    filter: drop-shadow(0 0 0.3vw rgb(var(--error)));
+}
+
+.shadow-error {
+    box-shadow: 0 0 0.3vw rgb(var(--error));
+}
+
+.glow-success {
+    filter: drop-shadow(0 0 0.3vw rgb(var(--success)));
+}
+
+.shadow-success {
+    box-shadow: 0 0 0.3vw rgb(var(--success));
+}
+
+.shadow-accent {
+    box-shadow: 0 0 0.3vw rgb(var(--accent));
+}
+
+.glow-warning {
+    filter: drop-shadow(0 0 0.3vw rgb(var(--warning)));
+}
+
+.shadow-warning {
+    box-shadow: 0 0 0.3vw rgb(var(--warning));
+}
+
+.shadow-box {
+    box-shadow: 0 0 10vh 2vh rgb(var(--background));
+}
+
+.bg-solid {
+    background: radial-gradient(at 50% top, rgb(var(--primary)) 50%, rgb(var(--background)));  
+}

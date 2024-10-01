@@ -1,9 +1,9 @@
-import { DebugItem } from '@typings/events'
+import { type DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive } from '@enums/events'
-import { DebugEventSend } from '@utils/eventsHandlers'
-import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam, TGridHackGameParam } from '@typings/gameState'
-import { GameType } from '@enums/gameTypes'
+import { DebugEventSend } from '@utils/events'
+import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam, TGridHackGameParam } from '@typings/config'
+import { GameType } from '@enums/games'
 
 /**
  * The debug actions that will show up in the debug menu.
@@ -210,7 +210,7 @@ const SendDebuggers: DebugItem[] = [
                 action: (value: number) => {
 
                     const config = {
-                        duration: value * 1000,
+                        duration: value === -1 ? -1 : value * 1000,
                         numberOfNodes: 10,
                     } as TNodeHackGameParam
 
@@ -220,7 +220,7 @@ const SendDebuggers: DebugItem[] = [
                         config,
                     })
                 },
-                min: 1,
+                min: -1,
                 value: 50,
                 type: 'slider',
             },
