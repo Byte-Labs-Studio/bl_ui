@@ -40,7 +40,7 @@
 
     let GameTimeout: ReturnType<typeof setTimeout>;
 
-        let CleanUpFunctions: Function[] = [];
+    let CleanUpFunctions: Function[] = [];
     
     function clearCleanUpFunctions() {
         CleanUpFunctions.forEach(fn => fn());

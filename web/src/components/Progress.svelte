@@ -27,18 +27,26 @@
 
     let GameTimeout: ReturnType<typeof setTimeout>;
 
+    let CleanUpFunctions: Function[] = [];
+
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.Progress && !ProgressState;
         if (shouldShow) {
-            clearTimeout(GameTimeout);
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             ProgressState = null;
-            clearTimeout(GameTimeout);
+            clearCleanUpFunctions();
             clearKeyListener();
         }
     });
@@ -67,7 +75,12 @@
         return new Promise((resolve, _) => {
             GameTimeout = setTimeout(() => {
                 resolve(false);
-            }, duration); 
+            }, duration);
+
+            CleanUpFunctions.push(() => {
+                clearTimeout(GameTimeout);
+                resolve(false);
+            });
 
             KeyListener = TempInteractListener(Key.pressed, (e: KeyboardEvent) => {
                 const key = e.key.toUpperCase();
@@ -129,12 +142,13 @@
         await delay(500);
 
         const success = await playIteration();
+
+        if (!ProgressState) return;
+        
         IterationState = success ? 'success' : 'fail';
 
-        GameTimeout = setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
-
-            clearTimeout(GameTimeout);
 
             IterationState = null;
             if (success && iterations > 0) {
@@ -152,6 +166,10 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        });
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -222,11 +240,9 @@
         <div
             class="h-[2.5vw] aspect-square absolute grid place-items-center center-y primary-shadow primary-bg -translate-x-[130%]"
         >
-            {#key ProgressState.target}
-                <p transition:scale={{duration: 100}}  class="text-shadow absolute font-bold text-[2vw]">
-                    {ProgressState.key}
-                </p>
-            {/key}
+            <p  class="text-shadow absolute font-bold text-[2vw]">
+                {ProgressState.key}
+            </p>
         </div>
 
         <div
