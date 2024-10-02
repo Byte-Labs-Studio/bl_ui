@@ -31,11 +31,19 @@
     let KeyListener: ReturnType<typeof TempInteractListener>;
         let KeyUpListener: ReturnType<typeof TempInteractListener>;
 
+            let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.KeySpam && !KeySpamState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -43,6 +51,7 @@
             KeySpamState = null;
             IterationState = null;
             clearKeyListeners();
+            clearCleanUpFunctions();
         }
     });
 
@@ -85,6 +94,13 @@
                 clearInterval(interval);
                 resolve(false);
             }, duration);
+
+
+            CleanUpFunctions.push(() => {
+                if (timeout) clearTimeout(timeout);
+                if (interval) clearInterval(interval);
+                resolve(false);
+            })
 
             let isKeydown: boolean = false;
 
@@ -160,13 +176,16 @@
 
         await delay(500);
 
+        if (!KeySpamState) return
+
         const success = await playIteration();
 
         clearKeyListeners();
         
+        if (!KeySpamState) return
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -184,6 +203,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
