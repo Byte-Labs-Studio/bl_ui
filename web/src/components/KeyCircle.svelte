@@ -43,6 +43,13 @@
         Up: null,
     };
 
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
@@ -50,6 +57,7 @@
             state.type === GameType.KeyCircle &&
             !KeyCircleState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -57,6 +65,7 @@
             KeyCircleState = null;
             IterationState = null;
             clearKeyListeners();
+            clearCleanUpFunctions();
         }
     });
 
@@ -95,6 +104,11 @@
                 resolve(false);
                 return;
             }, duration);
+
+            CleanUpFunctions.push(() => {
+                if (timeout) clearTimeout(timeout);
+                resolve(false);
+            })
 
             clearKeyListeners();
 
@@ -184,10 +198,14 @@
 
         await delay(500);
 
+        if (!KeyCircleState) return
+
         const success = await playIteration();
+
+        if (!KeyCircleState) return
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -205,6 +223,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
