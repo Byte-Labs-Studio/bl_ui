@@ -267,7 +267,6 @@ function clearCleanUpFunctions() {
         class="grid place-items-center primary-shadow default-game-position rounded-full w-fit h-fit"
     >
         {#if KeyCircleState}
-            {#key KeyCircleState.keys}
                 <div
                     transition:scale
                     class="flex flex-row items-center justify-center absolute"
@@ -288,7 +287,6 @@ function clearCleanUpFunctions() {
                         </div>
                     {/each}
                 </div>
-            {/key}
         {/if}
 
         <svg
