@@ -54,10 +54,18 @@
     const TERTIARY_COLOUR: string = `rgba(${_BODY.getPropertyValue('--tertiary').split(' ').join(',')}, 1)`;
     const ERROR_COLOUR: string = `rgba(${_BODY.getPropertyValue('--error').split(' ').join(',')}, 1)`;
 
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.Untangle && !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -65,6 +73,7 @@
             UntangleState = null;
             IterationState = null;
             clearMouseListener();
+            clearCleanUpFunctions();
         }
     });
 
@@ -86,17 +95,24 @@
 
         drawTick();
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             UserDuration.set(UntangleState.duration, {
                 duration: UntangleState.duration,
             });
         }, 500);
 
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        })
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
             }, UntangleState.duration + 500);
 
+            CleanUpFunctions.push(() => {
+                if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
             MouseListener = TempInteractListener(
                 Mouse.move,
                 (e: MouseEvent) => {
@@ -169,12 +185,13 @@
 
         await delay(500);
 
+        if (!UntangleState) return
         const success = await playIteration();
+
+        if (!UntangleState) return
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
-
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
             const ctx = canvasEl.getContext('2d');
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
@@ -194,6 +211,11 @@
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
