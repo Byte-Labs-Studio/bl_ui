@@ -9,8 +9,7 @@
     import Slider from './micro/Slider.svelte';
     import type { TWaveMatchGameState, TWaveOptions } from '@typings/waveMatch';
     import { WAVE_MATCH } from './config/gameConfig';
-    import { flip } from 'svelte/animate';
-    import { blur, slide } from 'svelte/transition';
+    import { blur } from 'svelte/transition';
 
     const _BODY = getComputedStyle(document.body);
     const FOREGROUND_COLOUR: string = `rgba(${_BODY.getPropertyValue('--foreground').split(' ').join(',')}, 0.5)`;
@@ -28,18 +27,27 @@
 
     let containerRef: HTMLDivElement = null;
 
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.WaveMatch &&
             !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             WaveMatchState = null;
             IterationState = null;
+            clearCleanUpFunctions();
         }
     });
 
@@ -52,17 +60,24 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             UserDuration.set(WaveMatchState.duration, {
                 duration: WaveMatchState.duration,
             });
         }, 500);
 
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        })
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
             }, WaveMatchState.duration + 500);
 
+            CleanUpFunctions.push(() => {
+                if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
             SuccessChecker = () => {
                 const overThreshold =
                     WaveMatchState.match >= WAVE_MATCH.MATCH_THRESHOLD;
@@ -110,12 +125,15 @@
 
         await delay(500);
 
+        if (!WaveMatchState) return
         const success = await playIteration();
+
+        if (!WaveMatchState) return
         IterationState = success ? 'success' : 'fail';
 
         await delay(500);
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
