@@ -39,10 +39,18 @@
     const ROOT_SIZE: number = 2.5;
     const POINT_SIZE: number = 2;
 
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.PathFind && !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -50,6 +58,7 @@
             PathFindState = null;
             IterationState = null;
             clearMouseListener();
+            clearCleanUpFunctions();
         }
     });
 
@@ -70,16 +79,24 @@
 
         drawTick();
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             UserDuration.set(PathFindState.duration, {
                 duration: PathFindState.duration,
             });
         }, 500);
 
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        })
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
             }, PathFindState.duration + 500);
+
+            CleanUpFunctions.push(() => {
+                if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
 
             MouseListener = TempInteractListener(
                 Mouse.move,
@@ -146,12 +163,16 @@
 
         await delay(500);
 
+        if (!PathFindState) return
         const success = await playIteration();
+
+        if (!PathFindState) return
+        
         IterationState = success ? 'success' : 'fail';
 
         await delay(500);
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
             const ctx = canvasEl.getContext('2d');
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
@@ -171,6 +192,11 @@
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
