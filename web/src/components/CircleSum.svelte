@@ -38,18 +38,27 @@
 
     let SuccessChecker: Function = null;
 
+    let CleanUpFunctions: Function[] = [];
+
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.CircleSum &&
             !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             CircleSumState = null;
             IterationState = null;
+            clearCleanUpFunctions();
         }
     });
 
@@ -61,17 +70,26 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
+        let ctimeout = setTimeout(() => {
             UserDuration.set(CircleSumState.duration, {
                 duration: CircleSumState.duration,
             });
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (ctimeout) clearTimeout(ctimeout);
+        })
 
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(false);
             }, CircleSumState.duration + 500);
 
+
+            CleanUpFunctions.push(() => {
+            if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
 
             // Dont know if this is the best way but oh well. PR a better approach
             SuccessChecker = () => {
@@ -121,11 +139,13 @@
         await delay(500);
 
         const success = await playIteration();
+
+        if (!CircleSumState) return
+
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -143,6 +163,13 @@
                 return;
             }
         }, 1000);
+
+        
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
+
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.

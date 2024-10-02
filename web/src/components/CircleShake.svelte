@@ -109,6 +109,7 @@ function clearCleanUpFunctions() {
 
             CleanUpFunctions.push(async () => {
                 if (checkInterval) clearInterval(checkInterval);
+                resolve(false);
             })
 
             let tempOverTarget: boolean = false;
