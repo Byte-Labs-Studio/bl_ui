@@ -34,12 +34,20 @@
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
+        let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.DigitDazzle &&
             !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -47,6 +55,7 @@
             DigitDazeState = null;
             IterationState = null;
             clearKeyListener();
+            clearCleanUpFunctions();
         }
     });
 
@@ -63,11 +72,15 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             UserDuration.set(DigitDazeState.duration, {
                 duration: DigitDazeState.duration,
             });
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        })
 
         return new Promise((resolve, _) => {
 
@@ -76,6 +89,11 @@
                 finish(false);
                 timerDone = true;
             }, DigitDazeState.duration + 500);
+
+            CleanUpFunctions.push(() => {
+                if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
 
             let keyDownListener = TempInteractListener(
                 Key.down,
@@ -179,12 +197,15 @@
 
         await delay(500);
 
+        if (!DigitDazeState) return
+
         const success = await playIteration();
+
+        if (!DigitDazeState) return
+
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
-
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -202,6 +223,11 @@
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.

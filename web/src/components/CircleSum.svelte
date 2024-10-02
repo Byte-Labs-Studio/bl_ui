@@ -138,6 +138,8 @@
 
         await delay(500);
 
+        if (!CircleSumState) return
+
         const success = await playIteration();
 
         if (!CircleSumState) return
