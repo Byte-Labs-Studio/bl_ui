@@ -216,11 +216,9 @@
         <div
             class="h-[2.5vw] aspect-square absolute grid place-items-center center-y primary-shadow primary-bg -translate-x-[130%]"
         >
-            {#key ProgressState.target}
                 <p transition:scale={{duration: 100}}  class="text-shadow absolute font-bold text-[2vw]">
                     {ProgressState.key}
                 </p>
-            {/key}
         </div>
 
         <div

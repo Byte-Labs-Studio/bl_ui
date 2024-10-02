@@ -245,11 +245,9 @@
             style={SIZE_STYLES_HALF}
             class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
-            {#key CircleState.target}
                 <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
                     {CircleState.key}
                 </p>
-            {/key}
         </div>
 
         <svg

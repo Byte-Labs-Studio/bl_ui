@@ -223,14 +223,12 @@
     >
         <div class="absolute grid place-items-center z-10">
             {#if KeySpamState}
-                {#key KeySpamState.key}
                     <p
                         transition:scale={{ duration: 100 }}
                         class="text-shadow absolute font-bold text-[2vw]  {!IterationState && 'animate-scale'}"
                     >
                         {KeySpamState.key}
                     </p>
-                {/key}
             {/if}
         </div>
 
