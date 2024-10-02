@@ -35,7 +35,22 @@
     SendEvent(Send.uiLoaded);
 
     const games = {
+        [GameType.CircleProgress]: CircleProgress,
+        [GameType.Progress]: Progress,
+        [GameType.KeyCircle]: KeyCircle,
+        [GameType.KeySpam]: KeySpam,
+        [GameType.NumberSlide]: NumberSlide,
+        [GameType.RapidLines]: RapidLines,
+        [GameType.CircleShake]: CircleShake,
+        [GameType.PathFind]: PathFind,
+        [GameType.Untangle]: Untangle,
+        [GameType.LightsOut]: LightsOut,
+        [GameType.DigitDazzle]: DigitDazzle,
+        [GameType.WordWiz]: WordWiz,
         [GameType.CircleSum]: CircleSum,
+        [GameType.WaveMatch]: WaveMatch,
+        [GameType.MineSweeper]: MineSweeper,
+        [GameType.PrintLock]: PrintLock,
     }
 
     let CURRENT_GAME: typeof games[keyof typeof games] | null = null;
