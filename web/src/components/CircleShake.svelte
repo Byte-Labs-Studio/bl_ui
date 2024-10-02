@@ -8,6 +8,7 @@
     import { delay, angle, numberToAngle } from '@utils/misc';
     import { TempInteractListener } from '@utils/interactHandler';
     import { Mouse } from '@enums/events';
+    import { onMount } from 'svelte';
 
     let Main_El: HTMLElement = null;
 
@@ -51,23 +52,19 @@
         CleanUpFunctions = [];
     }
 
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active && state.type === GameType.CircleShake && !CircleState;
-        if (shouldShow) {
-            Visible = true;
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+
+        return () => {
             clearCleanUpFunctions();
-            initialise();
-        } else if (Visible && !shouldShow) {
             Visible = false;
             CircleState = null;
             IterationState = null;
             isOverTarget = false;
-            clearTimeout(GameTimeout);
-            clearMouseListener();
-            clearCleanUpFunctions();
         }
-    });
+    })
 
     /** This code is responsible for clearing the key listeners.
      */
@@ -224,6 +221,7 @@
     function initialise() {
         if (!$GAME_STATE.active || CircleState) return;
 
+        Visible = true;
         const { iterations, config } = $GAME_STATE;
         startGame(iterations, config as TKeyGameParam);
     }
@@ -265,7 +263,7 @@
     }
 </script>
 
-{#if Visible}
+{#if Visible && CircleState}
     <div
         bind:this={Main_El}
         transition:scale

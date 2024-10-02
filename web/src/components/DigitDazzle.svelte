@@ -17,6 +17,7 @@
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import { DIGIT_DAZZLE } from './config/gameConfig';
+    import { onMount } from 'svelte';
 
     let Visible: boolean = false;
 
@@ -47,24 +48,18 @@
         CleanUpFunctions = [];
     }
 
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active &&
-            state.type === GameType.DigitDazzle &&
-            !IterationState;
-        if (shouldShow) {
-            clearTimeout(GameTimeout);
-            Visible = true;
-            clearCleanUpFunctions()
-            initialise();
-        } else if (Visible && !shouldShow) {
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+
+        return () => {
+            clearCleanUpFunctions();
             Visible = false;
             DigitDazeState = null;
             IterationState = null;
-            clearCleanUpFunctions()
-            clearKeyListener();
         }
-    });
+    })
 
     /** This code is responsible for clearing the key listeners. */
     function clearKeyListener() {
@@ -240,6 +235,7 @@
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
+        Visible = true;
         startGame(iterations, config as TLengthHackGameParam);
     }
 
@@ -322,7 +318,7 @@
     }
 </script>
 
-{#if Visible}
+{#if Visible && DigitDazeState}
     <HackWrapper
         state={IterationState}
         title={['Digit', 'Dazzle']}

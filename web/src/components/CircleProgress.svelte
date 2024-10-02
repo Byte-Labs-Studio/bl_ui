@@ -13,6 +13,7 @@
     import {type TDifficultyParam, type TLevelState } from '@typings/gameState';
     import { Key } from '@enums/events';
     import { TempInteractListener } from '@utils/interactHandler';
+    import { onMount } from 'svelte';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
@@ -50,23 +51,17 @@
     }
 
     //The code above shows the circle progress when the game is active and type is circle progress
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active &&
-            state.type === GameType.CircleProgress &&
-            !CircleState;
-        if (shouldShow) {
-            Visible = true;
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+        return () => {
             clearCleanUpFunctions();
-            initialise();
-        } else if (Visible && !shouldShow) {
             Visible = false;
             CircleState = null;
             IterationState = null;
-            clearCleanUpFunctions();
-            clearKeyListener();
         }
-    });
+    })
 
     /** This code is responsible for clearing the key listeners.
      */
@@ -199,6 +194,8 @@
         if (!$GAME_STATE.active || CircleState) return;
 
         const { iterations, config } = $GAME_STATE;
+
+        Visible = true;
         startGame(iterations, config as TDifficultyParam);
     }
 
