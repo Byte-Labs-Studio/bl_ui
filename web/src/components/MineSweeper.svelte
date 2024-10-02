@@ -31,18 +31,27 @@
 
     let SuccessChecker: Function = null;
 
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.MineSweeper &&
             !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             MineSweeperState = null;
             IterationState = null;
+            clearCleanUpFunctions();
         }
     });
 
@@ -56,16 +65,25 @@
         UserMistakes = 0;
         UserCorrect = 0;
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             UserDuration.set(MineSweeperState.duration, {
                 duration: MineSweeperState.duration,
             });
         }, 500);
 
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        })
         return new Promise((resolve, _) => {
+
             let durationCheck = setTimeout(() => {
                 finish(false);
             }, MineSweeperState.duration + 500);
+
+            CleanUpFunctions.push(() => {
+                if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
 
             SuccessChecker = () => {
                 console.log(UserCorrect, GameNumberMines, UserMistakes);
@@ -119,18 +137,34 @@
 
         await delay(500);
 
+        if (!MineSweeperState) return
+
         Preview = true;
 
-        await delay(5000);
+        let promise = await new Promise((resolve, _) => {
 
-        Preview = false;
+            let previewTimeout = setTimeout(() => {
+                resolve(true);
+                if (!Visible) return;
+                Preview = false;
+            }, 5000);
 
+            CleanUpFunctions.push(() => {
+                if (previewTimeout) clearTimeout(previewTimeout);
+                resolve(false);
+            })
+        });
+
+        if (!promise) return
+
+        if (!MineSweeperState) return
+        
         const success = await playIteration();
+
+        if (!MineSweeperState) return
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
-
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -148,6 +182,11 @@
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
