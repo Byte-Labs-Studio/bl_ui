@@ -309,7 +309,7 @@ const SendDebuggers: DebugItem[] = [
                 action: (value: number) => {
 
                     const config = {
-                        duration: 1000,
+                        duration: 10000,
                         length: value,
                     } as TLengthHackGameParam
 

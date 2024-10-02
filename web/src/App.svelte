@@ -21,6 +21,9 @@
     import WaveMatch from '@components/WaveMatch.svelte';
     import MineSweeper from '@components/MineSweeper.svelte';
     import PrintLock from '@components/PrintLock.svelte';
+    import { GameType } from '@enums/gameTypes';
+    import { onMount } from 'svelte';
+    import GAME_STATE from '@stores/GAME_STATE';
 
     CONFIG.set({
         fallbackResourceName: 'debug',
@@ -30,10 +33,33 @@
     InitialiseListen();
 
     SendEvent(Send.uiLoaded);
+
+    const games = {
+        [GameType.CircleSum]: CircleSum,
+    }
+
+    let CURRENT_GAME: typeof games[keyof typeof games] | null = null;
+
+    onMount(() => {
+        const sub = GAME_STATE.subscribe(state => {
+            let shouldShow = state.active && state.type
+            console.log('should show', shouldShow)
+            if (shouldShow) {
+                CURRENT_GAME = games[state.type]
+            } else {
+                CURRENT_GAME = null
+            }
+        });
+
+        return () => sub();
+    })
 </script>
 
 <Visibility>
-    <CircleProgress />
+    {#if CURRENT_GAME}
+        <svelte:component this={CURRENT_GAME} />
+    {/if}
+    <!-- <CircleProgress />
     <Progress />
     <KeyCircle />
     <KeySpam />
@@ -49,7 +75,7 @@
     <CircleSum />
     <WaveMatch />
     <MineSweeper />
-    <PrintLock />
+    <PrintLock /> -->
 </Visibility>
 
 {#if $IS_BROWSER}

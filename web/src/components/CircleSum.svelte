@@ -17,7 +17,7 @@
     import radial from './CircleSum/radial';
     import RadialSegment from './CircleSum/RadialSegment.svelte';
     import { scale } from 'svelte/transition';
-    import { tick } from 'svelte';
+    import { onMount, tick } from 'svelte';
 
     let Visible: boolean = false;
 
@@ -48,23 +48,18 @@
         CleanUpFunctions = [];
     }
 
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active &&
-            state.type === GameType.CircleSum &&
-            !IterationState;
-        if (shouldShow) {
-            Visible = true;
-            IterationState = null;
-            clearCleanUpFunctions()
-            initialise();
-        } else if (Visible && !shouldShow) {
-            IterationState = null;
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+
+        return () => {
+            clearCleanUpFunctions();
             Visible = false;
             CircleSumState = null;
-            clearCleanUpFunctions()
+            IterationState = null;
         }
-    });
+    })
 
     /** This code is responsible for playing the iteration of the minigame.
      * The code will return a promise that resolves to true if the user has
@@ -183,9 +178,6 @@
 
         CleanUpFunctions.push(async () => {
             if (timeout) clearTimeout(timeout);
-            IterationState = null;
-            await tick();
-            console.log("Learning up timeout", IterationState)
         });
     }
 
@@ -196,6 +188,8 @@
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
+
+        Visible = true
         startGame(iterations, config as TLengthHackGameParam);
     }
 
@@ -293,11 +287,9 @@
 
         if (UserValue === CircleSumState.target) SuccessChecker();
     }
-
-    $: console.log("Current Iteration state", IterationState)
 </script>
 
-{#if Visible}
+{#if Visible && CircleSumState}
     {@const hasDuration = CircleSumState?.duration !== -1}
     <HackWrapper
         state={IterationState}
@@ -364,10 +356,6 @@
                     {/each}
                 </svg>
             {/if}
-            {#key IterationState}
-            {IterationState}
-            {/key}
-            {IterationState}
         </div>
     </HackWrapper>
 {/if}

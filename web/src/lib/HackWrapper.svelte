@@ -16,7 +16,7 @@
 </script>
 
 <div
-    transition:scale
+    transition:scale|global
     class={cn(
         'bg-solid center flex flex-col items-center justify-center p-[1vh] gap-[1vh] absolute shadow-box',
         $$props.class,
