@@ -25,17 +25,26 @@
 
     let SuccessCheck: Function = null;
 
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.LightsOut && !IterationState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             LightsOutState = null;
             IterationState = null;
+            clearCleanUpFunctions();
         }
     });
 
@@ -46,16 +55,24 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             UserDuration.set(LightsOutState.duration, {
                 duration: LightsOutState.duration,
             });
         }, 500);
 
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        })
         return new Promise((resolve, _) => {
             let durationCheck = setTimeout(() => {
                 finish(SuccessCheck(true))
             }, LightsOutState.duration + 500);
+
+            CleanUpFunctions.push(() => {
+                if (durationCheck) clearTimeout(durationCheck);
+                resolve(false);
+            })
 
             SuccessCheck = (_return: boolean = false) => {
                 const success = LightsOutState?.items.every(e => e === true);
@@ -103,12 +120,13 @@
 
         await delay(500);
 
+        if (!LightsOutState) return
         const success = await playIteration();
+
+        if (!LightsOutState) return
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
-
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
             if (success && iterations > 0) {
                 iterations--;
@@ -126,6 +144,11 @@
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
