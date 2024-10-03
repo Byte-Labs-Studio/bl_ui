@@ -30,10 +30,10 @@ end
 --- The main function to start a game
 ---@param gameType string The type of game to start
 ---@param iterations number The amount of iterations to run
----@param config DifficultyConfig | KeyDifficultyConfig | LengthConfig | LevelConfig The config for the game
+---@param config MainFunctionConfig config for the game
 function StartGame(gameType, iterations, config)
     assert(isUILoaded(), 'UI loading timeout')
-    
+
     if not gameType then
         print("No game type provided")
         return
@@ -70,16 +70,16 @@ function StartGame(gameType, iterations, config)
     SetUIFocus(keepGameInput, displayCursor)
 
     local result = Citizen.Await(currentGamePromise)
-	return result
+    return result
 end
 
 function CancelGame()
-    if currentGamePromise then
-        currentGamePromise:resolve(false)
-        currentGamePromise = nil
-        ResetUIFocus()
-    end
+    if not currentGamePromise then return end
+    currentGamePromise:resolve(false)
+    currentGamePromise = nil
+    ResetUIFocus()
 end
+
 exports('CancelGame', CancelGame)
 
 RegisterNUICallback(Receive.close, function(_, cb)

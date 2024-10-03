@@ -1,10 +1,7 @@
-local function printLock(iterations, difficulty)
+---@param iterations number The amount of iterations to run
+---@param config GridConfig
+local function printLock(iterations, config)
     local promise = promise:new()
-
-    ---@type DifficultyConfig
-    local config = {
-        difficulty = difficulty,
-    }
 
     local result = StartGame(GameTypes.printLock, iterations, config)
     promise:resolve(result)
@@ -12,3 +9,4 @@ local function printLock(iterations, difficulty)
     return Citizen.Await(promise)
 end
 exports("PrintLock", printLock)
+

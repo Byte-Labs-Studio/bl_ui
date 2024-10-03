@@ -1,10 +1,7 @@
-local function wordWiz(iterations, difficulty)
+---@param iterations number The amount of iterations to run
+---@param config LengthConfig
+local function wordWiz(iterations, config)
     local promise = promise:new()
-
-    ---@type DifficultyConfig
-    local config = {
-        difficulty = difficulty,
-    }
 
     local result = StartGame(GameTypes.wordWiz, iterations, config)
     promise:resolve(result)

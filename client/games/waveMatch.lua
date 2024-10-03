@@ -1,10 +1,7 @@
-local function waveMatch(iterations, difficulty)
+---@param iterations number The amount of iterations to run
+---@param config {duration: number}
+local function waveMatch(iterations, config)
     local promise = promise:new()
-
-    ---@type DifficultyConfig
-    local config = {
-        difficulty = difficulty,
-    }
 
     local result = StartGame(GameTypes.waveMatch, iterations, config)
     promise:resolve(result)

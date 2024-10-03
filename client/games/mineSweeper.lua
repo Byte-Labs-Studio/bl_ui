@@ -1,10 +1,7 @@
-local function mineSweeper(iterations, difficulty)
+---@param iterations number The amount of iterations to run
+---@param config GridConfig
+local function mineSweeper(iterations, config)
     local promise = promise:new()
-
-    ---@type DifficultyConfig
-    local config = {
-        difficulty = difficulty,
-    }
 
     local result = StartGame(GameTypes.mineSweeper, iterations, config)
     promise:resolve(result)
