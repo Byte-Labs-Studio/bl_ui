@@ -1,4 +1,4 @@
-export interface IKeyCircleGameState {
+export type TKeyCircleGameState = {
     stages: number;
     currentStage: number;
     duration: number;

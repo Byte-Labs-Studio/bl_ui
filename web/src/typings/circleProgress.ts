@@ -1,4 +1,4 @@
-export interface ICircleProgressGameState {
+export type TCircleProgressGameState = {
     target: {
         /** The target rotation, degrees. */
         rotation: number;

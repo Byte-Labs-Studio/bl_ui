@@ -2,7 +2,7 @@
 ---@param iterations number The amount of iterations to run
 ---@param difficulty number The difficulty of the game (1-100)
 ---@return boolean
-function Progress(iterations, difficulty)
+local function progress(iterations, difficulty)
     local promise = promise:new()
 
     ---@type DifficultyConfig
@@ -10,9 +10,9 @@ function Progress(iterations, difficulty)
         difficulty = difficulty or 50,
     }
 
-    local result = StartGame(GameTypes.Progress, iterations, config)
+    local result = StartGame(GameTypes.progress, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)
 end
-exports("Progress", Progress)
+exports("Progress", progress)

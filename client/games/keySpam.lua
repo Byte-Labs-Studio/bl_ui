@@ -2,7 +2,7 @@
 ---@param iterations number The amount of iterations to run
 ---@param difficulty number The difficulty of the game (1-100)
 ---@return boolean
-function KeySpam(iterations, difficulty)
+local function keySpam(iterations, difficulty)
     local promise = promise:new()
 
     ---@type DifficultyConfig
@@ -10,9 +10,9 @@ function KeySpam(iterations, difficulty)
         difficulty = difficulty or 50,
     }
 
-    local result = StartGame(GameTypes.KeySpam, iterations, config)
+    local result = StartGame(GameTypes.keySpam, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)
 end
-exports("KeySpam", KeySpam)
+exports("KeySpam", keySpam)

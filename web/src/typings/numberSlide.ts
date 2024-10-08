@@ -1,13 +1,13 @@
 import { Tweened } from "svelte/motion";
 
-export type INumberSlideKeyState = 'success' | 'fail' | null
+export type TNumberSlideKeyState = 'success' | 'fail' | null
 
 
-export interface INumberSlideGameState {
+export type TNumberSlideGameState = {
     keys: {
         key: string;
         left: Tweened<number>;
-        state: INumberSlideKeyState;
+        state: TNumberSlideKeyState;
     }[];
 
     /**

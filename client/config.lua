@@ -1,23 +1,44 @@
 Config = {}
 
 GameTypes = {
-    CircleProgress = "CircleProgress",
-    Progress = "Progress",
-    KeyCircle = "KeyCircle",
-    KeySpam = "KeySpam",
-    NumberSlide = "NumberSlide",
-    RapidLines = "RapidLines",
-    CircleShake = "CircleShake",
+    circleProgress = "CircleProgress",
+    progress = "Progress",
+    keyCircle = "KeyCircle",
+    keySpam = "KeySpam",
+    numberSlide = "NumberSlide",
+    rapidLines = "RapidLines",
+    circleShake = "CircleShake",
+    pathFind = "PathFind",
+
+    circleSum = "CircleSum",
+    digitDazzle = "DigitDazzle",
+    -- hexaPipe = "HexaPipe",
+    lightsOut = "LightsOut",
+    mineSweeper = "MineSweeper",
+    printLock = "PrintLock",
+    untangle = "Untangle",
+    waveMatch = "WaveMatch",
+    wordWiz = "WordWiz",
 }
 
 Config.KeepGameInput = {
-    [GameTypes.CircleProgress] = true,
-    [GameTypes.Progress] = true,
-    [GameTypes.KeySpam] = true,
-    [GameTypes.NumberSlide] = true,
-    [GameTypes.RapidLines] = true,
+    [GameTypes.circleProgress] = true,
+    [GameTypes.progress] = true,
+    [GameTypes.keySpam] = true,
+    [GameTypes.numberSlide] = true,
+    [GameTypes.rapidLines] = true,
+    [GameTypes.digitDazzle] = true,
 }
 
 Config.DisplayCursor = {
-    [GameTypes.CircleShake] = true,
+    [GameTypes.circleShake] = true,
+    [GameTypes.pathFind] = true,
+    [GameTypes.circleSum] = true,
+    [GameTypes.digitDazzle] = true,
+    [GameTypes.lightsOut] = true,
+    [GameTypes.mineSweeper] = true,
+    [GameTypes.printLock] = true,
+    [GameTypes.untangle] = true,
+    [GameTypes.waveMatch] = true,
+    [GameTypes.wordWiz] = true,
 }

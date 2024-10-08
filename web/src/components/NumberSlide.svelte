@@ -3,10 +3,10 @@
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
     import {
-        type KeyGameParam,
-        type LevelState,
+        type TKeyGameParam,
+        type TLevelState,
     } from '@typings/gameState';
-    import { type INumberSlideGameState } from '@typings/numberSlide';
+    import { type TNumberSlideGameState } from '@typings/numberSlide';
     import { delay } from '@utils/misc';
     import { GetRandomKeyFromSet, KEYS, NUMBER_SLIDE } from './config/gameConfig';
     import { tweened } from 'svelte/motion';
@@ -19,11 +19,18 @@
 
     let Visible: boolean = false;
 
-    let NumberSlideState: INumberSlideGameState = null;
+    let NumberSlideState: TNumberSlideGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
+
+        let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -32,6 +39,7 @@
             state.type === GameType.NumberSlide &&
             !NumberSlideState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -39,6 +47,7 @@
             NumberSlideState = null;
             IterationState = null;
             clearKeyListeners();
+            clearCleanUpFunctions();
         }
     });
 
@@ -79,6 +88,11 @@
 
                 resolve(success);
             }
+
+            CleanUpFunctions.push(() => {
+                keySubscriptions?.forEach(sub => sub());
+                resolve(false);
+            })
 
             keys.forEach((key, i) => {
                 let originalKey = NumberSlideState.keys[i];
@@ -122,6 +136,8 @@
                             key => key.state === 'success',
                         );
 
+                        GAME_STATE.playSound('primary');
+
                         if (allSuccess) {
                             clearKeySubscriptions(true)
                         }
@@ -137,7 +153,7 @@
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -159,13 +175,25 @@
 
         await delay(500);
 
+        if (!NumberSlideState) return
+
         const success = await playIteration();
+
+        if (!NumberSlideState) return
 
         clearKeyListeners();
 
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -183,6 +211,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -191,7 +224,7 @@
         if (!$GAME_STATE.active || NumberSlideState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /**
@@ -245,11 +278,11 @@
 {#if Visible}
     <div
     transition:scale
-        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] bg-primary-50 flex items-center justify-center"
+        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] primary-bg flex items-center justify-center"
     >
         <div
             style="width: {NUMBER_SLIDE.ZONE_SIZE}%;"
-            class="bg-primary secondary-shadow h-[2.5vw]"
+            class="bg-tertiary primary-shadow h-[2.5vw]"
         />
 
         {#if NumberSlideState}

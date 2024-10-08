@@ -1,6 +1,6 @@
 
 
-export interface ICircleShakeGameState {
+export type TCircleShakeGameState = {
     stages: number;
     currentStage: number;
     target: {

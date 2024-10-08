@@ -1,8 +1,8 @@
 <script lang="ts">
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { ICircleShakeGameState } from '@typings/circleShake';
-    import type { KeyGameParam, LevelState } from '@typings/gameState';
+    import type { TCircleShakeGameState } from '@typings/circleShake';
+    import type { TKeyGameParam, TLevelState } from '@typings/gameState';
     import { scale } from 'svelte/transition';
     import { CIRCLE_SHAKE } from './config/gameConfig';
     import { delay, angle, numberToAngle } from '@utils/misc';
@@ -33,26 +33,36 @@
 
     let Visible: boolean = false;
 
-    let CircleState: ICircleShakeGameState = null;
+    let CircleState: TCircleShakeGameState = null;
     let UserRotation: number = 0;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
     let isOverTarget: boolean = false;
+
+    let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
+
 
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.CircleShake && !CircleState;
         if (shouldShow) {
             Visible = true;
+            clearCleanUpFunctions()
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             CircleState = null;
             IterationState = null;
             isOverTarget = false;
+            clearCleanUpFunctions()
             clearMouseListener();
         }
     });
@@ -79,16 +89,17 @@
         isOverTarget = false;
         return new Promise((resolve, _) => {
             let checkInterval = setInterval(() => {
-                if (!Visible || !isOverTarget) return;
+                if (!Visible || !isOverTarget) return
                 CircleState.progress += 1;
+
                 if (CircleState.progress >= 100) {
                     if (CircleState.currentStage < CircleState.stages) {
                         CircleState.currentStage++;
                         CircleState.progress = 0;
                         CircleState.target = generateTarget(difficulty);
                         speed = randomSpeed();
-
                         isOverTarget = false;
+                        GAME_STATE.playSound('primary');
                     } else {
                         isOverTarget = false;
                         clearInterval(checkInterval);
@@ -97,14 +108,23 @@
                 }
             }, speed);
 
+            CleanUpFunctions.push(async () => {
+                if (checkInterval) clearInterval(checkInterval);
+                resolve(false);
+            })
+
             let tempOverTarget: boolean = false;
+
 
             MouseListener = TempInteractListener(
                 Mouse.move,
                 (e: MouseEvent) => {
                     // set the user rotation based on the mouse position relative to the circle
 
-                    const rect = Main_El.getBoundingClientRect();
+                    const rect = Main_El?.getBoundingClientRect();
+                    if (!rect) {
+                        MouseListener?.removeListener();
+                    }
                     const target = CircleState.target;
 
                     const mouseX = e.clientX;
@@ -143,7 +163,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearMouseListener();
@@ -173,7 +193,16 @@
         const success = await playIteration(difficulty);
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -191,6 +220,10 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(async () => {
+            if (timeout) clearTimeout(timeout);
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -199,7 +232,7 @@
         if (!$GAME_STATE.active || CircleState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /** Generate a target segment for the given difficulty.
@@ -249,7 +282,7 @@
         <div
             class:shake={isOverTarget}
             style={SIZE_STYLES_HALF}
-            class="absolute secondary-shadow grid place-items-center bg-primary-50 rounded-full"
+            class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
             {#if CircleState}
                 {@const numStage = CircleState.stages}
@@ -267,10 +300,10 @@
                         <circle
                             style="transform: rotate({-90 + rotation}deg);"
                             class="absolute radial {stage < currentStage
-                                ? 'stroke-white'
+                                ? 'stroke-tertiary'
                                 : stage == currentStage
                                   ? 'stroke-accent glow-accent '
-                                  : 'stroke-primary-50'} origin-center"
+                                  : 'primary-stroke'} origin-center "
                             stroke-dasharray="{INNER_CIRCUMFERENCE}vw"
                             stroke-dashoffset="{INNER_CIRCUMFERENCE *
                                 ((101 - size) / 100)}vw"
@@ -283,7 +316,7 @@
                     {/each}
                 </svg>
                 <div
-                    class="absolute aspect-square  w-full grid place-items-center rounded-full overflow-hidden z-10"
+                    class="absolute aspect-square w-full grid place-items-center rounded-full overflow-hidden z-10"
                 >
                     <div
                         class="bg-accent glow-accent rounded-full aspect-square"
@@ -302,25 +335,11 @@
             {#if CircleState}
                 <circle
                     style="stroke-width: {RADIUS * 0.1}vw"
-                    class="absolute fill-none stroke-primary"
+                    class="absolute fill-none stroke-tertiary"
                     cx="50%"
                     cy="50%"
                     r="{RADIUS * 0.95}vw"
                 />
-
-                <!-- THIS IS FOR DEBUG!!!! -->
-                <!-- {@const { size, rotation } = CircleState.target}
-                <circle
-                    style="transform: rotate({rotation - 180}deg);"
-                    class=" absolute radial stroke-primary origin-center target-segment"
-                    stroke-dasharray="{CIRCUMFERENCE}vw"
-                    stroke-dashoffset="{CIRCUMFERENCE * ((100 - size) / 100)}vw"
-                    stroke-width="{STROKE_WIDTH}vw"
-                    fill-opacity="0"
-                    cx="50%"
-                    cy="50%"
-                    r="{RADIUS * 0.9}vw"
-                /> -->
 
                 <circle
                     style="transform: rotate({UserRotation - 180}deg);"
@@ -328,7 +347,7 @@
                     'success'
                         ? 'glow-success stroke-success'
                         : IterationState === 'fail'
-                          ? 'glow-fail stroke-fail'
+                          ? 'glow-error stroke-error'
                           : 'stroke-accent glow-accent'}"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *

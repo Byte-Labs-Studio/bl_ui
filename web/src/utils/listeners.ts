@@ -1,7 +1,7 @@
 import { Receive } from "@enums/events"
 import { DebugEventCallback } from "@typings/events"
 import { ReceiveEvent } from "./eventsHandlers"
-import { IGameParams } from "@typings/gameState"
+import { TGameParams } from "@typings/gameState"
 import GAME_STATE from "@stores/GAME_STATE"
 
 
@@ -14,7 +14,7 @@ const AlwaysListened: DebugEventCallback[] = [
     },
     {
         action: Receive.start,
-        handler: (data: IGameParams) => {
+        handler: (data: TGameParams) => {
             GAME_STATE.start(data)
         }
     }

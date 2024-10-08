@@ -1,6 +1,6 @@
 <script lang="ts">
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type ICircleProgressGameState } from '@typings/circleProgress';
+    import { type TCircleProgressGameState } from '@typings/circleProgress';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
@@ -10,7 +10,7 @@
         PROGRESS
     } from './config/gameConfig';
     import { GameType } from '@enums/gameTypes';
-    import {type DifficultyParam, type LevelState } from '@typings/gameState';
+    import {type TDifficultyParam, type TLevelState } from '@typings/gameState';
     import { Key } from '@enums/events';
     import { TempInteractListener } from '@utils/interactHandler';
 
@@ -34,11 +34,19 @@
 
     let Visible: boolean = false;
 
-    let CircleState: ICircleProgressGameState = null;
+    let CircleState: TCircleProgressGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
+
+        
+    let CleanUpFunctions: Function[] = [];
+
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -48,11 +56,13 @@
             !CircleState;
         if (shouldShow) {
             Visible = true;
+            clearCleanUpFunctions();
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             CircleState = null;
             IterationState = null;
+            clearCleanUpFunctions();
             clearKeyListener();
         }
     });
@@ -82,6 +92,14 @@
                 resolve(false);
             }, duration);
 
+            CleanUpFunctions.push(() => {
+                if (timeout) clearTimeout(timeout);
+                UserRotation.set($UserRotation, {
+                    duration: 0,
+                });
+                resolve(false);
+            })
+                
             KeyListener = TempInteractListener(Key.pressed, (e: KeyboardEvent) => {
 
                 const key = e.key.toUpperCase();
@@ -95,8 +113,6 @@
                 UserRotation.set($UserRotation, {
                     duration: 0,
                 });
-
-                
 
 
                 if (key === CircleState.key) {
@@ -125,7 +141,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: DifficultyParam) {
+    async function startGame(iterations, config: TDifficultyParam) {
         if (!Visible) return;
 
         clearKeyListener();
@@ -150,7 +166,16 @@
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('primary');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -168,6 +193,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(async () => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -176,7 +206,7 @@
         if (!$GAME_STATE.active || CircleState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config);
+        startGame(iterations, config as TDifficultyParam);
     }
 
     /**
@@ -243,13 +273,11 @@
     >
         <div
             style={SIZE_STYLES_HALF}
-            class="absolute secondary-shadow grid place-items-center bg-primary-50 rounded-full"
+            class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
-            {#key CircleState.target}
                 <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
                     {CircleState.key}
                 </p>
-            {/key}
         </div>
 
         <svg
@@ -261,7 +289,7 @@
             {#if CircleState}
                 <circle
                     style="stroke-width: {RADIUS * 0.1}vw"
-                    class="absolute fill-none stroke-primary-50"
+                    class="absolute fill-none primary-stroke"
                     cx="50%"
                     cy="50%"
                     r="{RADIUS * 0.95}vw"
@@ -270,7 +298,7 @@
                 {@const { size, rotation } = CircleState.target}
                 <circle
                     style="transform: rotate({-90 + rotation}deg);"
-                    class=" absolute radial stroke-primary origin-center target-segment"
+                    class=" absolute radial stroke-tertiary origin-center target-segment"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE * ((100 - size) / 100)}vw"
                     stroke-width="{STROKE_WIDTH}vw"
@@ -286,7 +314,7 @@
                     'success'
                         ? 'glow-success stroke-success'
                         : IterationState === 'fail'
-                        ? 'glow-fail stroke-fail'
+                        ? 'glow-error stroke-error'
                         : 'stroke-accent glow-accent'}"
                     stroke-dasharray="{CIRCUMFERENCE}vw"
                     stroke-dashoffset="{CIRCUMFERENCE *

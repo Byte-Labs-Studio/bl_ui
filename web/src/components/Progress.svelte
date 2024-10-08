@@ -1,6 +1,6 @@
 <script lang="ts">
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type IProgressGameState } from '@typings/progress';
+    import { type TProgressGameState } from '@typings/progress';
     import { delay } from '@utils/misc';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
@@ -10,7 +10,7 @@
         PROGRESS
     } from './config/gameConfig';
     import { GameType } from '@enums/gameTypes';
-    import { type DifficultyParam, type LevelState } from '@typings/gameState';
+    import { type TDifficultyParam, type TLevelState } from '@typings/gameState';
     import { Key } from '@enums/events';
     import { TempInteractListener } from '@utils/interactHandler';
 
@@ -19,23 +19,32 @@
 
     let Visible: boolean = false;
 
-    let ProgressState: IProgressGameState = null;
+    let ProgressState: TProgressGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
+
+        let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.Progress && !ProgressState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             ProgressState = null;
             clearKeyListener();
+            clearCleanUpFunctions();
         }
     });
 
@@ -64,6 +73,11 @@
             let timeout = setTimeout(() => {
                 resolve(false);
             }, duration); 
+
+            CleanUpFunctions.push(() => {
+                if (timeout) clearTimeout(timeout);
+                resolve(false);
+            })
 
             KeyListener = TempInteractListener(Key.pressed, (e: KeyboardEvent) => {
                 const key = e.key.toUpperCase();
@@ -104,7 +118,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: DifficultyParam) {
+    async function startGame(iterations, config: TDifficultyParam) {
         if (!Visible) return;
 
         clearKeyListener();
@@ -124,10 +138,22 @@
 
         await delay(500);
 
+        if (!ProgressState) return
         const success = await playIteration();
+
+        if (!ProgressState) return
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('primary');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             IterationState = null;
@@ -146,6 +172,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -154,7 +185,7 @@
         if (!$GAME_STATE.active || ProgressState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config);
+        startGame(iterations, config as TDifficultyParam);
     }
 
     /**
@@ -211,16 +242,14 @@
 {#if Visible}
     <div
         transition:scale
-        class=" primary-shadow default-game-position  w-[20vw] h-[0.5vw] bg-primary-50"
+        class=" primary-shadow default-game-position  w-[20vw] h-[0.5vw] primary-bg"
     >
         <div
-            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y secondary-shadow bg-primary-50 -translate-x-[130%]"
+            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y primary-shadow primary-bg -translate-x-[130%]"
         >
-            {#key ProgressState.target}
                 <p transition:scale={{duration: 100}}  class="text-shadow absolute font-bold text-[2vw]">
                     {ProgressState.key}
                 </p>
-            {/key}
         </div>
 
         <div
@@ -229,7 +258,7 @@
             'success'
                 ? 'glow-success bg-success'
                 : IterationState === 'fail'
-                ? 'glow-fail bg-fail'
+                ? 'glow-error bg-error'
                 : 'bg-accent glow-accent'}"
         />
 
@@ -237,7 +266,7 @@
             {@const { size, progress } = ProgressState.target}
             <div
                 style="left: {progress}%; width: {size}%"
-                class="h-[1vw] center-y absolute origin-center bg-primary z-0 target-segment"
+                class="h-[1vw] center-y absolute origin-center bg-tertiary z-0 target-segment"
             />
         {/if}
     </div>

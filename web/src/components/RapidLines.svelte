@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { type IRapidLinesState } from '@typings/rapidLines';
+    import { type TRapidLinesState } from '@typings/rapidLines';
     import { scale } from 'svelte/transition';
     import Line from './RapidLines/Line.svelte';
-    import { type KeyGameParam, type LevelState } from '@typings/gameState';
+    import { type TKeyGameParam, type TLevelState } from '@typings/gameState';
     import { TempInteractListener } from '@utils/interactHandler';
     import GAME_STATE from '@stores/GAME_STATE';
     import { GameType } from '@enums/gameTypes';
@@ -12,13 +12,20 @@
     import { get } from 'svelte/store';
     import { Key } from '@enums/events';
 
-    let RapidLinesState: IRapidLinesState = null;
+    let RapidLinesState: TRapidLinesState = null;
 
     let Visible: boolean = false;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
+
+        let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
@@ -28,6 +35,7 @@
             !RapidLinesState;
 
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -35,6 +43,7 @@
             RapidLinesState = null;
             IterationState = null;
             clearKeyListeners();
+            clearCleanUpFunctions();
         }
     });
 
@@ -65,10 +74,11 @@
 
             let lineSubscriptions = [];
 
+
             function clearLineSubscriptions(success: boolean) {
                 lineSubscriptions.forEach(sub => sub());
                 lineSubscriptions = [];
-                console.log('clearing', success);
+
                 lines.forEach((line, i) => {
                     let { left } = line;
                     left.set(get(left), { duration: 0 });
@@ -79,6 +89,12 @@
 
                 resolve(success);
             }
+
+            
+            CleanUpFunctions.push(() => {
+                lineSubscriptions?.forEach(sub => sub());
+                resolve(false);
+            })
 
             lines.forEach((key, i) => {
                 let originalLine = RapidLinesState.lines[i];
@@ -94,14 +110,6 @@
                             (value == 100 || value > zoneRange.max) &&
                             originalLine.state !== 'success'
                         ) {
-                            console.log(
-                                'fail',
-                                i,
-                                RapidLinesState.lines[i],
-                                value,
-                                originalLine.state,
-                                RapidLinesState.lines[i],
-                            );
                             originalLine.state = 'fail';
                             clearLineSubscriptions(false);
                         }
@@ -145,16 +153,14 @@
                     if (!anyInZone) {
                         clearLineSubscriptions(false);
                     } else {
+
+                        GAME_STATE.playSound('primary');
+
                         const targetLine =
                             RapidLinesState.lines[furthestLineIndex];
                         targetLine.state = 'success';
 
                         RapidLinesState.lines[furthestLineIndex] = targetLine;
-
-                        console.log(
-                            furthestLineIndex,
-                            RapidLinesState.lines[furthestLineIndex],
-                        );
 
                         const allSuccess = RapidLinesState.lines.every(
                             line => line.state === 'success',
@@ -173,7 +179,7 @@
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations, config: KeyGameParam) {
+    async function startGame(iterations, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -200,13 +206,27 @@
 
         await delay(500);
 
+        if (!RapidLinesState) return
+
         const success = await playIteration();
 
         clearKeyListeners();
 
+        if (!RapidLinesState) return
+
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
+
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -224,6 +244,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -232,7 +257,7 @@
         if (!$GAME_STATE.active || RapidLinesState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as KeyGameParam);
+        startGame(iterations, config as TKeyGameParam);
     }
 
     /**
@@ -305,10 +330,10 @@
 {#if Visible}
     <div
         transition:scale
-        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] bg-primary-50 flex items-center"
+        class="primary-shadow default-game-position w-[20vw] h-[0.5vw] primary-bg flex items-center"
     >
         <div
-            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y secondary-shadow bg-primary-50 -translate-x-[130%]"
+            class="h-[2.5vw] aspect-square absolute grid place-items-center center-y primary-shadow  primary-bg -translate-x-[130%]"
         >
             <p
                 transition:scale={{ duration: 100 }}
@@ -321,7 +346,7 @@
         {#if RapidLinesState}
             <div
                 style="width: {RapidLinesState.zone}%; left: {RAPID_LINES.ZONE_FROM_RIGHT}%;"
-                class="bg-primary secondary-shadow h-[1vw] z-0 absolute -translate-x-full"
+                class="bg-tertiary primary-shadow h-[1vw] z-0 absolute -translate-x-full"
             />
 
             {#each RapidLinesState.lines as line, i}

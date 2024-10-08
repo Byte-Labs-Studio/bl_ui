@@ -2,8 +2,8 @@
     import { Key, Receive } from '@enums/events';
     import { GameType } from '@enums/gameTypes';
     import GAME_STATE from '@stores/GAME_STATE';
-    import { type DifficultyParam, type LevelState } from '@typings/gameState';
-    import { type IKeySpamGameState } from '@typings/keySpam';
+    import { type TDifficultyParam, type TLevelState } from '@typings/gameState';
+    import { type TKeySpamGameState } from '@typings/keySpam';
     import { type Tweened, tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
     import { GetRandomKeyFromSet, KEYS, KEY_SPAM } from './config/gameConfig';
@@ -24,18 +24,26 @@
 
     let Visible: boolean = false;
 
-    let KeySpamState: IKeySpamGameState = null;
+    let KeySpamState: TKeySpamGameState = null;
 
-    let IterationState: LevelState = null;
+    let IterationState: TLevelState = null;
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
         let KeyUpListener: ReturnType<typeof TempInteractListener>;
+
+            let CleanUpFunctions: Function[] = [];
+
+function clearCleanUpFunctions() {
+    CleanUpFunctions.forEach(fn => fn());
+    CleanUpFunctions = [];
+}
 
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.KeySpam && !KeySpamState;
         if (shouldShow) {
+            clearCleanUpFunctions();
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
@@ -43,6 +51,7 @@
             KeySpamState = null;
             IterationState = null;
             clearKeyListeners();
+            clearCleanUpFunctions();
         }
     });
 
@@ -86,6 +95,13 @@
                 resolve(false);
             }, duration);
 
+
+            CleanUpFunctions.push(() => {
+                if (timeout) clearTimeout(timeout);
+                if (interval) clearInterval(interval);
+                resolve(false);
+            })
+
             let isKeydown: boolean = false;
 
             KeyListener = TempInteractListener(
@@ -103,6 +119,9 @@
                     }
 
                     if (key === KeySpamState.key) {
+
+                        GAME_STATE.playSound('primary');
+
                         let { size } = KeySpamState;
 
                         KeySpamState.size = size + 10;
@@ -138,7 +157,7 @@
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: DifficultyParam) {
+    async function startGame(iterations: number, config: TDifficultyParam) {
         if (!Visible) return;
 
         clearKeyListeners();
@@ -160,13 +179,25 @@
 
         await delay(500);
 
+        if (!KeySpamState) return
+
         const success = await playIteration();
 
         clearKeyListeners();
         
+        if (!KeySpamState) return
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -184,6 +215,11 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -192,7 +228,7 @@
         if (!$GAME_STATE.active || KeySpamState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config as DifficultyParam);
+        startGame(iterations, config as TDifficultyParam);
     }
 
     /**
@@ -223,14 +259,12 @@
     >
         <div class="absolute grid place-items-center z-10">
             {#if KeySpamState}
-                {#key KeySpamState.key}
                     <p
                         transition:scale={{ duration: 100 }}
                         class="text-shadow absolute font-bold text-[2vw]  {!IterationState && 'animate-scale'}"
                     >
                         {KeySpamState.key}
                     </p>
-                {/key}
             {/if}
         </div>
 
@@ -242,7 +276,7 @@
         >
             <circle
                 style="stroke-width: {RADIUS * 0.1}vw z-0"
-                class="absolute fill-primary-50"
+                class="absolute primary-fill"
                 cx="50%"
                 cy="50%"
                 r="{RADIUS}vw"
@@ -255,7 +289,7 @@
                         'success'
                             ? 'glow-success fill-success'
                             : IterationState === 'fail'
-                            ? 'glow-fail fill-fail'
+                            ? 'glow-error fill-error'
                             : 'fill-accent glow-accent'}"
                     cx="50%"
                     cy="50%"
@@ -265,7 +299,7 @@
 
             <circle
                 style="transform: rotate(-90deg);"
-                class=" absolute radial stroke-primary origin-center target-segment secondary-shadow"
+                class=" absolute radial stroke-tertiary origin-center target-segment primary-shadow"
                 stroke-dasharray="{CIRCUMFERENCE}vw"
                 stroke-dashoffset="{CIRCUMFERENCE *
                     (-(100 - $UserTimer) / 100)}vw"

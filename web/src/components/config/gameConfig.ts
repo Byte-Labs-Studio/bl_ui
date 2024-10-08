@@ -1,7 +1,3 @@
-type MinMax = {
-    MIN: number;
-    MAX: number;
-};
 
 /**
  * The Configuration for the Progress games.
@@ -138,6 +134,50 @@ export const CIRCLE_SHAKE = {
     FALLBACK_NUM_KEYS: 3,
 };
 
+export const DIGIT_DAZZLE = {
+    /**
+     * The minimum and maximum size of numbers.
+     */
+    SIZE: {
+        MIN: 2,
+        MAX: 8,
+    },
+
+    DEFAULT_LENGTH: 4,
+};
+
+export const WORD_WIZ = {
+    /**
+     * The minimum and maximum size of numbers.
+     */
+    SIZE: {
+        MIN: 2,
+        MAX: 8,
+    },
+
+    DEFAULT_LENGTH: 4,
+};
+
+export const PATH_FIND = {
+    /**
+     * The minimum and maximum duration of the game in milliseconds.
+     */
+    POINTS: {
+        MIN: 2,
+        MAX: 30,
+    },
+
+    /**
+     * The minimum and maximum duration of the game in seconds.
+     */
+    DURATION: {
+        MIN: 60,
+        MAX: 10,
+    },
+
+    FALLBACK_DIFFICULTY: 50,
+};
+
 /**
  * Key Sets used for the games.
  */
@@ -172,6 +212,51 @@ export const KEYS = {
     SecondarySet: ['I', 'J', 'K', 'L'],
 };
 
+
+export const WAVE_MATCH = {
+    DEFAULT_WAVE: {
+        speed: 1,
+        amplitude: 1,
+        wavelength: 1,
+        segmentLength: 1,
+        lineWidth: 10,
+        timeModifier: 1,
+    },
+
+    MIN_WAVE: {
+        speed: 0.1,
+        amplitude: 0,
+        wavelength: 0,
+        segmentLength: 0.1,
+        lineWidth: 10,
+        timeModifier: 0.1,
+    },
+
+    MAX_WAVE: {
+        speed: 5,
+        amplitude: 100,
+        wavelength: 10,
+        segmentLength: 10,
+        lineWidth: 30,
+        timeModifier: 1,
+    },
+
+    STEP_WAVE: {
+        speed: 0.1,
+        amplitude: 0.1,
+        wavelength: 0.1,
+        segmentLength: 0.1,
+        lineWidth: 0.1,
+        timeModifier: 0.01,
+    },
+
+    MATCH_THRESHOLD: 97.5,
+};
+
+export const MINE_SWEEPER = {
+
+    MISTAKES: 3,
+};
 
 /**
  * Get a random key from a set of keys.

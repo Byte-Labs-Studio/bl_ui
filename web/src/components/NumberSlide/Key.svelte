@@ -3,13 +3,13 @@
         GetRandomKeyFromSet,
         NUMBER_SLIDE,
     } from '@components/config/gameConfig';
-    import { type INumberSlideKeyState } from '@typings/numberSlide';
+    import { type TNumberSlideKeyState } from '@typings/numberSlide';
     import { onMount } from 'svelte';
     import { type Tweened } from 'svelte/motion';
     import { scale } from 'svelte/transition';
 
     export let key: string = null;
-    export let state: INumberSlideKeyState = null;
+    export let state: TNumberSlideKeyState = null;
     export let left: Tweened<number> = null;
     export let active: boolean = null;
 
@@ -44,14 +44,14 @@
     transition:scale={{ duration: 250 }}
     style="left: {$left}%;" class="grid place-items-center absolute">
         <p
-            class=" absolute font-bold text-[2vw] text-shadow default-colour-transition
+            class=" absolute font-bold text-[2vw] default-colour-transition
             {state === 'success'
-                ? 'text-success glow-success'
+                ? 'text-success glow-success '
                 : state === 'fail'
-                ? 'text-fail glow-fail'
+                ? 'text-error glow-error'
                 : active
-                ? 'text-accent'
-                : 'text-primary'}"
+                ? 'text-accent glow-accent'
+                : 'text-foreground text-shadow '}"
         >
             {$left < stopRandomisingZone ? fakeKey : key}
         </p>
