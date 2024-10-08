@@ -70,10 +70,10 @@ jobs:
       - name: Bundle files
         run: |
           mkdir -p ./temp/bl_ui
-          mkdir -p ./temp/bl_ui/web
+          mkdir -p ./temp/bl_ui/build
           cp ./{README.md,LICENSE,fxmanifest.lua} ./temp/bl_ui
-          cp -r ./{client} ./temp/bl_ui
-          cp -r ./web/build ./temp/bl_ui/web/build
+          cp -r ./client ./temp/bl_ui
+          cp -r ./build/* ./temp/bl_ui/build
           cd ./temp && zip -r ../bl_ui.zip ./bl_ui
 
       - name: Create Release
