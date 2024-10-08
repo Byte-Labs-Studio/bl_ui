@@ -1,4 +1,5 @@
 <script lang="ts">
+    import GAME_STATE from '@stores/GAME_STATE';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
@@ -34,6 +35,8 @@
         bind:value
         on:input={onChange}
         {disabled}
+        on:mousedown={()=>GAME_STATE.playSound('primary')}
+        on:mouseup={()=>GAME_STATE.playSound('secondary')}
     />
     </div>
 

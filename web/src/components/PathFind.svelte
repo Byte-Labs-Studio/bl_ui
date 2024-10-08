@@ -170,6 +170,15 @@ function clearCleanUpFunctions() {
         
         IterationState = success ? 'success' : 'fail';
 
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
         await delay(500);
 
         let timeout = setTimeout(() => {
@@ -235,6 +244,7 @@ function clearCleanUpFunctions() {
         if (index !== activeIndex + 1) {
             clickedWrongNode = true;
         } else {
+            GAME_STATE.playSound('primary');
             PathFindState.activeIndex++;
             PathFindState.targets[index].selected = true;
         }

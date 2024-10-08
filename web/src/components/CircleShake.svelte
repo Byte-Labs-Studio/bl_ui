@@ -89,18 +89,20 @@ function clearCleanUpFunctions() {
         isOverTarget = false;
         return new Promise((resolve, _) => {
             let checkInterval = setInterval(() => {
-                if (!Visible || !isOverTarget) return;
+                if (!Visible || !isOverTarget) return GAME_STATE.scroll(false);;
                 CircleState.progress += 1;
+
                 if (CircleState.progress >= 100) {
                     if (CircleState.currentStage < CircleState.stages) {
                         CircleState.currentStage++;
                         CircleState.progress = 0;
                         CircleState.target = generateTarget(difficulty);
                         speed = randomSpeed();
-
                         isOverTarget = false;
+                        GAME_STATE.playSound('primary');
                     } else {
                         isOverTarget = false;
+                        GAME_STATE.scroll(false);
                         clearInterval(checkInterval);
                         resolve(true);
                     }
@@ -114,12 +116,16 @@ function clearCleanUpFunctions() {
 
             let tempOverTarget: boolean = false;
 
+
             MouseListener = TempInteractListener(
                 Mouse.move,
                 (e: MouseEvent) => {
                     // set the user rotation based on the mouse position relative to the circle
 
-                    const rect = Main_El.getBoundingClientRect();
+                    const rect = Main_El?.getBoundingClientRect();
+                    if (!rect) {
+                        MouseListener?.removeListener();
+                    }
                     const target = CircleState.target;
 
                     const mouseX = e.clientX;
@@ -187,6 +193,15 @@ function clearCleanUpFunctions() {
 
         const success = await playIteration(difficulty);
         IterationState = success ? 'success' : 'fail';
+
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
 
         let timeout = setTimeout(() => {
             if (!Visible) return;

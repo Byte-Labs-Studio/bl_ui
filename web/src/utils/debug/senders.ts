@@ -34,7 +34,7 @@ const SendDebuggers: DebugItem[] = [
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.CircleProgress,
-                        iterations: 10,
+                        iterations: 2,
                         config,
                     })
                 },
@@ -56,7 +56,7 @@ const SendDebuggers: DebugItem[] = [
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.Progress,
-                        iterations: 10,
+                        iterations: 2,
                         config,
                     })
                 },
@@ -74,12 +74,12 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                        numberOfKeys: 2,
+                        numberOfKeys: 3,
                     } as TKeyGameParam
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.KeyCircle,
-                        iterations: 1,
+                        iterations: 2,
                         config,
                     })
                 },
@@ -101,7 +101,7 @@ const SendDebuggers: DebugItem[] = [
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.KeySpam,
-                        iterations: 1,
+                        iterations: 2,
                         config,
                     })
                 },
@@ -119,12 +119,12 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                        numberOfKeys: 10,
+                        numberOfKeys: 4,
                     } as TKeyGameParam
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.NumberSlide,
-                        iterations: 1,
+                        iterations: 2,
                         config,
                     })
                 },
@@ -142,12 +142,12 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                        numberOfKeys: 10,
+                        numberOfKeys: 4,
                     } as TKeyGameParam
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.RapidLines,
-                        iterations: 1,
+                        iterations: 2,
                         config,
                     })
                 },
@@ -165,12 +165,12 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         difficulty: value,
-                        numberOfKeys: 10,
+                        numberOfKeys: 2,
                     } as TKeyGameParam
 
                     DebugEventSend<TGameParams>(Receive.start, {
                         type: GameType.CircleShake,
-                        iterations: 1,
+                        iterations: 2,
                         config,
                     })
                 },

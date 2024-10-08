@@ -119,6 +119,9 @@ function clearCleanUpFunctions() {
                     }
 
                     if (key === KeySpamState.key) {
+
+                        GAME_STATE.playSound('primary');
+
                         let { size } = KeySpamState;
 
                         KeySpamState.size = size + 10;
@@ -184,6 +187,15 @@ function clearCleanUpFunctions() {
         
         if (!KeySpamState) return
         IterationState = success ? 'success' : 'fail';
+
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
 
         let timeout = setTimeout(() => {
             if (!Visible) return;

@@ -166,6 +166,15 @@
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
 
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('primary');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
         let timeout = setTimeout(() => {
             if (!Visible) return;
 

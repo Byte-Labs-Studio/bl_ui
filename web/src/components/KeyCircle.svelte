@@ -137,12 +137,15 @@ function clearCleanUpFunctions() {
                         if (containsFirstKey && containsSecondKey) {
                             KeyCircleState.currentStage++;
 
+
                             if (
                                 KeyCircleState.currentStage >
                                 KeyCircleState.stages
                             ) {
                                 resolve(true);
                                 return;
+                            } else {
+                                GAME_STATE.playSound('primary');
                             }
 
                             KeyCircleState.keys = [
@@ -204,6 +207,16 @@ function clearCleanUpFunctions() {
 
         if (!KeyCircleState) return
         IterationState = success ? 'success' : 'fail';
+
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
 
         let timeout = setTimeout(() => {
             if (!Visible) return;

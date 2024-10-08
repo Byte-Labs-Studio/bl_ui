@@ -86,7 +86,6 @@ function clearCleanUpFunctions() {
             })
 
             SuccessChecker = () => {
-                console.log(UserCorrect, GameNumberMines, UserMistakes);
                 if (UserCorrect === GameNumberMines) {
                     finish(true);
                 } else if (UserMistakes >= MINE_SWEEPER.MISTAKES) {
@@ -164,6 +163,16 @@ function clearCleanUpFunctions() {
         if (!MineSweeperState) return
         IterationState = success ? 'success' : 'fail';
 
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
+
         let timeout = setTimeout(() => {
             if (!Visible) return;
 
@@ -239,6 +248,8 @@ function clearCleanUpFunctions() {
         } else {
             UserMistakes++;
         }
+
+        GAME_STATE.playSound('primary');
 
         MineSweeperState.grid[row][col] = cell;
 

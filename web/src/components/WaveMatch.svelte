@@ -9,7 +9,8 @@
     import Slider from './micro/Slider.svelte';
     import type { TWaveMatchGameState, TWaveOptions } from '@typings/waveMatch';
     import { WAVE_MATCH } from './config/gameConfig';
-    import { blur } from 'svelte/transition';
+    import { blur, scale } from 'svelte/transition';
+    import { flip } from 'svelte/animate';
 
     const _BODY = getComputedStyle(document.body);
     const FOREGROUND_COLOUR: string = `rgba(${_BODY.getPropertyValue('--foreground').split(' ').join(',')}, 0.5)`;
@@ -131,7 +132,15 @@ function clearCleanUpFunctions() {
         if (!WaveMatchState) return
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
 
         let timeout = setTimeout(() => {
             if (!Visible) return;
@@ -151,6 +160,11 @@ function clearCleanUpFunctions() {
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+            IterationState = null;
+        })
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -173,8 +187,6 @@ function clearCleanUpFunctions() {
             // make sure the value fits with the step Config
             targetWave[key] = Math.round(randomValue / STEP_WAVE[key]) * STEP_WAVE[key];
         }
-
-        console.log(targetWave);
 
         return targetWave;
     }
@@ -237,8 +249,7 @@ function clearCleanUpFunctions() {
                     {@const height = containerRef.clientHeight - borderpx}
                     {@const width = containerRef.clientWidth - borderpx}
                     <div
-                        out:blur={{ delay: 500 }}
-                        in:blur={{ delay: 250 }}
+                        transition:blur={{ delay: 500 }}
                         class="w-full h-full grid place-items-center"
                     >
                         <Wave

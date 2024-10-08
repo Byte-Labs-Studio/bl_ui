@@ -102,6 +102,7 @@ function clearCleanUpFunctions() {
 
                     const key = e.key.toUpperCase();
                     if (key === 'BACKSPACE') {
+                        GAME_STATE.playSound('primary');
                         let index = UserCode.findIndex(
                             code => code.code === null,
                         );
@@ -137,8 +138,10 @@ function clearCleanUpFunctions() {
                         index < CodeLength &&
                         index !== -1
                     ) {
+                        GAME_STATE.playSound('primary');
                         UserCode[index].code = Number(key);
                     } else if (key === 'ENTER') {
+                        GAME_STATE.playSound('primary');
                         SuccessChecker();
                     }
                 },
@@ -204,6 +207,15 @@ function clearCleanUpFunctions() {
         if (!DigitDazeState) return
 
         IterationState = success ? 'success' : 'fail';
+
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
 
         let timeout = setTimeout(() => {
             if (!Visible) return;
@@ -293,6 +305,8 @@ function clearCleanUpFunctions() {
                 allMatch = false;
             }
 
+            GAME_STATE.playSound('secondary');
+
             await delay(DurationCheck);
 
             UserCode[index].checking = false;
@@ -305,6 +319,7 @@ function clearCleanUpFunctions() {
 
             for (let index = UserCode.length - 1; index >= 0; index--) {
                 UserCode[index].code = null;
+                GAME_STATE.playSound('secondary');
                 await delay(DurationCheck / 2);
             }
         }, 0);

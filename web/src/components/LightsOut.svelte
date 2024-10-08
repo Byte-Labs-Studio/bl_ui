@@ -126,6 +126,16 @@ function clearCleanUpFunctions() {
         if (!LightsOutState) return
         IterationState = success ? 'success' : 'fail';
 
+        
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
         let timeout = setTimeout(() => {
             if (!Visible) return;
             if (success && iterations > 0) {
@@ -169,6 +179,8 @@ function clearCleanUpFunctions() {
         event.preventDefault();
         event.stopPropagation();
         toggleActive(index);
+
+        GAME_STATE.playSound('primary')
 
         if (navigator.vibrate) navigator.vibrate(100);
 

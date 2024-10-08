@@ -150,7 +150,15 @@ function clearCleanUpFunctions() {
         if (!PrintLockState) return
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
+        const isGameOver = success && iterations <= 1;
+        if (success && isGameOver) {
+            GAME_STATE.playSound('win');
+        } else if (!isGameOver && success) {
+            GAME_STATE.playSound('iteration');
+        } else {
+            GAME_STATE.playSound('lose');
+        }
+
 
         let timeout = setTimeout(() => {
             if (!Visible) return;
@@ -274,6 +282,7 @@ function clearCleanUpFunctions() {
         const section = sections[index];
 
         if (section.locked) {
+            GAME_STATE.playSound('secondary');
             return;
         }
 
@@ -283,6 +292,8 @@ function clearCleanUpFunctions() {
         } else if (newPrintIndex >= prints.length) {
             newPrintIndex = 0;
         }
+
+        GAME_STATE.playSound('primary');
 
         section.print = newPrintIndex;
 

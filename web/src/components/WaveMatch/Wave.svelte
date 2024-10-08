@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { SineWaveGenerator } from "./wave";
     import { WAVE_MATCH } from "@components/config/gameConfig";
 
@@ -38,6 +38,7 @@
         }
     }
 
+
     onMount(() => {
         if (!canvas) {
             console.error("Canvas element not found");
@@ -63,6 +64,7 @@
         startWave();
 
         return () => {
+            console.log('destroying')
             Wave.destroy();
         };
     });
