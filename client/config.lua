@@ -1,14 +1,14 @@
 Config = {}
 
 GameTypes = {
-    CircleProgress = "CircleProgress",
-    Progress = "Progress",
-    KeyCircle = "KeyCircle",
-    KeySpam = "KeySpam",
-    NumberSlide = "NumberSlide",
-    RapidLines = "RapidLines",
-    CircleShake = "CircleShake",
-    PathFind = "PathFind",
+    circleProgress = "CircleProgress",
+    progress = "Progress",
+    keyCircle = "KeyCircle",
+    keySpam = "KeySpam",
+    numberSlide = "NumberSlide",
+    rapidLines = "RapidLines",
+    circleShake = "CircleShake",
+    pathFind = "PathFind",
 
     circleSum = "CircleSum",
     digitDazzle = "DigitDazzle",
@@ -22,16 +22,17 @@ GameTypes = {
 }
 
 Config.KeepGameInput = {
-    [GameTypes.CircleProgress] = true,
-    [GameTypes.Progress] = true,
-    [GameTypes.KeySpam] = true,
-    [GameTypes.NumberSlide] = true,
-    [GameTypes.RapidLines] = true,
+    [GameTypes.circleProgress] = true,
+    [GameTypes.progress] = true,
+    [GameTypes.keySpam] = true,
+    [GameTypes.numberSlide] = true,
+    [GameTypes.rapidLines] = true,
+    [GameTypes.digitDazzle] = true,
 }
 
 Config.DisplayCursor = {
-    [GameTypes.CircleShake] = true,
-    [GameTypes.PathFind] = true,
+    [GameTypes.circleShake] = true,
+    [GameTypes.pathFind] = true,
     [GameTypes.circleSum] = true,
     [GameTypes.digitDazzle] = true,
     [GameTypes.lightsOut] = true,

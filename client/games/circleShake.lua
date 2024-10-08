@@ -12,7 +12,7 @@ local function circleShake(iterations, difficulty, numberOfKeys)
         numberOfKeys = numberOfKeys or 5,
     }
 
-    local result = StartGame(GameTypes.CircleShake, iterations, config)
+    local result = StartGame(GameTypes.circleShake, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)

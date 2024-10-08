@@ -10,7 +10,7 @@ local function keySpam(iterations, difficulty)
         difficulty = difficulty or 50,
     }
 
-    local result = StartGame(GameTypes.KeySpam, iterations, config)
+    local result = StartGame(GameTypes.keySpam, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)

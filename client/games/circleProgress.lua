@@ -10,7 +10,7 @@ local function circleProgress(iterations, difficulty)
         difficulty = difficulty,
     }
 
-    local result = StartGame(GameTypes.CircleProgress, iterations, config)
+    local result = StartGame(GameTypes.circleProgress, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)

@@ -12,7 +12,7 @@ local function keyCircle(iterations, difficulty, numberOfKeys)
         numberOfKeys = numberOfKeys or 3,
     }
 
-    local result = StartGame(GameTypes.KeyCircle, iterations, config)
+    local result = StartGame(GameTypes.keyCircle, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)

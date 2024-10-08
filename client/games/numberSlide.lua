@@ -12,7 +12,7 @@ local function numberSlide(iterations, difficulty, numberOfKeys)
         numberOfKeys = numberOfKeys or 5,
     }
 
-    local result = StartGame(GameTypes.NumberSlide, iterations, config)
+    local result = StartGame(GameTypes.numberSlide, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)
