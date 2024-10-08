@@ -1,4 +1,4 @@
-import fs from 'fs';
+const fs = require("fs");
 
 const version = process.env.TGT_RELEASE_VERSION
 const newVersion = version.replace('v', '')
