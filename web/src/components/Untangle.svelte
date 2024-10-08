@@ -202,7 +202,7 @@ function clearCleanUpFunctions() {
 
 
         let timeout = setTimeout(() => {
-            if (!Visible) return;
+            if (!Visible || !canvasEl) return;
             const ctx = canvasEl.getContext('2d');
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
@@ -287,6 +287,7 @@ function clearCleanUpFunctions() {
     }
 
     function calculateIntersect(lines: TLine[]) {
+        if (!canvasEl) return
         UntangleState.intersections = 0;
 
         const ctx = canvasEl.getContext('2d');

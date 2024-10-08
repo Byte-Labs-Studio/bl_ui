@@ -182,7 +182,7 @@ function clearCleanUpFunctions() {
         await delay(500);
 
         let timeout = setTimeout(() => {
-            if (!Visible) return;
+            if (!Visible || !canvasEl) return;
             const ctx = canvasEl.getContext('2d');
             ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
@@ -312,7 +312,6 @@ function clearCleanUpFunctions() {
 
         for (let i = 0; i < length; i++) {
             const target = targets[i];
-
             const x = (target.x / 100) * WIDTH;
             const y = (target.y / 100) * HEIGHT;
             const nextTarget = targets[i + 1];
