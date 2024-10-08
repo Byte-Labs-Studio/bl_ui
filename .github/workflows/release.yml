@@ -71,7 +71,7 @@ jobs:
         run: |
           mkdir -p ./temp/bl_ui
           mkdir -p ./temp/bl_ui/web
-          cp ./{server.lua,README.md,LICENSE,fxmanifest.lua,client.lua,init.lua} ./temp/bl_ui
+          cp ./{README.md,LICENSE,fxmanifest.lua} ./temp/bl_ui
           cp -r ./{client} ./temp/bl_ui
           cp -r ./web/build ./temp/bl_ui/web/build
           cd ./temp && zip -r ../bl_ui.zip ./bl_ui
