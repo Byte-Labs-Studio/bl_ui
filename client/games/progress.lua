@@ -10,7 +10,7 @@ local function progress(iterations, difficulty)
         difficulty = difficulty or 50,
     }
 
-    local result = StartGame(GameTypes.Progress, iterations, config)
+    local result = StartGame(GameTypes.progress, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)

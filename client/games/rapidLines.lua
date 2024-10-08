@@ -12,7 +12,7 @@ local function rapidLines(iterations, difficulty, numberOfLines)
         numberOfKeys = numberOfLines or 5,
     }
 
-    local result = StartGame(GameTypes.RapidLines, iterations, config)
+    local result = StartGame(GameTypes.rapidLines, iterations, config)
     promise:resolve(result)
 
     return Citizen.Await(promise)
