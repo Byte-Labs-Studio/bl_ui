@@ -8,6 +8,7 @@
     import { delay, angle, numberToAngle } from '@utils/misc';
     import { TempInteractListener } from '@utils/interactHandler';
     import { Mouse } from '@enums/events';
+    import { onMount } from 'svelte';
 
     let Main_El: HTMLElement = null;
 
@@ -40,22 +41,30 @@
 
     let MouseListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     let isOverTarget: boolean = false;
 
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active && state.type === GameType.CircleShake && !CircleState;
-        if (shouldShow) {
-            Visible = true;
-            initialise();
-        } else if (Visible && !shouldShow) {
+    let CleanUpFunctions: Function[] = [];
+    
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+
+        return () => {
+            clearCleanUpFunctions();
             Visible = false;
             CircleState = null;
             IterationState = null;
             isOverTarget = false;
-            clearMouseListener();
         }
-    });
+    })
 
     /** This code is responsible for clearing the key listeners.
      */
@@ -96,6 +105,11 @@
                     }
                 }
             }, speed);
+
+            CleanUpFunctions.push(() => {
+                clearInterval(checkInterval);
+                resolve(false);
+            });
 
             let tempOverTarget: boolean = false;
 
@@ -171,10 +185,15 @@
         await delay(500);
 
         const success = await playIteration(difficulty);
+
+        if (!CircleState) return
+        
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;
@@ -191,6 +210,10 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        });
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -198,6 +221,7 @@
     function initialise() {
         if (!$GAME_STATE.active || CircleState) return;
 
+        Visible = true;
         const { iterations, config } = $GAME_STATE;
         startGame(iterations, config as TKeyGameParam);
     }
@@ -239,7 +263,7 @@
     }
 </script>
 
-{#if Visible}
+{#if Visible && CircleState}
     <div
         bind:this={Main_El}
         transition:scale

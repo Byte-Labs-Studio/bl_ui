@@ -12,10 +12,11 @@
     export let iterations: number = 1;
     export let iteration: number = 0;
     export let progress: number = 0;
+    export let hasDuration: boolean = false;
 </script>
 
 <div
-    transition:scale
+    transition:scale|global
     class={cn(
         'bg-solid center flex flex-col items-center justify-center p-[1vh] gap-[1vh] absolute shadow-box',
         $$props.class,
@@ -36,7 +37,9 @@
             </span>
         {/if}
 
-        {#if subtitle}<p class="text-tertiary/75 font-medium w-full text-[1.5vh]">
+        {#if subtitle}<p
+                class="text-tertiary/75 font-medium w-full text-[1.5vh]"
+            >
                 {subtitle}
             </p>{/if}
 
@@ -73,30 +76,31 @@
     <slot />
 
     {#if iterations > 0}
+        {@const prog = hasDuration ? progress : 100}
+        {@const fail = (prog == 100 && hasDuration) || state == 'fail'}
         <div class="w-full h-[2vh] flex flex-row gap-[1vh] z-10">
             {#each { length: iterations } as _, i}
                 <div class="w-full h-full primary-bg">
                     {#if i === iteration}
                         <div
-                            style="width: {progress}%;"
-                            class:bg-error={progress == 100 || state == 'fail'}
+                            style="width: {prog}%;"
+                            class:bg-error={fail}
                             class:bg-accent={state == null}
-                            class:glow-error={progress == 100 ||
-                                state == 'fail'}
+                            class:glow-error={fail}
                             class:glow-accent={state == null}
                             class:bg-success={state == 'success'}
                             class:glow-success={state == 'success'}
                             class="h-full default-colour-transition ease-linear"
                         />
                     {:else if iteration > i}
-                        <div 
-                        class:bg-error={progress == 100 || state == 'fail'}
-                        class:bg-tertiary={state == null}
-                        class:glow-error={progress == 100 ||
-                            state == 'fail'}
-                        class:bg-success={state == 'success'}
-                        class:glow-success={state == 'success'}
-                        class="h-full bg-tertiary w-full" />
+                        <div
+                            class:bg-error={fail}
+                            class:bg-tertiary={state == null}
+                            class:glow-error={fail}
+                            class:bg-success={state == 'success'}
+                            class:glow-success={state == 'success'}
+                            class="h-full bg-tertiary w-full"
+                        />
                     {/if}
                 </div>
             {/each}

@@ -28,18 +28,22 @@
 
     let containerRef: HTMLDivElement = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.WaveMatch &&
             !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             WaveMatchState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
         }
     });
 
@@ -52,14 +56,14 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(WaveMatchState.duration, {
-                duration: WaveMatchState.duration,
-            });
-        }, 500);
+        await delay(500);
+        
+        UserDuration.set(WaveMatchState.duration, {
+            duration: WaveMatchState.duration,
+        });
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(false);
             }, WaveMatchState.duration + 500);
 
@@ -77,7 +81,7 @@
                     duration: 0,
                 });
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -115,8 +119,10 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;

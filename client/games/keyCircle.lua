@@ -3,7 +3,7 @@
 ---@param difficulty number The difficulty of the game (1-100)]
 ---@param numberOfKeys number The amount of keys to press
 ---@return boolean
-function KeyCircle(iterations, difficulty, numberOfKeys)
+local function keyCircle(iterations, difficulty, numberOfKeys)
     local promise = promise:new()
 
     ---@type KeyDifficultyConfig
@@ -17,4 +17,4 @@ function KeyCircle(iterations, difficulty, numberOfKeys)
 
     return Citizen.Await(promise)
 end
-exports("KeyCircle", KeyCircle)
+exports("KeyCircle", keyCircle)

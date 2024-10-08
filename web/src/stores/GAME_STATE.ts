@@ -22,7 +22,7 @@ export const store = () => {
                     active,
                     type,
                     iterations,
-                    config
+                    config,
                 };
             });
         },

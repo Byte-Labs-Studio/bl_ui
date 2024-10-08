@@ -13,6 +13,7 @@
     import {type TDifficultyParam, type TLevelState } from '@typings/gameState';
     import { Key } from '@enums/events';
     import { TempInteractListener } from '@utils/interactHandler';
+    import { onMount } from 'svelte';
 
     const UserSegmentSize: number = 2;
     const UserRotation: Tweened<number> = tweened(0);
@@ -40,22 +41,27 @@
 
     let KeyListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
+    let CleanUpFunctions: Function[] = [];
+
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
     //The code above shows the circle progress when the game is active and type is circle progress
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active &&
-            state.type === GameType.CircleProgress &&
-            !CircleState;
-        if (shouldShow) {
-            Visible = true;
-            initialise();
-        } else if (Visible && !shouldShow) {
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+        return () => {
+            clearCleanUpFunctions();
             Visible = false;
             CircleState = null;
             IterationState = null;
-            clearKeyListener();
         }
-    });
+    })
 
     /** This code is responsible for clearing the key listeners.
      */
@@ -63,6 +69,7 @@
         KeyListener?.removeListener();
         KeyListener = null;
     }
+
 
     /** This code is responsible for playing the iteration of the minigame.
      * This code should be called when the user presses the spacebar.
@@ -73,14 +80,20 @@
         if (!Visible) return;
 
         const duration = CircleState.duration;
+        
         UserRotation.set(100, {
             duration,
         });
 
         return new Promise((resolve, _) => {
-            let timeout = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 resolve(false);
             }, duration);
+
+            CleanUpFunctions.push(() => {
+                clearTimeout(GameTimeout);
+                resolve(false);
+            });
 
             KeyListener = TempInteractListener(Key.pressed, (e: KeyboardEvent) => {
 
@@ -90,14 +103,11 @@
                     return;
                 }
 
-                clearTimeout(timeout);
+                clearTimeout(GameTimeout);
 
                 UserRotation.set($UserRotation, {
                     duration: 0,
                 });
-
-                
-
 
                 if (key === CircleState.key) {
                     const userRotDeg = ($UserRotation / 100) * 360;
@@ -143,16 +153,20 @@
             duration: generateDuration(difficulty),
             key: GetRandomKeyFromSet('Numbers'),
         };
+
         IterationState = null;
 
         await delay(500);
 
         const success = await playIteration();
+
+        if (!CircleState) return
+
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
-
+            
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
@@ -168,6 +182,10 @@
                 return;
             }
         }, 500);
+
+        CleanUpFunctions.push(() => {
+            if (timeout) clearTimeout(timeout);
+        });
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -176,7 +194,9 @@
         if (!$GAME_STATE.active || CircleState) return;
 
         const { iterations, config } = $GAME_STATE;
-        startGame(iterations, config);
+
+        Visible = true;
+        startGame(iterations, config as TDifficultyParam);
     }
 
     /**
@@ -235,7 +255,7 @@
     }
 </script>
 
-{#if Visible}
+{#if Visible && CircleState}
     <div
         transition:scale
         style={SIZE_STYLES}
@@ -245,11 +265,9 @@
             style={SIZE_STYLES_HALF}
             class="absolute primary-shadow grid place-items-center primary-bg rounded-full"
         >
-            {#key CircleState.target}
-                <p transition:scale={{duration: 100}} class="text-shadow absolute font-bold text-[2vw]">
-                    {CircleState.key}
-                </p>
-            {/key}
+            <p class="text-shadow absolute font-bold text-[2vw]">
+                {CircleState.key}
+            </p>
         </div>
 
         <svg

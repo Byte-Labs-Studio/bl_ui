@@ -2,7 +2,7 @@
 ---@param iterations number The amount of iterations to run
 ---@param difficulty number The difficulty of the game (1-100)
 ---@return boolean
-function CircleProgress(iterations, difficulty)
+local function circleProgress(iterations, difficulty)
     local promise = promise:new()
 
     ---@type DifficultyConfig
@@ -15,4 +15,4 @@ function CircleProgress(iterations, difficulty)
 
     return Citizen.Await(promise)
 end
-exports("CircleProgress", CircleProgress)
+exports("CircleProgress", circleProgress)

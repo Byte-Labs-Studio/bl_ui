@@ -25,17 +25,21 @@
 
     let SuccessCheck: Function = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.LightsOut && !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             LightsOutState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
         }
     });
 
@@ -46,19 +50,19 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(LightsOutState.duration, {
-                duration: LightsOutState.duration,
-            });
-        }, 500);
+        await delay(500);
+
+        UserDuration.set(LightsOutState.duration, {
+            duration: LightsOutState.duration,
+        });
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(SuccessCheck(true))
             }, LightsOutState.duration + 500);
 
             SuccessCheck = (_return: boolean = false) => {
-                const success = LightsOutState.items.every(e => e === true);
+                const success = LightsOutState?.items.every(e => e === true);
                 if (_return) return success
 
                 if (LightsOutState.items.every(e => e === false)) {
@@ -72,7 +76,7 @@
                     duration: 0,
                 });
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -108,8 +112,11 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
+
             if (success && iterations > 0) {
                 iterations--;
                 if (iterations > 0) {
@@ -212,7 +219,8 @@
         state={IterationState}
     >
         <div
-            class="w-[60vh] h-[60vh] aspect-square grid-cols-5 grid-rows-5 gap-[2vh] grid"
+        style="grid-template-columns: repeat(5, 1fr);"
+            class="w-[60vh] h-[60vh] aspect-square gap-[2vh] grid"
         >
             {#each items as item, index}
                 <div

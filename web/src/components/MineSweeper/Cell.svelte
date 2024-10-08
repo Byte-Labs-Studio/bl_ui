@@ -19,6 +19,6 @@
               ? 'border-error glow-error bg-error/50'
               : bombState == 'success'
           ? 'border-success glow-success bg-success/50' : bombState == 'fail' ? 'border-error glow-error bg-error/50'
-            :  'bg-accent/50 scale-100 border-accent'}"
+            :  'bg-accent/50 scale-100 border-accent glow-accent'}"
     on:click><slot /></button
 >

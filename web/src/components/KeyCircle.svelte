@@ -35,6 +35,8 @@
 
     let IterationState: TLevelState = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     let KeyListeners: {
         Down: ReturnType<typeof TempInteractListener>;
         Up: ReturnType<typeof TempInteractListener>;
@@ -50,12 +52,14 @@
             state.type === GameType.KeyCircle &&
             !KeyCircleState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             KeyCircleState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
             clearKeyListeners();
         }
     });
@@ -91,7 +95,7 @@
         });
 
         return new Promise((resolve, _) => {
-            let timeout = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 resolve(false);
                 return;
             }, duration);
@@ -102,7 +106,7 @@
                 Key.down,
                 (e: KeyboardEvent) => {
                     if (!Visible) return;
-                    
+
                     UserPressedKeys[e.key.toUpperCase()] = true;
 
                     if (IterationState) return;
@@ -110,7 +114,7 @@
                     const pressedKeys = Object.keys(UserPressedKeys);
 
                     if (pressedKeys.length === 2) {
-                        clearTimeout(timeout);
+                        clearTimeout(GameTimeout);
                         clearKeyListeners();
 
                         const containsFirstKey = pressedKeys.includes(keys[0]);
@@ -168,7 +172,12 @@
         });
 
         let { difficulty, numberOfKeys } = config;
-        difficulty = (difficulty || KEY_CIRCLE.FALLBACK_DIFFICULTY ) >= 100 ? 99 : difficulty <= 0 ? 5 : difficulty;
+        difficulty =
+            (difficulty || KEY_CIRCLE.FALLBACK_DIFFICULTY) >= 100
+                ? 99
+                : difficulty <= 0
+                  ? 5
+                  : difficulty;
         numberOfKeys = numberOfKeys || KEY_CIRCLE.FALLBACK_NUM_KEYS;
 
         KeyCircleState = {
@@ -187,8 +196,10 @@
         const success = await playIteration();
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;
@@ -212,7 +223,7 @@
     function initialise() {
         if (!$GAME_STATE.active || KeyCircleState) return;
 
-        const { iterations, config } = $GAME_STATE
+        const { iterations, config } = $GAME_STATE;
         startGame(iterations, config as TKeyGameParam);
     }
 
@@ -244,28 +255,24 @@
         class="grid place-items-center primary-shadow default-game-position rounded-full w-fit h-fit"
     >
         {#if KeyCircleState}
-            {#key KeyCircleState.keys}
-                <div
-                    transition:scale
-                    class="flex flex-row items-center justify-center absolute"
-                >
-                    {#each KeyCircleState?.keys as key}
-                        <div
-                            style={SIZE_STYLES_QUARTER}
-                            class="grid place-items-center primary-shadow primary-bg"
+            <div
+                transition:scale
+                class="flex flex-row items-center justify-center absolute"
+            >
+                {#each KeyCircleState?.keys as key}
+                    <div
+                        style={SIZE_STYLES_QUARTER}
+                        class="grid place-items-center primary-shadow primary-bg"
+                    >
+                        <p
+                            transition:scale={{ duration: 100 }}
+                            class="text-shadow absolute font-bold text-[2vw]"
                         >
-                            <!-- {#key CircleState.target} -->
-                            <p
-                                transition:scale={{ duration: 100 }}
-                                class="text-shadow absolute font-bold text-[2vw]"
-                            >
-                                {key}
-                            </p>
-                            <!-- {/key} -->
-                        </div>
-                    {/each}
-                </div>
-            {/key}
+                            {key}
+                        </p>
+                    </div>
+                {/each}
+            </div>
         {/if}
 
         <svg
@@ -311,12 +318,12 @@
                         'fail'
                             ? 'bg-error glow-error'
                             : currentStage === i ||
-                              (currentStage === stages && i === 0)
-                            ? 'bg-accent glow-accent'
-                            : (currentStage >= i && i !== 0) ||
-                              IterationState === 'success'
-                            ? 'bg-success glow-success'
-                            : 'bg-tertiary primary-shadow'} "
+                                (currentStage === stages && i === 0)
+                              ? 'bg-accent glow-accent'
+                              : (currentStage >= i && i !== 0) ||
+                                  IterationState === 'success'
+                                ? 'bg-success glow-success'
+                                : 'bg-tertiary primary-shadow'} "
                     />
                 </div>
             {/each}

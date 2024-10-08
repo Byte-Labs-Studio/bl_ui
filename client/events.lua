@@ -6,6 +6,7 @@ Send = {
 Receive = {
     close = "ui:close",
     finish = "ui:finish",
+    uiLoaded = 'ui:loaded',
 }
 
 

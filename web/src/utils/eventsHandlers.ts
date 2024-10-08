@@ -119,12 +119,12 @@ export async function DebugEventReceive<T>(
     if (!isBrower) return;
 
     if (debugEventListeners[action] !== undefined) {
-        console.log(
-            `%c[DEBUG] %c${action} %cevent already has a debug receiver.`,
-            'color: red; font-weight: bold;',
-            'color: green',
-            '', // Empty CSS style string to reset the color
-        );
+        // console.log(
+        //     `%c[DEBUG] %c${action} %cevent already has a debug receiver.`,
+        //     'color: red; font-weight: bold;',
+        //     'color: green',
+        //     '', // Empty CSS style string to reset the color
+        // );
         return;
     }
 
@@ -143,7 +143,7 @@ export async function DebugEventCallback<T>(action: string, data?: T) {
 
     const handler = debugEventListeners[action];
     if (handler === undefined) {
-        console.log(`[DEBUG] ${action} event does not have a debugger.`);
+        // console.log(`[DEBUG] ${action} event does not have a debugger.`);
         return {};
     }
 

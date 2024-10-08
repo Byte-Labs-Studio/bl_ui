@@ -210,7 +210,7 @@ const SendDebuggers: DebugItem[] = [
                 action: (value: number) => {
 
                     const config = {
-                        duration: value * 1000,
+                        duration: value === -1 ? -1 : value * 1000,
                         numberOfNodes: 10,
                     } as TNodeHackGameParam
 
@@ -220,7 +220,7 @@ const SendDebuggers: DebugItem[] = [
                         config,
                     })
                 },
-                min: 1,
+                min: -1,
                 value: 50,
                 type: 'slider',
             },
@@ -359,7 +359,7 @@ const SendDebuggers: DebugItem[] = [
 
                     const config = {
                         duration: value,
-                        grid: 5,
+                        grid: 7,
                         target: 10,
                     } as TGridHackGameParam
 
@@ -372,6 +372,32 @@ const SendDebuggers: DebugItem[] = [
                 value: 20000,
                 min: 1000,
                 max: 1200000,
+                type: 'slider',
+            },
+        ],
+    },
+    {
+        label: 'Print Lock',
+        actions: [
+            {
+                label: 'Custom Difficulty',
+                action: (value: number) => {
+
+                    const config = {
+                        duration: 60000,
+                        grid: 5,
+                        target: 10,
+                    } as TGridHackGameParam
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.PrintLock,
+                        iterations: 2,
+                        config,
+                    })
+                },
+                value: 5,
+                min: 3,
+                max: 10,
                 type: 'slider',
             },
         ],

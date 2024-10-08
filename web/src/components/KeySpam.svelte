@@ -31,17 +31,21 @@
     let KeyListener: ReturnType<typeof TempInteractListener>;
         let KeyUpListener: ReturnType<typeof TempInteractListener>;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     //The code above shows the circle progress when the game is active and type is circle progress
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active && state.type === GameType.KeySpam && !KeySpamState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             KeySpamState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
             clearKeyListeners();
         }
     });
@@ -78,10 +82,10 @@
                 }
             }, 1);
 
-            let timeout = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 if (!Visible) return;
 
-                clearTimeout(timeout);
+                clearTimeout(GameTimeout);
                 clearInterval(interval);
                 resolve(false);
             }, duration);
@@ -110,7 +114,7 @@
                             KeySpamState.size = 100
 
 
-                            clearTimeout(timeout);
+                            clearTimeout(GameTimeout);
                             clearInterval(interval);
 
                             UserTimer.set($UserTimer, {
@@ -166,8 +170,10 @@
         
         IterationState = success ? 'success' : 'fail';
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;

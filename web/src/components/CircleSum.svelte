@@ -17,6 +17,7 @@
     import radial from './CircleSum/radial';
     import RadialSegment from './CircleSum/RadialSegment.svelte';
     import { scale } from 'svelte/transition';
+    import { onMount, tick } from 'svelte';
 
     let Visible: boolean = false;
 
@@ -38,21 +39,27 @@
 
     let SuccessChecker: Function = null;
 
-    GAME_STATE.subscribe(state => {
-        let shouldShow =
-            state.active &&
-            state.type === GameType.CircleSum &&
-            !IterationState;
-        if (shouldShow) {
-            Visible = true;
-            initialise();
-        } else if (Visible && !shouldShow) {
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
+    let CleanUpFunctions: Function[] = [];
+
+    function clearCleanUpFunctions() {
+        CleanUpFunctions.forEach(fn => fn());
+        CleanUpFunctions = [];
+    }
+
+    onMount(() => {
+        IterationState = null
+        clearCleanUpFunctions();
+        initialise();
+
+        return () => {
+            clearCleanUpFunctions();
             Visible = false;
             CircleSumState = null;
             IterationState = null;
         }
-    });
-
+    })
 
     /** This code is responsible for playing the iteration of the minigame.
      * The code will return a promise that resolves to true if the user has
@@ -61,17 +68,33 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(CircleSumState.duration, {
-                duration: CircleSumState.duration,
-            });
-        }, 500);
+        const hasDuration = CircleSumState?.duration !== -1;
+        const duration = CircleSumState.duration;
+
+        if (hasDuration) {
+            let indexOfFunction;
+            let timeout = setTimeout(() => {
+                UserDuration.set(duration, {
+                    duration: hasDuration ? duration : 0,
+                });
+                if (timeout) clearTimeout(timeout);
+
+                if (indexOfFunction !== -1) {
+                    CleanUpFunctions.splice(indexOfFunction, 1);
+                }
+            }, 500);
+
+            indexOfFunction = CleanUpFunctions.push(() => {
+                clearTimeout(timeout);
+            }) - 1;
+        }
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
-                finish(false);
-            }, CircleSumState.duration + 500);
-
+            if (hasDuration) {
+                GameTimeout = setTimeout(() => {
+                    finish(false);
+                }, CircleSumState.duration + 500);
+            }
 
             // Dont know if this is the best way but oh well. PR a better approach
             SuccessChecker = () => {
@@ -79,6 +102,11 @@
                     finish(true);
                 }
             };
+
+            CleanUpFunctions.push(() => {
+                if (GameTimeout) clearTimeout(GameTimeout);
+                resolve(false);
+            });
 
             function finish(bool: boolean) {
                 const currentValue = $UserDuration;
@@ -88,16 +116,12 @@
 
                 SuccessChecker = null;
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
     }
 
-    /** This code is responsible for starting the game.
-     * @param iterations The number of iterations to play.
-     * @param difficulty The difficulty of the game.
-     */
     async function startGame(iterations, config: TLengthHackGameParam) {
         if (!Visible) return;
 
@@ -120,16 +144,20 @@
         };
 
         IterationState = null;
+
         startRotation();
 
         await delay(500);
 
+        if (!CircleSumState) return;
+
         const success = await playIteration();
+
+        if (!CircleSumState) return;
+
         IterationState = success ? 'success' : 'fail';
 
-        await delay(500);
-
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             if (!Visible) return;
 
             if (success && iterations > 0) {
@@ -147,6 +175,10 @@
                 return;
             }
         }, 1000);
+
+        CleanUpFunctions.push(async () => {
+            if (timeout) clearTimeout(timeout);
+        });
     }
 
     /** This code is responsible for generating a duration for a progress bar based on the difficulty.
@@ -156,6 +188,8 @@
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
+
+        Visible = true
         startGame(iterations, config as TLengthHackGameParam);
     }
 
@@ -212,18 +246,14 @@
     }
 
     function startRotation() {
-        let fpsInterval: number,
-            now: number,
-            then: number,
-            elapsed: number;
+        let fpsInterval: number, now: number, then: number, elapsed: number;
         function startAnimating(fps: number) {
             fpsInterval = 1000 / fps;
             then = window.performance.now();
             animate();
         }
 
-        const currentIteration = CircleSumState.currentIteration
-
+        const currentIteration = CircleSumState.currentIteration;
 
         async function animate() {
             if (!Visible || IterationState) return;
@@ -255,16 +285,18 @@
             UserValue -= CircleSumState.toggles[index].value;
         }
 
-        if (UserValue === CircleSumState.target) SuccessChecker()
+        if (UserValue === CircleSumState.target) SuccessChecker();
     }
 </script>
 
-{#if Visible}
+{#if Visible && CircleSumState}
+    {@const hasDuration = CircleSumState?.duration !== -1}
     <HackWrapper
         state={IterationState}
         title={['Circle', 'Sum']}
         iterations={Iterations}
         iteration={CircleSumState.currentIteration}
+        hasDuration={hasDuration}
         progress={($UserDuration / CircleSumState.duration) * 100}
         subtitle="Find the right combination to match the target."
     >
@@ -272,25 +304,29 @@
             class=" w-[60vh] h-[60vh] grid place-items-center aspect-square rounded-full overflow-hidden"
         >
             <div
-            bind:this={circleRef}
-            transition:scale|global={{delay: 500}}
+                bind:this={circleRef}
+                transition:scale|global={{ delay: 500 }}
                 class="w-1/3 h-1/3 grid place-items-center overflow-hidden aspect-square bg-secondary/90 border-[0.15vh] border-tertiary/50 rounded-full"
             >
                 {#if UserValue !== null && circleRef}
-                    {@const _size = (UserValue / CircleSumState.target) * circleRef.clientWidth}
-                    {@const size = _size > containerRef.clientWidth ? containerRef?.clientWidth : _size}
+                    {@const _size =
+                        (UserValue / CircleSumState.target) *
+                        circleRef.clientWidth}
+                    {@const size =
+                        _size > containerRef.clientWidth
+                            ? containerRef?.clientWidth
+                            : _size}
                     <div
-                    style="width: {size}px;"
-                    class="aspect-square rounded-full absolute default-all-transition {
-                        IterationState == 'success'
+                        style="width: {size}px;"
+                        class="aspect-square rounded-full absolute default-all-transition {IterationState ==
+                        'success'
                             ? 'border-success glow-success bg-success/50'
                             : IterationState == 'fail'
-                                ? 'border-error glow-error bg-error/50'
-                                : _size > circleRef.clientWidth
-                                    ? 'glow-error bg-error/50' 
-                                    : 'bg-accent glow-accent'
-                    }"
-                />
+                              ? 'border-error glow-error bg-error/50'
+                              : _size > circleRef.clientWidth
+                                ? 'glow-error bg-error/50'
+                                : 'bg-accent glow-accent'}"
+                    />
                 {/if}
             </div>
 
@@ -298,7 +334,7 @@
                 {@const containerSize = containerRef?.clientWidth}
                 {@const { size, gap, innerHoleSize } = radial}
                 <svg
-                transition:scale|global={{delay: 250}}
+                    transition:scale|global={{ delay: 250 }}
                     bind:this={containerRef}
                     style="width: {size}%; rotate: {UserRotation}deg;"
                     class="absolute z-[100] overflow-visible aspect-square"

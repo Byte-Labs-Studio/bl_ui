@@ -31,18 +31,22 @@
 
     let SuccessChecker: Function = null;
 
+    let GameTimeout: ReturnType<typeof setTimeout>;
+
     GAME_STATE.subscribe(state => {
         let shouldShow =
             state.active &&
             state.type === GameType.MineSweeper &&
             !IterationState;
         if (shouldShow) {
+            clearTimeout(GameTimeout);
             Visible = true;
             initialise();
         } else if (Visible && !shouldShow) {
             Visible = false;
             MineSweeperState = null;
             IterationState = null;
+            clearTimeout(GameTimeout);
         }
     });
 
@@ -53,14 +57,18 @@
     async function playIteration() {
         if (!Visible) return;
 
-        setTimeout(() => {
-            UserDuration.set(MineSweeperState.duration, {
-                duration: MineSweeperState.duration,
-            });
-        }, 500);
+        UserMistakes = 0;
+        UserCorrect = 0;
+    
+
+        await delay(500);
+
+        UserDuration.set(MineSweeperState.duration, {
+            duration: MineSweeperState.duration,
+        });
 
         return new Promise((resolve, _) => {
-            let durationCheck = setTimeout(() => {
+            GameTimeout = setTimeout(() => {
                 finish(false);
             }, MineSweeperState.duration + 500);
 
@@ -81,7 +89,7 @@
 
                 SuccessChecker = null;
 
-                clearTimeout(durationCheck);
+                clearTimeout(GameTimeout);
                 resolve(bool);
             }
         });
@@ -96,7 +104,6 @@
 
         UserMistakes = 0;
         UserCorrect = 0;
-        GameNumberMines = 0;
 
         UserDuration.set(0, {
             duration: 0,
@@ -106,7 +113,6 @@
         const gridSize = getRandomIntFromIntOrArray(config.grid);
         GameNumberMines = getRandomIntFromIntOrArray(config.target);
         const grid = generateGrid(gridSize, GameNumberMines);
-
 
         MineSweeperState = {
             grid,
@@ -129,8 +135,10 @@
 
         await delay(500);
 
-        setTimeout(() => {
+        GameTimeout = setTimeout(() => {
             if (!Visible) return;
+
+            clearTimeout(GameTimeout);
 
             if (success && iterations > 0) {
                 iterations--;
@@ -173,16 +181,15 @@
             grid.push(gridRow);
         }
 
-        for (let i = 0; i < targetSize + 1; i++) {
+        let minesPlaced = 0;
+        while (minesPlaced < targetSize) {
             const indexRow = Math.floor(Math.random() * gridSize);
             const indexCol = Math.floor(Math.random() * gridSize);
 
-            if (grid[indexRow][indexCol].state) {
-                --i;
-                continue;
+            if (!grid[indexRow][indexCol].mine) {
+                grid[indexRow][indexCol].mine = true;
+                minesPlaced++;
             }
-
-            grid[indexRow][indexCol].mine = true;
         }
 
         return grid;
@@ -205,8 +212,6 @@
 
         if (SuccessChecker) SuccessChecker();
     }
-
-
 </script>
 
 {#if Visible}
@@ -219,7 +224,8 @@
         progress={($UserDuration / MineSweeperState.duration) * 100}
     >
         <div
-            style="grid-template-columns: repeat({ MineSweeperState?.grid.length }, 1fr);"
+            style="grid-template-columns: repeat({MineSweeperState?.grid
+                .length}, 1fr);"
             class=" w-[60vh] h-[60vh] aspect-square grid-cols-5 gap-[2vh] grid"
         >
             {#if MineSweeperState}
