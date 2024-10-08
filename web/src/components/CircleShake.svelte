@@ -89,7 +89,7 @@ function clearCleanUpFunctions() {
         isOverTarget = false;
         return new Promise((resolve, _) => {
             let checkInterval = setInterval(() => {
-                if (!Visible || !isOverTarget) return GAME_STATE.scroll(false);;
+                if (!Visible || !isOverTarget) return
                 CircleState.progress += 1;
 
                 if (CircleState.progress >= 100) {
@@ -102,7 +102,6 @@ function clearCleanUpFunctions() {
                         GAME_STATE.playSound('primary');
                     } else {
                         isOverTarget = false;
-                        GAME_STATE.scroll(false);
                         clearInterval(checkInterval);
                         resolve(true);
                     }
