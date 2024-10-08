@@ -49,7 +49,7 @@ jobs:
           CI: false
 
       - name: Bump manifest version
-        run: node .github/actions/bump-manifest-version.js
+        run: node .github/actions/bump-manifest.js
         env:
           TGT_RELEASE_VERSION: ${{ github.ref_name }}
 
