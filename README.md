@@ -2,6 +2,7 @@
 
 **Unlock Endless Fun and Challenge in FiveM!**
 
+![Preview](preview.png)
 ## Introduction
 Welcome to **Byte Labs UI**, a cutting-edge collection of **Svelte minigame scripts** designed for FiveM! 🎮 This repository offers a variety of engaging, reusable, and highly configurable minigame scripts to elevate your gameplay experience.
 
