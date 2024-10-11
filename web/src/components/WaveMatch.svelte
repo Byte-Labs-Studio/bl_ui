@@ -9,12 +9,11 @@
     import Slider from './micro/Slider.svelte';
     import type { TWaveMatchGameState, TWaveOptions } from '@typings/waveMatch';
     import { WAVE_MATCH } from './config/gameConfig';
-    import { blur, scale } from 'svelte/transition';
-    import { flip } from 'svelte/animate';
+    import { blur } from 'svelte/transition';
 
     const _BODY = getComputedStyle(document.body);
-    const FOREGROUND_COLOUR: string = `rgba(${_BODY.getPropertyValue('--foreground').split(' ').join(',')}, 0.5)`;
-    const ACCENT_COLOUR: string = `rgba(${_BODY.getPropertyValue('--accent').split(' ').join(',')}, 0.5)`;
+    const FOREGROUND_COLOUR: string = `rgba(${_BODY.getPropertyValue('--foreground').match(/\d+/g).join(',')}, 0.5)`;
+    const ACCENT_COLOUR: string = `rgba(${_BODY.getPropertyValue('--accent').match(/\d+/g).join(',')}, 0.5)`;
 
     let Visible: boolean = false;
 
