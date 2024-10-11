@@ -86,8 +86,9 @@ function clearCleanUpFunctions() {
 
             let timerDone = false;
             let durationCheck = setTimeout(() => {
-                finish(false);
                 timerDone = true;
+                if (CheckingCode) return;
+                finish(false);
             }, DigitDazeState.duration + 500);
 
             CleanUpFunctions.push(() => {
@@ -116,8 +117,10 @@ function clearCleanUpFunctions() {
 
             SuccessChecker = async () => {
                 const result = await check();
-                if (result || timerDone) {
+                if (result) {
                     finish(true);
+                } else if (timerDone) {
+                    finish(false);
                 }
             };
 
