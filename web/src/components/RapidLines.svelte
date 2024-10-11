@@ -179,7 +179,7 @@ function clearCleanUpFunctions() {
      * @param iterations The number of iterations to play.
      * @param gameData The difficulty data of the game.
      */
-    async function startGame(iterations, config: TKeyGameParam) {
+    async function startGame(iterations: number, config: TKeyGameParam) {
         if (!Visible) return;
 
         clearKeyListeners();

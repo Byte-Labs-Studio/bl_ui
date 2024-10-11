@@ -112,7 +112,7 @@
         });
     }
 
-    async function startGame(iterations, config: TLengthHackGameParam) {
+    async function startGame(iterations: number, config: TLengthHackGameParam) {
         if (!Visible) return;
 
         UserDuration.set(0, {

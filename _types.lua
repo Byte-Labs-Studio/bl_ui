@@ -23,3 +23,4 @@
 ---@class NodeConfig
 ---@field numberOfNodes number The length of the circle's cuts
 ---@field duration number duration before game closes
+---@field previewDuration? number for mineSweeper: preview duration (time for red mines preview to hide)

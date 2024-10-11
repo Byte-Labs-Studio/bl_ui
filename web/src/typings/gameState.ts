@@ -40,6 +40,7 @@ export type TGridHackGameParam = THackGameParam & {
 
     /** The targets to play. If its an array, the first number is the min target and the second is the max target. when randomized */
     target?:  number | [number, number];
+    previewDuration?:number
 }
 
 export type TTHackGameParams = THackGameParam | TNodeHackGameParam;
