@@ -27,7 +27,6 @@ Config.KeepGameInput = {
     [GameTypes.keySpam] = true,
     [GameTypes.numberSlide] = true,
     [GameTypes.rapidLines] = true,
-    [GameTypes.digitDazzle] = true,
 }
 
 Config.DisplayCursor = {
