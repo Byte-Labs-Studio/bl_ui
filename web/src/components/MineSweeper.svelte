@@ -75,7 +75,6 @@ function clearCleanUpFunctions() {
             if (timeout) clearTimeout(timeout);
         })
         return new Promise((resolve, _) => {
-
             let durationCheck = setTimeout(() => {
                 finish(false);
             }, MineSweeperState.duration + 500);
@@ -111,7 +110,7 @@ function clearCleanUpFunctions() {
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations, config: TGridHackGameParam) {
+    async function startGame(iterations: number, config: TGridHackGameParam) {
         if (!Visible) return;
 
         UserMistakes = 0;
@@ -141,12 +140,11 @@ function clearCleanUpFunctions() {
         Preview = true;
 
         let promise = await new Promise((resolve, _) => {
-
             let previewTimeout = setTimeout(() => {
                 resolve(true);
                 if (!Visible) return;
                 Preview = false;
-            }, 5000);
+            }, config.previewDuration || 5000);
 
             CleanUpFunctions.push(() => {
                 if (previewTimeout) clearTimeout(previewTimeout);
@@ -237,6 +235,7 @@ function clearCleanUpFunctions() {
     }
 
     function clickCell(row: number, col: number) {
+        if (Preview) return
         if (IterationState) return;
 
         const cell = MineSweeperState.grid[row][col];
