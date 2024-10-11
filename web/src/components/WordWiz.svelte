@@ -79,7 +79,11 @@ function clearCleanUpFunctions() {
             if (timeout) clearTimeout(timeout);
         })
         return new Promise((resolve, _) => {
+
+            let timerDone = false;
             let durationCheck = setTimeout(() => {
+                timerDone = true;
+                if (CheckingCode) return;
                 finish(false);
             }, WordWizState.duration + 500);
 
@@ -110,6 +114,8 @@ function clearCleanUpFunctions() {
                 const result = await check();
                 if (result) {
                     finish(true);
+                } else if (timerDone) {
+                    finish(false);
                 }
             };
 
