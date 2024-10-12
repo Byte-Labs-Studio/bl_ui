@@ -44,7 +44,7 @@
 
                                     <input
                                         type="text"
-                                        class="h-full w-full px-[0.25vw]"
+                                        class="h-full w-full px-[0.25vw] text-black"
                                         bind:value={action.value}
                                     />
                                     <button

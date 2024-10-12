@@ -11,6 +11,10 @@
 ---@field length number The length of the circle's cuts
 ---@field duration number duration before game closes
 
+---@class InputConfig : LengthConfig
+---@field code? string[] Required if length is not defined
+---@field length? number Required if code is not defined
+
 ---@class LevelConfig
 ---@field level number The length of the circle's cuts
 ---@field duration number duration before game closes

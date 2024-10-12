@@ -3,7 +3,7 @@
     import { GameType } from '@enums/gameTypes';
     import HackWrapper from '@lib/HackWrapper.svelte';
     import GAME_STATE from '@stores/GAME_STATE';
-    import type { TLengthHackGameParam, TLevelState } from '@typings/gameState';
+    import type { TInputHackGameParam, TLevelState } from "@typings/gameState";
     import type {
         TDigitDazzleCode,
         TDigitDazzleGameState,
@@ -170,7 +170,7 @@ function clearCleanUpFunctions() {
      * @param iterations The number of iterations to play.
      * @param difficulty The difficulty of the game.
      */
-    async function startGame(iterations: number, config: TLengthHackGameParam) {
+    async function startGame(iterations: number, config: TInputHackGameParam) {
         if (!Visible) return;
 
         SuccessChecker = null;
@@ -184,8 +184,18 @@ function clearCleanUpFunctions() {
 
         const duration = getRandomIntFromIntOrArray(config.duration);
 
-        CodeLength = getCodeLength(config.length);
-        const code = generateCode(CodeLength);
+        let code: number[]
+
+        if (config.length) {
+            CodeLength = getCodeLength(config.length);
+			code = generateCode(CodeLength);
+        } else {
+            const index = config.code.length - iterations
+            const input = config.code[index].toString()
+
+            CodeLength = input.length;
+            code = Array.from(input).map(Number);
+        }
 
         UserCode = Array.from({ length: CodeLength }, () => ({
             code: null,
@@ -252,7 +262,7 @@ function clearCleanUpFunctions() {
 
         const { iterations, config } = $GAME_STATE;
         Iterations = iterations;
-        startGame(iterations, config as TLengthHackGameParam);
+        startGame(iterations, config as TInputHackGameParam);
     }
 
     function generateCode(length: number) {
