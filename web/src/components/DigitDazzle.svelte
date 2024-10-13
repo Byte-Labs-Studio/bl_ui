@@ -355,9 +355,9 @@ function clearCleanUpFunctions() {
                                 ? 'bg-warning/25 shadow-warning border border-warning'
                                 : ' primary-bg'}"
                     >
-                        {#if code !== undefined}
+                        {#if code.code}
                             <p transition:scale={{ duration: 250 }}>
-                                {code.code !== null ? code.code : ''}
+                                {code.code}
                             </p>
                         {/if}
                     </div>
