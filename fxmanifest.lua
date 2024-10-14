@@ -3,7 +3,7 @@ fx_version 'cerulean'
 game "gta5"
 use_experimental_fxv2_oal 'yes'
 author "Byte Labs"
-version '2.0.4'
+version '2.0.5'
 description 'Byte Labs UI'
 repository 'https://github.com/Byte-Labs-Project/bl_ui'
 
