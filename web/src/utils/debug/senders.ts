@@ -2,7 +2,7 @@ import { DebugItem } from '@typings/events'
 import { toggleVisible } from './visibility'
 import { Receive } from '@enums/events'
 import { DebugEventSend } from '@utils/eventsHandlers'
-import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam, TGridHackGameParam } from '@typings/gameState'
+import type { TGameParams, TKeyGameParam, TDifficultyParam, TNodeHackGameParam, TLevelHackGameParam, TLengthHackGameParam, TGridHackGameParam, TInputHackGameParam } from '@typings/gameState'
 import { GameType } from '@enums/gameTypes'
 
 /**
@@ -273,6 +273,23 @@ const SendDebuggers: DebugItem[] = [
                 min: 1,
                 max: 12,
                 type: 'slider',
+            },
+            {
+                label: 'Input',
+                action: (value: number) => {
+                    const config = {
+                        duration: 20000,
+                        code: [value, value],
+                    } as TInputHackGameParam;
+
+                    DebugEventSend<TGameParams>(Receive.start, {
+                        type: GameType.DigitDazzle,
+                        iterations: 2,
+                        config,
+                    });
+                },
+                value: 1234,
+                type: 'text',
             },
         ],
     },

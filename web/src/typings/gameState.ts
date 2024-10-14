@@ -34,6 +34,10 @@ export type TLengthHackGameParam = THackGameParam & {
     length: number | [number, number];
 }
 
+export type TInputHackGameParam = THackGameParam &
+    ({ code: string[] | number[]; length?: number | [number, number] }
+    | { code?: string[] | number[]; length: number | [number, number] });
+
 export type TGridHackGameParam = THackGameParam & {
     /** The size fo the grid to play. If its an array, the first number is the min size and the second is the max size. when randomized */
     grid: number | [number, number];

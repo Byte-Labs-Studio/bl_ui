@@ -1,5 +1,5 @@
 ---@param iterations number The amount of iterations to run
----@param config LengthConfig
+---@param config InputConfig
 local function digitDazzle(iterations, config)
     local promise = promise:new()
 
