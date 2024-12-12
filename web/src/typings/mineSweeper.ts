@@ -1,5 +1,6 @@
 export type TMineSweeperCell = {
     mine: boolean;
+    clicked: boolean;
 }
 
 export type TMineSweeperCellStates = null | 'success' | 'fail';   
