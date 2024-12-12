@@ -129,6 +129,7 @@ function clearCleanUpFunctions() {
             grid,
             duration: duration,
             currentIteration: Iterations - iterations,
+            clicked: false
         };
 
         IterationState = null;
@@ -215,6 +216,7 @@ function clearCleanUpFunctions() {
                 gridRow.push({
                     mine: false,
                     state: null,
+                    clicked: false
                 });
             }
             grid.push(gridRow);
@@ -240,10 +242,13 @@ function clearCleanUpFunctions() {
 
         const cell = MineSweeperState.grid[row][col];
 
+        if (cell.clicked) return;
+
         cell.state = cell.mine ? 'success' : 'fail';
 
         if (cell.state === 'success') {
             UserCorrect++;
+            cell.clicked = true
         } else {
             UserMistakes++;
         }
