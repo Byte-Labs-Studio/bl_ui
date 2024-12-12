@@ -128,8 +128,7 @@ function clearCleanUpFunctions() {
         MineSweeperState = {
             grid,
             duration: duration,
-            currentIteration: Iterations - iterations,
-            clicked: false
+            currentIteration: Iterations - iterations
         };
 
         IterationState = null;
