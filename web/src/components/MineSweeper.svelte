@@ -241,7 +241,14 @@ function clearCleanUpFunctions() {
 
         const cell = MineSweeperState.grid[row][col];
 
-        if (cell.clicked) return;
+        if (cell.clicked) {
+            UserMistakes++;
+
+            GAME_STATE.playSound('lose');
+
+            if (SuccessChecker) SuccessChecker();
+            return;
+        }
 
         cell.state = cell.mine ? 'success' : 'fail';
 
